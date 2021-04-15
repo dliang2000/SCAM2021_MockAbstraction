@@ -1,0 +1,79 @@
+\section{Motivating Example}
+\label{sec:motivating-example}
+
+In this section, we illustrate how our \textsc{MockDetector} tool finds a mock object created within a unit test case. Our tool identifies variables which have been assigned an object flowing from a mock creation site through a def-use chain (possibly of length 0).
+
+First, we would like to discuss an example to illustrate our motivation for this project. Listing~\ref{lis:mockCall} illustrates a method \textit{addAll()} that is invoked on a mocked object of Type \textsc{Collection<Number>}. Current static analysis tools, to our knowledge, cannot easily distinguish this method invocation on a mocked object from the method invocation on an actual object. Therefore, a naive static analysis would perceive method invocations on mocked objects as the behaviour getting tested, whereas the purpose of the method invocations on mocked objects are intended model behaviours, so that the actual object's behaviour can be properly tested.
+
+Listing~\ref{lis:direct} shows the unit test case \textit{testSimpleResolution()} in the benchmark byte-buddy-dep (version 1.7.10) where the mock object \textsc{TypeDescription} is created via a direct call to Java mocking library Mockito's \textit{mock(java.lang.class)}. In this example, our \textsc{MockDetector} tool would utilizes Soot~\cite{Vallee-Rai:1999:SJB:781995.782008} to locate the statements that are instances of Assignment Statement with an invoke expression at the right operand, i.e. def-use chain of length 0. It then checks if the method invoked matches with any Java mocking libraries' APIs creating a mock object, by matching the method name, parameter types, and return type (i.e. the method subsignature).
+
+Meanwhile, Listing~\ref{lis:transitive} illustrates the unit test case \textit{testGetIterator()} in the benchmark commons-collections4 (version 4.3), where the array of \textsc{Node}, consists of mock objects created in the helper function \textit{createNodes()}, under this transitive call scenario. In this example with a def-use chain, our tool would first detect the Java mocking library that is in use within the benchmark, and retrieve the corresponding API creating a mock object from the detected Java mocking library. It then utilizes Soot's ReachableMethods with the input of a constructed call graph and the iterator consists of the specific, and checks if any of the statements in the unit test case's body, contains a method invocation that could eventually reach the API. 
+
+\lstset{language=java,
+	keywordstyle=\color{blue}\bfseries,
+	commentstyle=\color{green},
+	stringstyle=\ttfamily\color{red!50!brown},
+	showstringspaces=false}‎
+\lstset{literate=%
+	*{0}{{{\color{red!20!violet}0}}}1
+	{1}{{{\color{red!20!violet}1}}}1
+	{2}{{{\color{red!20!violet}2}}}1
+	{3}{{{\color{red!20!violet}3}}}1
+	{4}{{{\color{red!20!violet}4}}}1
+	{5}{{{\color{red!20!violet}5}}}1
+	{6}{{{\color{red!20!violet}6}}}1
+	{7}{{{\color{red!20!violet}7}}}1
+	{8}{{{\color{red!20!violet}8}}}1
+	{9}{{{\color{red!20!violet}9}}}1
+}
+
+\begin{lstlisting}[basicstyle=\ttfamily, caption={This code snippet illustrates an example where a method is invoked on a mocked object in unit test case \textit{addAllForIterable()}},
+basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm,
+framexleftmargin=1mm,,captionpos=b,label=lis:mockCall]
+
+@Test
+public void addAllForIterable() {
+	// ...
+	final Collection<Number> c = createMock(Collection.class);
+	// ...
+	expect(c.addAll(inputCollection)).andReturn(true);
+	// ...
+}
+
+\end{lstlisting}
+
+\begin{lstlisting}[basicstyle=\ttfamily, caption={This example illustrates a direct call to Mockito's \textit{mock(java.lang.class)} function from test case \textit{testSimpleResolution()}.},
+basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm,
+framexleftmargin=1mm,,captionpos=b,label=lis:direct]
+
+import static org.mockito.Mockito.mock;
+
+// ...
+
+@Test
+public void testSimpleResolution() throws Exception {
+	TypeDescription typeDescription = 
+	mock(TypeDescription.class);
+	// ...
+}
+
+\end{lstlisting}
+
+\begin{lstlisting}[basicstyle=\ttfamily, caption={This example illustrates a transitive call to EasyMock's \textit{CreateMock(java.lang.class)} function from test case \textit{testGetIterator()}.},
+basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm,
+framexleftmargin=1mm,,captionpos=b,label=lis:transitive]
+
+private Node[] createNodes() {
+	final Node node1 = createMock(Node.class);
+	// ...
+	return new Node[]{node1, ...};
+}
+
+@Test
+public void testGetIterator() {
+	// ...
+	final Node[] nodes = createNodes();
+	// ...
+}
+
+\end{lstlisting}

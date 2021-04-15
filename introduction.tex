@@ -1,0 +1,36 @@
+\section{Introduction}
+\label{sec:introduction}
+
+Mock objects~\cite{beck02:_test_driven_devel} are a common idiom in
+unit tests for object-oriented systems.  They allow developers to test
+objects that have dependencies on other objects, possibly from
+different components, or which are simply difficult to create for test
+purposes (e.g. a database).
+
+While mock objects are an invaluable tool for developers, their use
+complicates the static analysis of test cases. A call to a mock object
+resembles, by design, a call to the real object. When analyzing such
+code, a naive static analysis aiming to be sound would have to include
+all of the possible behaviours of the real object. Such an analysis,
+then, would not usefully capture the behaviour of the test case.
+
+% provide an example of using a test case.
+
+Others have defined the notion of a focal method for a test case---the method
+whose behaviour is being tested. % add cite
+The test case would set up mock objects to provide parameters to this focal method.
+When analyzing the test case, it would be useful to know which variables in the
+method contain mock objects.
+
+We have designed a helper static analysis, \textsc{MockDetector}, which identifies
+mock objects in test cases. It starts from a list of mock object creation sites; we
+have provided sites for common mocking libraries. It then propagates mockiness
+interprocedurally through use-def chains and containers, so that an analysis
+can ask whether a given variable in a test case contains a mock or not. We have
+evaluated \textsc{MockDetector} on a suite of benchmarks. % write more here.
+
+Taking a broader view, we believe that helper static analyses can aid
+in the development of more useful static analyses. These analyses can
+encode useful domain properties; for instance, in our case, properties
+of test cases. By taking a domain-specific approach, analyses can extract
+useful facts about programs that would otherwise be difficult to establish.
