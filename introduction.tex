@@ -35,10 +35,9 @@ encode useful domain properties; for instance, in our case, properties
 of test cases. By taking a domain-specific approach, analyses can extract
 useful facts about programs that would otherwise be difficult to establish.
 
-We make the following main contributions in this paper:
-
-1) We designed and implemented \textsc{MockDetector}, a forward flow must analysis technique to help identifying variables that are mock objects, along with a special-case support for containers such as arrays and collections holding mock objects.
-
-2) We compared and analyzed the performance of Mock analysis on two static analysis framework: Soot and Doop.
-
-3) We conducted an empirical evaluation on a suite of benchmarks, and demonstrated its correctness and discussed its potential applications.
+We make the following contributions in this paper:
+\begin{itemize}
+\item We designed and implemented two related static mock detection algorithms, one as a dataflow analysis implemented imperatively (using Soot) and the other declaratively (using Doop).
+\item We evaluate the relative precision of the imperative and declarative approaches, with and without special-case support for containers and arrays. % potentially intraprocedural as well
+\item Using our tool, we characterize the prevalence of mock objects in the test suites for a number of benchmarks, demonstrating one concrete application of our mock detection tool.
+\end{itemize}
