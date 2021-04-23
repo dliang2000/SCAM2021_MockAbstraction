@@ -1,5 +1,60 @@
 \section{technique and implementation}
 \label{sec:technique}
 
+In this section, we describe the technique that \textsc{MockDetector} applies to find unit test cases with mock objects created in the test body. Our tool tracks the creation sites and occurrences of the mock object through forward flow must analysis, meaning the evaluation of mockiness must hold true on all possible paths. It also looks into container like array or Collection, and check if the container holds any must mock object. It treats as the mockiness has propagated to the container if it indeed holds must mock object.
 
+\subsection{Define Common Mocking Library APIs}
+\label{subsec:collection}
 
+Our tool stores a pool of common APIs, provided by the analysis designer, which are used to create mock objects when using popular Java mocking libraries, including Mockito, EasyMock, and PowerMock. These APIs are the possible mock creation sites, where the locals/variables holding mock objects are first created.
+
+\subsection{Load all classes and Determine the Mock Library}
+\label{subsec:library}
+
+Given a pool of possible APIs to search for, our tool may analyze tests for their usage of these APIs.%looks into the Java benchmark for the Java mocking library it utilizes. 
+
+JUnit tests are simply methods that developers write in test classes, appropriately annotated (in JUnit 3 by method name starts with "test", in 4+ by a @Test annotation). A JUnit test runner uses reflection to find tests. This is a problem for static analysis.
+
+%WRITE SOMETHING ABOUT DRIVER GENERATION!!!
+
+Thus, to enable static analysis over the test suite classes, our tool first generates a driver class which invokes all public, non-constructor test cases. 
+A helper class parsing the method descriptor is implemented to properly retrieve the parameter types and return type of each method. Our driver generator would utilize Soot to find all application classes under the test suite of the benchmark, and selects the public concrete classes. It then iterates through the methods in each class, making sure all public, non-constructor test cases are invoked and thus covered in the Driver class. It correctly parses the parameter and return types associated with the test method, and also properly handles exceptions coming with the test case using try-catch block. 
+
+\subsection{Forward Must Analysis}
+\label{subsec:forward}
+
+To solve the problem, our tool uses forward must analysis, where it analyzes statements from top to bottom, and to only keep variables that are verified to be mocks on all possible paths at merged points. 
+
+For each statement in a forward flow analysis, we consider two sets: generated set and killed set. In this study, the first set contains the locals that are judged to become mocks, whereas the killed set containing locals that are determined to no longer to be mocks. Equations (1) and (2) illustrates how the inflow and outflow are defined and calculated for each unit: $In(u)$, representing a program point before executing $u$, is the intersection of all outflows after executing each element in immediate predecessor statements of $u$; $Out(u)$, on the other hand, is determined by first removing the killed set from $In(u)$, and union the result with generated set. 
+
+\begin{equation}
+In(u) = \bigcap_{u' \in preds(u)} Out(u') 
+\end{equation}
+
+\begin{equation}
+Out(u) = (In(u) - Kill(u)) \bigcup Gen(u) 
+\end{equation}
+
+In our analysis, the generated set consists of two steps. consider the statement: 
+\begin{verbatim*}
+Employee employee = mock(Employee.class);
+\end{verbatim*}
+The intermediate representation generated in Jimple format would be:
+\begin{verbatim*}
+\$r1 = staticinvoke <org.mockito.Mockito: 
+java.lang.Object mock(java.lang.Class)>
+(class "Lca/liang/Employee;")
+
+r2 = (ca.liang.Employee) \$r1
+\end{verbatim*}
+
+In this example, $\$r1$ is the immediate receiver from Mockito's mock creation site, whereas $r2$ is the casted expression that gets carried along in the subsequent program. Thus, our tool would include the immediate receivers, and the casted expressions of mock objects into the generation set, in two steps. 
+
+To ensure the mock property is hold on all possible paths represented by $preds(u)$, our tool utilizes the intersection function at the merging step, to properly keep the facts that are hold in all flowsets obtained from executing statements in $preds(u)$.
+
+\subsection{Special-support for containers}
+\label{subsec:container}
+
+In several benchmarks, we have observed the use of containers like array or collection holding mocked objects for testing. In this scenario, our tool would consider the mockiness has been passed along to the container. Use array as an example, our tool would first look for ArrayRef in the executing statement, meaning there is some usage or definition around an array container. Then, \textsc{MockDetector} would look for variables to be stored into the array, and check if any of the variables have already been determined "MustMock", if true, it would label the ArrayRef type variable as "ArrayMock".
+
+A similar process is applied to Collection. The main difference is Collection has multiple sub-types that may store objects in different manners. \textsc{MockDetector} resolves this problem by first holding a pool of reading and writing method APIs associated with each sub-type of Collection. It subsequently checks if any sub-type of collection are present in the statement, which could be done by checking the hierarchy for each variable. If a collection sub-type container is presented, \textsc{MockDetector} would then check if a STORE effect is applied to the container, indicating some object is to be stored in the container. Once the object is determined "MustMock", the collection container variable would imeediately be labelled as "CollectionMock".
