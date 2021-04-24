@@ -9,11 +9,30 @@
 		\toprule
 		Benchmark & \# of Test Cases & \# of MustMock Cases  & \# of ArrayMock Cases & \# of CollectionMock Cases \\
 		\midrule
-		commons-collections           			&  24747       &  3   & 1 & 0       \\
-		micro-benchmark         		  		&  22    &  14   & 4 & 2       \\
-		mybatis\_3.5.6         		  		&  1675    &  324   & 2 & 0       \\
+		commons-collections           			&  24599       &  3   & 1 & 0       \\
+		micro-benchmark         		  		&  19    &  15   & 5 & 2       \\
+		mybatis\_3.5.6         		  		&  1675    &  330   & 3 & 1       \\
 		
 		quartz-core         	  			&  305     &  7   & 0 & 0      \\
+		\bottomrule
+	\end{tabular}
+	%	\end{adjustbox}
+	\label{tab:mocks}
+\end{table*}
+
+\begin{table*}[b]
+	\centering
+	\caption{Comparison of Number of InstanceInvokeExprs on MustMock objects and Total Number of InstanceInvokeExprs, in the test suite of each benchmark}
+	%	\begin{adjustbox}{width=0.1\textwidth}
+	\begin{tabular}{lrrrr}
+		\toprule
+		Benchmark & \# of Invocations on MustMocks & Total Number of Invocations \\
+		\midrule
+		commons-collections           			&  2995       &  13      \\
+		micro-benchmark         		  		& 160 & 12       \\
+		mybatis\_3.5.6         		  		&  17798    &  569       \\
+		
+		quartz-core         	  			&  3206     &  21      \\
 		\bottomrule
 	\end{tabular}
 	%	\end{adjustbox}
