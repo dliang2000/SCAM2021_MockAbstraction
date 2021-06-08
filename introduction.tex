@@ -38,6 +38,6 @@ useful facts about programs that would otherwise be difficult to establish.
 We make the following contributions in this paper:
 \begin{itemize}
 \item We designed and implemented two related static mock detection algorithms, one as a dataflow analysis implemented imperatively (using Soot) and the other declaratively (using Doop).
-\item We evaluate the relative precision of the imperative and declarative approaches, with and without special-case support for containers and arrays. % potentially intraprocedural as well
-\item Using our tool, we characterize the prevalence of mock objects in the test suites for a number of benchmarks, demonstrating one concrete application of our mock detection tool.
+\item We evaluate the relative precision of the imperative and declarative approaches, both intraprocedurally and interprocedurally, with and without special-case support for containers and arrays. % potentially intraprocedural as well
+\item Using our tool, we characterize the prevalence of mock objects in the test suites for a total of 8 open-source benchmarks along with out microbenchmark consisting of 184K lines of code, finding 981 out of 6282 unit test cases contain (intra) may mock objects, along with a total of 1811 method invocations on mock objects, in demonstrating one concrete application of our mock detection tool.
 \end{itemize}
