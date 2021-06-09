@@ -23,7 +23,7 @@ better insight of the overall project.
 
 We have designed a helper static analysis, \textsc{MockDetector}, which identifies
 mock objects in test cases. It starts from a list of mock object creation sites; we
-have provided APIs for the common mocking libraries. It then propagates the mockiness
+have provided APIs for the common mocking libraries. It then propagates mockness
 intraprocedurally through a forward flow must analysis and to containers, so that an analysis
 can ask whether a given variable in a test case contains a mock or not. Currently, we have
 evaluated \textsc{MockDetector} on a suite of 3 benchmarks. Manual inspection have shown 
@@ -39,10 +39,12 @@ We make the following contributions in this paper:
 \begin{itemize}
 \item We designed and implemented two variants of a static mock detection algorithm, one as a dataflow analysis implemented imperatively (using Soot) and the other declaratively (using Doop).
 \item We evaluate both the relative ease-of-implementation and precision of the imperative and declarative approaches, both intraprocedurally and interprocedurally. % potentially intraprocedural as well
-\item Using our tool, we characterize the prevalence of mock objects in the test suites for a total of 8 open-source benchmarks along with out microbenchmark consisting of 184K lines of code, finding that 981 out of 6282 unit tests use (intra) mock objects, and that there are a total of 1811 method invocations on mock objects.
+\item We characterize our benchmark suite (8 open-source benchmarks, 184 kLOC) with respect to their use of mock objects, finding that 981 out of 6282 unit tests use intraprocedurally-detectable mock objects, and that there are a total of 1811 method invocations on mock objects. We further identify how powerful an analysis is required to identify mock object use---adding fields and collections adds X mock objects, while interprocedural techniques add Y mock objects.
 \end{itemize}
 At a higher level, we see this paper as making both a contribution and a meta-contribution to
 problems in source code analysis. The contribution, mock detection, enables more accurate analyses
 of test cases, which account for a signficant fraction of modern codebases. The meta-contribution,
 comparing analysis approaches, will help future researchers decide how to best solve their
-source code analysis problems.
+source code analysis problems. In brief, the declarative approach allows users to state properties more
+concisely, while the imperative approach is more amenable to use in program transformation; we return
+to this question in Section~\ref{sec:discussion}.
