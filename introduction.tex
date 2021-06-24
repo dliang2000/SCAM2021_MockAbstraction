@@ -24,7 +24,7 @@ better insight of the overall project.
 We have designed a helper static analysis, \textsc{MockDetector}, which identifies
 mock objects in test cases. It starts from a list of mock object creation sites; we
 have provided APIs for the common mocking libraries. It then propagates mockness
-intraprocedurally through a forward flow must analysis and to containers, so that an analysis
+intraprocedurally through a forward flow may analysis and to containers, so that an analysis
 can ask whether a given variable in a test case contains a mock or not. Currently, we have
 evaluated \textsc{MockDetector} on a suite of 3 benchmarks. Manual inspection have shown 
 correct intraprocedural mock detection over the benchmarks. 

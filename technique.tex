@@ -1,9 +1,10 @@
 \section{Technique}
 \label{sec:technique}
+
 We present two complementary ways of statically computing mock information: an imperative implementation of a dataflow analysis (using the Soot~\cite{Vallee-Rai:1999:SJB:781995.782008} program analysis framework), as well as a declarative implementation (using the Doop~\cite{conf/oopsla/BravenboerS09} framework). While the core analysis is the same, the different implementation technologies have different affordances. For instance, it is easier to mark a field as mock-containing in Doop than in Soot. In Section~\ref{sec:evaluation}, we compare the results obtained using each technology.
 
 \subsection{Common Infrastructure}
-We have parametrized our technique with respect to mocking libraries and have instantiated it with respect to the popular Java libraries Mockito\footnote{\url{https://site.mockito.org/}}, EasyMock\footnote{\url{https://easymock.org/}}, and PowerMock\footnote{\url{https://github.com/powermock/powermock}}. We also support different versions of JUnit\footnote{\url{https://junit.org}}: 3, and 4+. We discuss the parametrization in this subsection.
+We have parameterized our technique with respect to mocking libraries and have instantiated it with respect to the popular Java libraries Mockito\footnote{\url{https://site.mockito.org/}}, EasyMock\footnote{\url{https://easymock.org/}}, and PowerMock\footnote{\url{https://github.com/powermock/powermock}}. We also support different versions of JUnit\footnote{\url{https://junit.org}}: 3, and 4+. We discuss the parameterization in this subsection.
 
 Both JUnit and mocking libraries are highly-reflective and would normally pose problems for static analyses. Fortunately, they use reflection in limited, stylized ways, and we have designed our analysis to soundly handle these libraries.
 
@@ -12,13 +13,14 @@ JUnit tests are simply methods that developers write in test classes, appropriat
 
 % what about hierarchical drivers?
 
-To enable static analysis over the test suite classes, our tool uses Soot to generate a driver class which invokes all methods that JUnit (either 3 or 4) considers to be public, non-constructor test cases, surrounded by calls to class-level setup and teardown methods. Concrete test methods are particularly easy to call from a driver, as they are specified to have no parameters and are not supposed to rely on any particular ordering. The driver that we generate also contains code to catch all checked exceptions declared to be thrown by the unit tests.
+To enable static analysis over the test suite classes, our tool uses Soot to generate a driver class for each sub-package. Each of these sub-package driver classes comes with a default \textit{runall()} method, which invokes all methods within the sub-package that JUnit (either 3 or 4) considers to be public, non-constructor test cases, surrounded by calls to class-level init/setup and teardown methods. Concrete test methods are particularly easy to call from a driver, as they are specified to have no parameters and are not supposed to rely on any particular ordering. 
+Our tool then creates a RootDriver class at the root package level, which would invoke \textit{runall()} method in each sub-package driver class, along with invocations on the Test/Before/After methods created in the classes located on the root level. The drivers that we generate also contains code to catch all checked exceptions declared to be thrown by the unit tests.
 
 \paragraph{Mock Libraries}
 Our mock libraries take different approaches to declaring mocks. All of the libraries support some sort of method that generates a mock object; for instance, EasyMock contains the \texttt{createMock()} method. We consider return values from these methods to be mock objects. Additionally, Mockito contains a fluent \texttt{verify()} method which returns a mock object. Finally, Mockito also allows developers to mark fields as \texttt{@Mock}; we treat reads from such fields as mock objects.
 
 \subsection{Soot Implementation}
-In this section, we describe the technique that \textsc{MockDetector} applies to find unit test cases with mock objects created in the test body. Our tool tracks the creation sites and occurrences of the mock object through forward flow must analysis, meaning the evaluation of mockiness must hold true on all possible paths. It also looks into container like array or Collection, and check if the container holds any must mock object. It treats as the mockiness has propagated to the container if it indeed holds must mock object.
+In this section, we describe the technique that \textsc{MockDetector} applies to find unit test cases with mock objects created in the test body. Our tool tracks the creation sites and occurrences of the mock object through forward flow may analysis, meaning the evaluation of mockiness would hold true on at least one path. It also looks into containers like array or Collection, and check if the container holds any may mock object. It treats as the mockiness has propagated to the container if it indeed holds may mock object.
 
 \subsection{Define Common Mocking Library APIs}
 \label{subsec:collection}
@@ -31,10 +33,10 @@ Our tool stores a pool of common APIs, provided by the analysis designer, which 
 Given a pool of possible APIs to search for, our tool may analyze tests for their usage of these APIs.%looks into the Java benchmark for the Java mocking library it utilizes. 
 
 
-\subsection{Forward Must Analysis}
+\subsection{Forward May Analysis}
 \label{subsec:forward}
 
-To solve the problem, our tool uses forward must analysis, where it analyzes statements from top to bottom, and to only keep variables that are verified to be mocks on all possible paths at merged points. 
+To solve the problem, our tool uses forward may analysis, where it analyzes statements from top to bottom, and to only keep variables that are verified to be mocks on all possible paths at merged points. 
 
 For each statement in a forward flow analysis, we consider two sets: generated set and killed set. In this study, the first set contains the locals that are judged to become mocks, whereas the killed set containing locals that are determined to no longer to be mocks. Equations (1) and (2) illustrates how the inflow and outflow are defined and calculated for each unit: $In(u)$, representing a program point before executing $u$, is the intersection of all outflows after executing each element in immediate predecessor statements of $u$; $Out(u)$, on the other hand, is determined by first removing the killed set from $In(u)$, and union the result with generated set. 
 
@@ -66,6 +68,6 @@ To ensure the mock property is hold on all possible paths represented by $preds(
 \subsection{Special-support for containers}
 \label{subsec:container}
 
-In several benchmarks, we have observed the use of containers like array or collection holding mocked objects for testing. In this scenario, our tool would consider the mockiness has been passed along to the container. Use array as an example, our tool would first look for ArrayRef in the executing statement, meaning there is some usage or definition around an array container. Then, \textsc{MockDetector} would look for variables to be stored into the array, and check if any of the variables have already been determined "MustMock", if true, it would label the ArrayRef type variable as "ArrayMock".
+In several benchmarks, we have observed the use of containers like array or collection holding mocked objects for testing. In this scenario, our tool would consider the mockiness has been passed along to the container. Use array as an example, our tool would first look for ArrayRef in the executing statement, meaning there is some usage or definition around an array container. Then, \textsc{MockDetector} would look for variables to be stored into the array, and check if any of the variables have already been determined "MayMock", if true, it would label the ArrayRef type variable as "ArrayMock".
 
-A similar process is applied to Collection. The main difference is Collection has multiple sub-types that may store objects in different manners. \textsc{MockDetector} resolves this problem by first holding a pool of reading and writing method APIs associated with each sub-type of Collection. It subsequently checks if any sub-type of collection are present in the statement, which could be done by checking the hierarchy for each variable. If a collection sub-type container is presented, \textsc{MockDetector} would then check if a STORE effect is applied to the container, indicating some object is to be stored in the container. Once the object is determined "MustMock", the collection container variable would imeediately be labelled as "CollectionMock".
+A similar process is applied to Collection. The main difference is Collection has multiple sub-types that may store objects in different manners. \textsc{MockDetector} resolves this problem by first holding a pool of reading and writing method APIs associated with each sub-type of Collection. It subsequently checks if any sub-type of collection are present in the statement, which could be done by checking the hierarchy for each variable. If a collection sub-type container is presented, \textsc{MockDetector} would then check if a STORE effect is applied to the container, indicating some object is to be stored in the container. Once the object is determined "MayMock", the collection container variable would immediately be labelled as "CollectionMock".
