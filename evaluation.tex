@@ -7,7 +7,7 @@
 	%	\begin{adjustbox}{width=0.1\textwidth}
 	\begin{tabular}{lrrrr}
 		\toprule
-		Benchmark & Total LOC & Test Suite LOC & Soot Runtime (s)  & \thead{Doop's Runtime \\ NO\_INTERPROC (s)} \\
+		Benchmark & Total LOC & Test Suite LOC & Soot's Runtime (s)  & \thead{Doop's Runtime \\ NO\_INTERPROC (s)} \\
 		\midrule
 		bootique-2.0.B1-bootique           		&  15530   & 8595   &  59   & 2501       \\
 		commons-collections4-4.4           		&  65273   & 36318  &  88   & 455        \\
@@ -22,7 +22,7 @@
 		Total         	  						&  383638  & 184013 &  1613  & 11778      \\
 	\end{tabular}
 	%	\end{adjustbox}
-	\label{tab:mocks}
+	\label{tab:runtimes}
 \end{table*}
 
 \begin{table*}[b]
@@ -71,7 +71,7 @@
 		Total        	  						&  63011    & 2094  & 2124    \\
 	\end{tabular}
 	%	\end{adjustbox}
-	\label{tab:mocks}
+	\label{tab:invokes}
 \end{table*}
 
 The goal of our study is to correctly identify and trace mock objects as well as the method invocations in the test suite. To this end, we conduct quantitative and qualitative research focusing on two research questions:
@@ -87,7 +87,8 @@ The goal of our study is to correctly identify and trace mock objects as well as
 \subsection{Quantitative Analysis}
 \label{subsec:effectiveness}
 
-Currently, our tool has tested a suite of three benchmarks intraprocedurally. Table~\ref{tab:mocks} has shown the number of test cases, and number of cases holding MustMock, ArrayMock, and CollectionMocks. Manual inspection of the test cases in micro-benchmark has so far indicates that our tool can correctly identify the objects or containers with mockiness. 
+Currently, our tool has tested on a total of 8 open-source benchmarks, plus our own micro-benchmark. Table~\ref{tab:runtimes} presents the LOC and runtime information for each benchmark. The 9 benchmarks come with a total of 383k+ lines of code, with 184k+ of them contributed from the test suites. The Doop's runtime for intra-procedural analysis is about 7-fold of the Soot's runtime. % Add some explanation about the runtime difference
+
 
 There are more test cases holding inter-procedural mocks (i.e., the mock object is created in a helper method and passed into the test case) in commons-collections and micro-benchmark. The inter-procedural analysis is currently in development and will be discussed in Section~\ref{sec:conclusion}.
 

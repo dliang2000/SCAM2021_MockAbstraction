@@ -3,11 +3,9 @@
 
 In this section, we illustrate how our \textsc{MockDetector} tool finds a mock object created within a unit test case. Our tool identifies variables which have been assigned an object flowing from a mock creation site through a forward flow may analysis.
 
-First, we would like to discuss an example to illustrate our motivation for this project. Listing~\ref{lis:mockCall} illustrates a method \textit{addAll()} that is invoked on a mocked object of Type \textsc{Collection<Number>}. To our knowledge, current static analysis tools cannot easily tell the difference between this method invocation on a mocked object and the method invocation on a real object. As a result, a naive static analysis would interpret method invocations on mocked objects as the behaviour being evaluated, when the purpose of the method invocations on mocked objects are intended model behaviours to fulfill dependency, so that the actual object's behaviour can be prroperly tested.
+First, we would like to discuss an example to illustrate our motivation for this project. Listing~\ref{lis:mockCall} presents a unit test case selected from maven. Within the unit test case, there is one method invocation \textit{getRequest()} on line 8, which is invoked on the mocked object \textsc{session}. There is also a second method invocation \textit{getToolchainsForType()} on line 12, which is the actual focal method where its behaviour getting tested. To our knowledge, current static analysis tools cannot easily tell the difference between the method invocation on a mocked object on line 8, and the method invocation on a real object on line 12. As a result, a naive static analysis would interpret method invocations on mocked objects as the behaviour being evaluated, when the purpose of the method invocations on mocked objects are intended model behaviours to fulfill dependency, so that the actual object's behaviour can be properly tested.
 
-Listing~\ref{lis:direct} shows the unit test case \textit{testSimpleResolution()} in the benchmark byte-buddy-dep (version 1.7.10) where the mock object \textsc{TypeDescription} is created via a direct call to Java mocking library Mockito's \textit{mock(java.lang.class)}. In this example, our \textsc{MockDetector} tool would utilizes Soot~\cite{Vallee-Rai:1999:SJB:781995.782008} to locate the statements that are instances of Assignment Statement with an invoke expression at the right operand. The tool then checks if the method invoked matches with any Java mocking libraries' APIs creating a mock object, by matching the method name, parameter types, and return type (i.e. the method subsignature).  After the verification, it adds the defined variable at the left operand to the generated set of locals that are labelled mayMock.
-
-Meanwhile, Listing~\ref{lis:container} illustrates the unit test case \textit{testEmployeesPaidIntra()} in the micro-benchmark, where the array \textit{employees\_intra}, is holding two mock \textsc{Employee} object. In this example, our tool would first detect Assignment statement containing ArrayRef, and it would gather the locals at the right operand. The tool then check if any of these locals have already been marked as mayMock in the flow, and the tool would mark the definition box of the ArrayRef as arrayMock, meaning the mockiness has propagated to this array. 
+Meanwhile, during the construction of \textsc{MockDetector}, we have seen several cases where mocked objects are stored in a container such as an array or a collection. Listing~\ref{lis:container} illustrates the unit test case \textit{canCreateCompositeAnnotator()} selected from jsonschema2pojo, where \textsc{CompositeAnnotator} has an array field annotators, which holds two mock \textsc{Annotator} object after line 9. In this example, our tool would first detect if the statement containing ArrayRef, and it would gather the Locals or FieldRefs. The tool then check if any of these Locals or FieldRefs have already been marked as a mayMock in the analysis, and the tool would mark the definition box of the ArrayRef as arrayMock, meaning the mockiness has propagated to this array container. 
 
 \lstset{language=java,
 	keywordstyle=\color{blue}\bfseries,
@@ -27,48 +25,45 @@ Meanwhile, Listing~\ref{lis:container} illustrates the unit test case \textit{te
 	{9}{{{\color{red!20!violet}9}}}1
 }
 
-\begin{lstlisting}[basicstyle=\ttfamily, caption={This code snippet illustrates an example where a method is invoked on a mocked object in unit test case \textit{addAllForIterable()}},
+\begin{lstlisting}[basicstyle=\ttfamily, caption={This code snippet illustrates an example from maven-core, where both the focal method, and a method invocation on a mocked object are both presented in the unit test case \textit{testMisconfiguredToolchain()}},
 basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm,
-framexleftmargin=1mm,,captionpos=b,label=lis:mockCall]
+framexleftmargin=1.0mm, captionpos=b, xleftmargin=3.5ex, label=lis:mockCall]
 
 @Test
-public void addAllForIterable() {
-// ...
-final Collection<Number> c = createMock(Collection.class);
-// ...
-expect(c.addAll(inputCollection)).andReturn(true);
-// ...
+public void testMisconfiguredToolchain() throws Exception {
+	// prepare
+	MavenSession session = mock( MavenSession.class );
+	MavenExecutionRequest req = 
+		new DefaultMavenExecutionRequest();
+	when( session.getRequest() ).thenReturn( req );
+	
+	// execute
+	ToolchainPrivate[] basics =
+	 	toolchainManager.getToolchainsForType("basic", session);
+	
+	// verify
+	assertEquals( 0, basics.length );
 }
 
 \end{lstlisting}
 
-\begin{lstlisting}[basicstyle=\ttfamily, caption={This example illustrates a direct call to Mockito's \textit{mock(java.lang.class)} function from test case \textit{testSimpleResolution()}.},
+\begin{lstlisting}[basicstyle=\ttfamily, caption={This example illustrates an array container holding mock objects from test case \textit{canCreateCompositeAnnotator()}.},
 basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm,
-framexleftmargin=1mm,,captionpos=b,label=lis:direct]
-
-import static org.mockito.Mockito.mock;
-
-// ...
+framexleftmargin=1mm, captionpos=b, xleftmargin=3.5ex, label=lis:container]
 
 @Test
-public void testSimpleResolution() throws Exception {
-TypeDescription typeDescription = 
-mock(TypeDescription.class);
-// ...
-}
+public void canCreateCompositeAnnotator() {
 
-\end{lstlisting}
+	Annotator annotator1 = mock(Annotator.class);
+	Annotator annotator2 = mock(Annotator.class);
+	
+	CompositeAnnotator composite = 
+		factory.getAnnotator(annotator1, annotator2);
+	
+	assertThat(composite.annotators.length, equalTo(2));
+	assertThat(composite.annotators[0], is(equalTo(annotator1)));
+	assertThat(composite.annotators[1], is(equalTo(annotator2)));
 
-\begin{lstlisting}[basicstyle=\ttfamily, caption={This example illustrates an array container holding mock objects from test case \textit{testEmployeesPaidIntra()}.},
-basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm,
-framexleftmargin=1mm,,captionpos=b,label=lis:container]
-
-@Test
-public void testEmployeesPaidIntra() {
-Employee[] employees_intra = new Employee[2];
-employees_intra[0] = mock(Employee.class);
-employees_intra[1] = mock(Employee.class);
-// ...
 }
 
 \end{lstlisting}
