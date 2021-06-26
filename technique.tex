@@ -22,18 +22,18 @@ Our supported mock libraries take different approaches to declaring mocks. All o
 \subsection{Soot Implementation}
 In this section, we describe the imperative dataflow analysis (Soot-based) technique that \textsc{MockDetector} applies to find unit test cases with mock objects created in the test body. Our tool tracks the creation sites and occurrences of the mock object through forward flow may analysis, meaning the evaluation of mockness would hold true on at least one path. It also looks into containers like array or Collection, and check if the container holds any may mock object. It treats as the mockness has propagated to the container if it indeed holds may mock object.
 
-\subsubsection{Define Common Mocking Library APIs}
+\paragraph{Define Common Mocking Library APIs}
 \label{subsubsec:collection}
 
 Our tool stores a pool of common APIs, provided by the analysis designer, which are used to create mock objects when using popular Java mocking libraries, including Mockito, EasyMock, and PowerMock. These APIs are the possible mock creation sites, where the locals/variables holding mock objects are first created.
 
-\subsubsection{Load all classes and Determine the Mock Library}
+\paragraph{Load all classes and Determine the Mock Library}
 \label{subsubsec:library}
 
 Given a pool of possible APIs to search for, our tool may analyze tests for their usage of these APIs.%looks into the Java benchmark for the Java mocking library it utilizes. 
 
 
-\subsubsection{Forward May Analysis}
+\paragraph{Forward May Analysis}
 \label{subsubsec:forward}
 
 To solve the problem, our tool uses forward may analysis, where it analyzes statements from top to bottom, and to only keep variables that are verified to be mocks on all possible paths at merged points. 
@@ -41,31 +41,31 @@ To solve the problem, our tool uses forward may analysis, where it analyzes stat
 For each statement in a forward flow analysis, we consider two sets: generated set and killed set. In this study, the first set contains the locals that are judged to become mocks, whereas the killed set containing locals that are determined to no longer to be mocks. Equations (1) and (2) illustrates how the inflow and outflow are defined and calculated for each unit: $In(u)$, representing a program point before executing $u$, is the intersection of all outflows after executing each element in immediate predecessor statements of $u$; $Out(u)$, on the other hand, is determined by first removing the killed set from $In(u)$, and union the result with generated set. 
 
 \begin{equation}
-\mathrm{In}(u) = \bigcap_{u' \in preds(u)} Out(u') 
+\mathrm{In}(u) = \bigcap_{u' \in preds(u)} \mathrm{Out}(u') 
 \end{equation}
 
 \begin{equation}
-Out(u) = (In(u) - Kill(u)) \bigcup Gen(u) 
+\mathrm{Out}(u) = (\mathrm{In}(u) - \mathrm{Kill}(u)) \bigcup \mathrm{Gen}(u) 
 \end{equation}
 
 In our analysis, the generated set consists of two steps. Consider the statement: 
-\begin{verbatim*}
+\begin{lstlisting}
 Employee employee = mock(Employee.class);
-\end{verbatim*}
+\end{lstlisting}
 The intermediate representation generated in Jimple format would be:
-\begin{verbatim*}
-\$r1 = staticinvoke <org.mockito.Mockito: 
+\begin{lstlisting}
+$r1 = staticinvoke <org.mockito.Mockito: 
 java.lang.Object mock(java.lang.Class)>
 (class "Lca/liang/Employee;")
 
-r2 = (ca.liang.Employee) \$r1
-\end{verbatim*}
+r2 = (ca.liang.Employee) $r1
+\end{lstlisting}
 
 In this example, $\$r1$ is the immediate receiver from Mockito's mock creation site, whereas $r2$ is the casted expression that gets carried along in the subsequent program. Thus, our tool would include the immediate receivers, and the casted expressions of mock objects into the generation set, in two steps. 
 
 To ensure the mock property is hold on all possible paths represented by $preds(u)$, our tool utilizes the intersection function at the merging step, to properly keep the facts that are hold in all flowsets obtained from executing statements in $preds(u)$.
 
-\subsubsection{Pre-Analysis for Field Mocks Defined in Default Init and Before Methods}
+\paragraph{Pre-Analysis for Field Mocks Defined in Default Init and Before Methods}
 \label{subsubsec:pre-analysis}
 
 \subsection{Special support for containers}

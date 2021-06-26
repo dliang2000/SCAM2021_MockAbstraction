@@ -87,8 +87,7 @@ The goal of our study is to correctly identify and trace mock objects as well as
 \subsection{Quantitative Analysis}
 \label{subsec:effectiveness}
 
-We have evaluated our tool on 8 open-source benchmarks, along with a micro-benchmark that we developed to test our tool. Table~\ref{tab:runtimes} presents the LOC and runtime information for each benchmark. The 9 benchmarks include over 383 kLOC, with 184 kLOC in the test suites (what tool did you use to measure?). Our Doop analysis's runtime for intra-procedural analysis is about 7$\times$ larger than our Soot analysis's runtime, which is in large part explained by the call graph that Doop builds on.
-
+We have evaluated \textsc{MockDetector} on 8 open-source benchmarks, along with a micro-benchmark that we developed to test our tool. Table~\ref{tab:runtimes} presents the LOC and runtime information for each benchmark. The 9 benchmarks include over 383 kLOC, with 184 kLOC in the test suites measured by SLOCCount. Our Doop analysis's runtime for intra-procedural analysis is about 7$\times$ larger than our Soot analysis's runtime, which is in large part explained by the call graph that Doop builds on. %Add reference for SLOCCount.
 
 There are more test cases holding inter-procedural mocks (i.e., the mock object is created in a helper method and passed into the test case) in commons-collections and micro-benchmark. The inter-procedural analysis is currently in development and will be discussed in Section~\ref{sec:conclusion}.
 
