@@ -22,19 +22,19 @@ Our mock libraries take different approaches to declaring mocks. All of the libr
 \subsection{Soot Implementation}
 In this section, we describe the technique that \textsc{MockDetector} applies to find unit test cases with mock objects created in the test body. Our tool tracks the creation sites and occurrences of the mock object through forward flow may analysis, meaning the evaluation of mockiness would hold true on at least one path. It also looks into containers like array or Collection, and check if the container holds any may mock object. It treats as the mockiness has propagated to the container if it indeed holds may mock object.
 
-\subsection{Define Common Mocking Library APIs}
-\label{subsec:collection}
+\subsubsection{Define Common Mocking Library APIs}
+\label{subsubsec:collection}
 
 Our tool stores a pool of common APIs, provided by the analysis designer, which are used to create mock objects when using popular Java mocking libraries, including Mockito, EasyMock, and PowerMock. These APIs are the possible mock creation sites, where the locals/variables holding mock objects are first created.
 
-\subsection{Load all classes and Determine the Mock Library}
-\label{subsec:library}
+\subsubsection{Load all classes and Determine the Mock Library}
+\label{subsubsec:library}
 
 Given a pool of possible APIs to search for, our tool may analyze tests for their usage of these APIs.%looks into the Java benchmark for the Java mocking library it utilizes. 
 
 
-\subsection{Forward May Analysis}
-\label{subsec:forward}
+\subsubsection{Forward May Analysis}
+\label{subsubsec:forward}
 
 To solve the problem, our tool uses forward may analysis, where it analyzes statements from top to bottom, and to only keep variables that are verified to be mocks on all possible paths at merged points. 
 
@@ -65,9 +65,74 @@ In this example, $\$r1$ is the immediate receiver from Mockito's mock creation s
 
 To ensure the mock property is hold on all possible paths represented by $preds(u)$, our tool utilizes the intersection function at the merging step, to properly keep the facts that are hold in all flowsets obtained from executing statements in $preds(u)$.
 
+\subsubsection{Pre-Analysis for Field Mocks Defined in Default Init and Before Methods}
+\label{subsubsec:pre-analysis}
+
 \subsection{Special-support for containers}
 \label{subsec:container}
 
 In several benchmarks, we have observed the use of containers like array or collection holding mocked objects for testing. In this scenario, our tool would consider the mockiness has been passed along to the container. Use array as an example, our tool would first look for ArrayRef in the executing statement, meaning there is some usage or definition around an array container. Then, \textsc{MockDetector} would look for variables to be stored into the array, and check if any of the variables have already been determined "MayMock", if true, it would label the ArrayRef type variable as "ArrayMock".
 
 A similar process is applied to Collection. The main difference is Collection has multiple sub-types that may store objects in different manners. \textsc{MockDetector} resolves this problem by first holding a pool of reading and writing method APIs associated with each sub-type of Collection. It subsequently checks if any sub-type of collection are present in the statement, which could be done by checking the hierarchy for each variable. If a collection sub-type container is presented, \textsc{MockDetector} would then check if a STORE effect is applied to the container, indicating some object is to be stored in the container. Once the object is determined "MayMock", the collection container variable would immediately be labelled as "CollectionMock".
+
+\begin{lstlisting}[basicstyle=\ttfamily, caption={Example for Annotated field mocks from \texttt{DefaultToolchainManagerTest.java} in maven-core.},
+basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm,
+framexleftmargin=1mm, captionpos=b, xleftmargin=3.5ex, label=lis:annotatedMock]
+
+public class DefaultToolchainManagerTest
+{
+
+	@Mock
+	private Logger logger;
+	
+	@Mock
+	private ToolchainFactory toolchainFactory_basicType;
+	
+	@Mock
+	private ToolchainFactory toolchainFactory_rareType;
+	
+	@Before
+	public void onSetup() throws Exception
+	{	
+		...
+		MockitoAnnotations.initMocks( this );
+		...
+	}
+
+}
+
+\end{lstlisting}
+
+\begin{lstlisting}[basicstyle=\ttfamily, caption={Example for field mocks defined in <init> from \texttt{TypeRuleTest.java} in jsonschema2pojo.},
+basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm,
+framexleftmargin=1mm, captionpos=b, xleftmargin=3.5ex, label=lis:fieldMock]
+
+public class TypeRuleTest {
+
+	private GenerationConfig config 
+				= mock(GenerationConfig.class);
+	private RuleFactory ruleFactory 
+				= mock(RuleFactory.class);
+	...
+}
+
+\end{lstlisting}
+
+\begin{lstlisting}[basicstyle=\ttfamily, caption={Example for field mocks defined in Before method from \texttt{PayRollMockTest.java} in microbenchmark.},
+basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm,
+framexleftmargin=1mm, captionpos=b, xleftmargin=3.5ex, label=lis:fieldMock2]
+
+public class PayRollMockTest {
+	private EmployeeDB employeeDB;
+	private BankService bankService;
+	
+	@Before
+	public void init() {
+		...
+		employeeDB = mock(EmployeeDB.class);
+		bankService = mock(BankService.class);
+		...
+	}
+}
+
+\end{lstlisting}
