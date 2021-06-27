@@ -1,2 +1,32 @@
 \section{Related Work}
 \label{sec:related}
+
+We discuss three areas of related work: declarative versus imperative static analysis; focal method detection in test cases;
+and taint analysis.
+
+\paragraph{Declarative vs imperative}
+Kildall contributed~\cite{kildall73:_unified_approac_global_progr_optim} perhaps the first dataflow analysis as the concept is understood today, describing an algorithm for intraprocedural constant propagation and common subexpression elimination. His algorithm, operating on program graph, is described in quite imperative pseudocode (and proven to terminate).
+
+To our knowledge, Corsini et al did some of the first work in declarative program analysis~\cite{corsini93:_effic}; however, that work performed abstract interpretation on logic programs, and looks quite different from what we have here. Quite soon afterwards, Reps proposed~\cite{Reps1995} a declarative analysis to perform demand versions of interprocedural program analyses, which is similar to what we have here; however, we compute all of the analysis results rather than performing a demand analysis.
+
+%Why is our thing much simpler than Reps's rules?
+
+declarative vs imperative pointer analysis
+
+
+
+\cite{scholz16:_fast_large_scale_progr_analy_datal}
+\cite{conf/oopsla/BravenboerS09}
+
+comparing analysis frameworks
+\cite{prakash21:_effec_progr_repres_point_analy}
+talks about integrating w/upstream
+
+
+
+focal methods
+
+taint analysis
+
+
+IFDS
