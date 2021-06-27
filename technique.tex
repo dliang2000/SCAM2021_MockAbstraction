@@ -17,17 +17,18 @@ To enable static analysis over the test suite classes, our tool uses Soot to gen
 Our tool then creates a RootDriver class at the root package level, which would invoke \textit{runall()} method in each sub-package driver class, along with invocations on the Test/Before/After methods created in the classes located on the root level. The drivers that we generate also contains code to catch all checked exceptions declared to be thrown by the unit tests. The generated driver classes are used by both Soot and Doop implementations of the analysis.
 
 \paragraph{Mock Libraries}
-Our supported mock libraries take different approaches to declaring mocks. All of the libraries have methods that generate mock objects; for instance, EasyMock contains the \texttt{createMock()} method. We consider return values from these methods to be mock objects. Additionally, Mockito contains a fluent \texttt{verify()} method which returns a mock object. Finally, Mockito also allows developers to mark fields as \texttt{@Mock}; we treat reads from such fields as mock objects.
+Our supported mock libraries take different approaches to declaring mocks. All of the libraries have methods that generate mock objects; for instance, EasyMock contains the \texttt{createMock()} method. We consider return values from these methods to be mock objects. Additionally, Mockito contains a fluent \texttt{verify()} method which returns a mock object. Finally, Mockito also allows developers to mark fields as \texttt{@Mock}; we treat reads from such fields as mock objects. Both implementations start the analysis by hard coding these facts on mock source methods from the mock libraries' documentation. 
 
 \subsection{Soot Implementation}
 In this section, we describe the imperative dataflow analysis (Soot-based) technique that \textsc{MockDetector} applies to find unit test cases with mock objects created in the test body. Our tool tracks the creation sites and occurrences of the mock object through forward flow may analysis, meaning the evaluation of mockness would hold true as long as the variable is a mock on any path. It also looks into containers like array or Collection, and check if the container holds any may mock object. It treats as the mockness has propagated to the container if it indeed holds may mock object.
 
-\paragraph{Define Common Mocking Library APIs}
-\label{subsubsec:collection}
+% Mock Libraries discussed in Common Infrastructure section
+%\paragraph{Define Common Mocking Library APIs}
+%\label{subsubsec:collection}
 
-Our tool stores a pool of common APIs, provided by the analysis designer, which are used to create mock objects when using popular Java mocking libraries, including Mockito, EasyMock, and PowerMock. These APIs are the possible mock creation sites, where the locals/variables holding mock objects are first created.
+%Our tool stores a pool of common APIs, provided by the analysis designer, which are used to create mock objects when using popular Java mocking libraries, including Mockito, EasyMock, and PowerMock. These APIs are the possible mock creation sites, where the locals/variables holding mock objects are first created.
 
-Given a pool of possible APIs to search for, our tool may analyze tests for their usage of these APIs.% Facts for mock source methods is discussed in doop, maybe this part could be discussed once to avoid repetition?
+%Given a pool of possible APIs to search for, our tool may analyze tests for their usage of these APIs.% Facts for mock source methods is discussed in doop, maybe this part could be discussed once to avoid repetition?
 
 
 \paragraph{Forward May Analysis}
@@ -41,7 +42,6 @@ Map<Unit, Map<Value, MockStatus>>
 to maintain the mock information for local variables or field references in the flow (represented by Value in Soot). \texttt{MockStatus} is a class holding three bits, each representing the status of "May Mock", "Array Mock", and "Collection Mock", respectively, with the restriction of at most one bit being 1. Such abstraction would have each Unit $\times$ Value combination mapping to one MockStatus.
 
 \textsc{MockDetector} uses may analysis for two reasons: first, for one variable, programmers rarely make it a real object in one branch, and a mock object in a different branch; second, such approximation would not impose issue towards focal methods finding, since a method invoked on a "may" mock object defined in one path, would unlikely be a focal method in a unit test. 
-
 
 \textsc{MockDetector} implements the "may" logic in the following manner: it checks the two in-flows 
 of \begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
@@ -79,7 +79,7 @@ In this example, $\$r1$ is the immediate receiver from Mockito's mock creation s
 A similar process is applied to Collection. The main difference is Collection has multiple sub-types that may store objects in different manners. \textsc{MockDetector} resolves this problem by first holding a pool of reading and writing method APIs associated with each sub-type of Collection. It subsequently checks if any sub-type of collection are present in the statement, which could be done by checking the hierarchy for each variable. If a collection sub-type container is presented, \textsc{MockDetector} would then check if a STORE effect is applied to the container, indicating some object is to be stored in the container. Once the object is determined "MayMock", the collection container variable would immediately be labelled as "CollectionMock".\\
 
 \paragraph{Pre-Analysis for Field Mocks Defined in Default Init and Before Methods}
-\label{subsubsec:pre-analysis}
+\label{subsubsec:pre-analysis} This is the paragraph to discuss about the pre-analysis on field mocks.
 
 
 \begin{lstlisting}[basicstyle=\ttfamily, caption={Example for Annotated field mocks from \texttt{DefaultToolchainManagerTest.java} in maven-core.},
@@ -147,6 +147,7 @@ public class PayRollMockTest {
 \subsection{Doop Implementation}
 We next describe the declarative Doop-based technique that \textsc{MockDetector} uses. Similarly to the dataflow analysis, the declarative approach propagates mockness from known mock sources, through the statements in the intermediate representation, to potential mock invocation sites.
 
+% Mock Libraries discussed in Common Infrastructure section, perhaps refer to the paragraph in Common Infrastructure section?
 The core of the implementation starts by declaring facts for 9 mock source methods manually gleaned from the mock libraries' documentation, as specified through method signatures (e.g. 
 \texttt{<org.mockito.Mockito: java.lang.Object mock(java.lang.Class)>}.)
 It then declares that a variable {\tt v} satisfies \verb+isMockVar(v)+ if it is assigned from the return value of a mock source, or otherwise traverses the program's interprocedural control-flow graph, through assignments, which may possibly flow through fields, collections, or arrays. Finally, an invocation site is a mock invocation if the receiver object {\tt v} satisfies \verb+isMockVar(v)+. Listing~\ref{lst:core} presents the core rules for {\tt isMockVar}.
