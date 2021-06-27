@@ -9,24 +9,28 @@ to build for testing purposes (e.g. a database).
 While mock objects are an invaluable tool for developers, their use
 complicates the static analysis of test cases. 
 By design, a call to a mock object resembles a call to the real object. 
-A naive static analysis attempting to be sound will have to include all of 
-the possible behaviours of the actual object when analysing such code. 
-As a result, such analysis would be useless in capturing the true behaviour 
+A naive static analysis attempting to be sound would have to include all of 
+the possible behaviours of the actual object (standing behind the one being mocked) when analyzing such code. 
+Such potential but unrealizable behaviours obscure the true behaviour 
 of the test case.
 
-Others have defined the notion of a focal method for a test case---the method
-whose behaviour is being tested. ~\cite{7335402}
-The test case would set up mock objects to provide parameters to this focal method.
-When analyzing the test case, it would be useful to know which variables in the
-method contain mock objects, in order to build a more precise call graph and get 
-better insight of the overall project.
+Ghafari et al discussed the notion of a focal method~\cite{ghafari15:_autom} for a test case---the method
+whose behaviour is being tested---and present a heuristic for determining focal methods.
+Test cases often set up mock objects to provide parameters to this focal method.
+To better understand a test case's behaviour (e.g. producing a better call graph) 
+and to more precisely identify the focal method,
+it would be useful to be able to rule out mock objects used in the test case.
+
+%When analyzing the test case, it would be useful to know which variables in the
+%method contain mock objects, to build a more precise call graph and get 
+%better insight of the overall project.
 
 We have designed a helper static analysis, \textsc{MockDetector}, which identifies
 mock objects in test cases. It starts from a list of mock object creation sites; we
 have provided APIs for the common mocking libraries. It then propagates mockness
-intraprocedurally through a forward flow may analysis and to containers, so that an analysis
+through the test, so that an analysis
 can ask whether a given variable in a test case contains a mock or not. Currently, we have
-evaluated \textsc{MockDetector} on a suite of 3 benchmarks. Manual inspection have shown 
+evaluated \textsc{MockDetector} on a suite of 3 benchmarks. Manual inspection has shown 
 correct intraprocedural mock detection over the benchmarks. 
 
 Taking a broader view, we believe that helper static analyses can aid

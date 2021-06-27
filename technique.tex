@@ -1,7 +1,7 @@
 \section{Technique}
 \label{sec:technique}
 
-We present two complementary ways of statically computing mock information: an imperative implementation of a dataflow analysis (using the Soot~\cite{Vallee-Rai:1999:SJB:781995.782008} program analysis framework), as well as a declarative implementation (using the Doop~\cite{conf/oopsla/BravenboerS09} framework). While the core analysis is the same, the different implementation technologies have different affordances. For instance, it is easier to mark a field as mock-containing in Doop than in Soot. In Section~\ref{sec:evaluation}, we compare the results obtained using each technology.
+We present two complementary ways of statically computing mock information: an imperative implementation of a dataflow analysis (using the Soot~\cite{Vallee-Rai:1999:SJB:781995.782008} program analysis framework), as well as a declarative implementation (using the Doop~\cite{bravenboer09:_stric_declar_specif_sophis_point_analy} framework). While the core analysis is the same, the different implementation technologies have different affordances. For instance, it is easier to mark a field as mock-containing in Doop than in Soot. In Section~\ref{sec:evaluation}, we compare the results obtained using each technology.
 
 \subsection{Common Infrastructure}
 We have parameterized our technique with respect to mocking libraries and have instantiated it with respect to the popular Java libraries Mockito\footnote{\url{https://site.mockito.org/}}, EasyMock\footnote{\url{https://easymock.org/}}, and PowerMock\footnote{\url{https://github.com/powermock/powermock}}. We also support different versions of JUnit\footnote{\url{https://junit.org}}: 3, and 4+. We discuss the parameterization in this subsection.
@@ -33,7 +33,7 @@ In this section, we describe the imperative dataflow analysis (Soot-based) techn
 %Given a pool of possible APIs to search for, our tool may analyze tests for their usage of these APIs.% Facts for mock source methods is discussed in doop, maybe this part could be discussed once to avoid repetition?
 
 
-\paragraph{Forward May Analysis}
+\paragraph{Forward May Dataflow Analysis}
 \label{subsubsec:forward}
 
 To solve the problem, our tool uses forward may analysis, where it analyzes statements from top to bottom, and to keep variables that are verified to be mocks on any possible path at merged points. \textsc{MockDetector} uses the abstraction 
@@ -76,7 +76,9 @@ r2 = (ca.liang.Employee) $r1
 
 In this example, $\$r1$ is the immediate receiver from Mockito's mock creation site, whereas $r2$ is the casted expression that gets carried along in the subsequent program. Thus, our tool would include the immediate receivers, and the casted expressions of mock objects into the generation set, in two steps. 
 
-\paragraph{Special support for containers} Several benchmarks use arrays or collection objects to hold mock objects. In this scenario, our tool would consider that mockness has been passed along to the container. Taking an array as an example, our tool would first look for an array reference in the executing statement, meaning there is a read or a write from an array. Then, \textsc{MockDetector} would look for variables to be stored into the array, and check whether any of the variables have been found to be mocks. If so, it would label the array as "ArrayMock".
+\paragraph{Interprocedural support} The Heroes framework\cite{bodden12:_inter_proced_data_flow_analy} implements IFDS/IDE for program analysis frameworks including Soot. With some effort, it would be possible to rewrite our mock analysis with Heroes; however, this would be a more involved process than simply adding a line to the declarative analysis, as described below. In particular, Heroes uses a different API in its implementation than does Soot. However, conceptually, it should be no harder to implement a Heroes analysis than a Soot dataflow analysis.
+
+\paragraph{Containers} Several benchmarks use arrays or collection objects to hold mock objects. In this scenario, our tool would consider that mockness has been passed along to the container. Taking an array as an example, our tool would first look for an array reference in the executing statement, meaning there is a read or a write from an array. Then, \textsc{MockDetector} would look for variables to be stored into the array, and check whether any of the variables have been found to be mocks. If so, it would label the array as "ArrayMock".
 
 A similar process is applied to Collection. The main difference is Collection has multiple sub-types that may store objects in different manners. \textsc{MockDetector} resolves this problem by first holding a pool of reading and writing method APIs associated with each sub-type of Collection. It subsequently checks if any sub-type of collection are present in the statement, which could be done by checking the hierarchy for each variable. If a collection sub-type container is presented, \textsc{MockDetector} would then check if a STORE effect is applied to the container, indicating some object is to be stored in the container. Once the object is determined "MayMock", the collection container variable would immediately be labelled as "CollectionMock".\\
 
@@ -112,7 +114,7 @@ public class DefaultToolchainManagerTest
 
 \end{lstlisting}
 
-\begin{lstlisting}[basicstyle=\ttfamily, caption={Example for field mocks defined in <init> from \texttt{TypeRuleTest.java} in jsonschema2pojo.},
+\begin{lstlisting}[basicstyle=\ttfamily, caption={Example for field mocks defined by field initializations from \texttt{TypeRuleTest.java} in jsonschema2pojo.},
 basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm,
 framexleftmargin=1mm, captionpos=b, xleftmargin=3.5ex, label=lis:fieldMock]
 
