@@ -1,7 +1,7 @@
 \section{Technique}
 \label{sec:technique}
 
-We present two complementary ways of statically computing mock information: an imperative implementation of a dataflow analysis (using the Soot~\cite{Vallee-Rai:1999:SJB:781995.782008} program analysis framework), as well as a declarative implementation (using the Doop~\cite{bravenboer09:_stric_declar_specif_sophis_point_analy} framework). While the core analysis is the same, the different implementation technologies have different affordances. For instance, it is easier to mark a field as mock-containing in Doop than in Soot. In Section~\ref{sec:evaluation}, we compare the results obtained using each technology.
+We present two complementary ways of statically computing mock information: an imperative implementation of a dataflow analysis (using the Soot~\cite{Vallee-Rai:1999:SJB:781995.782008} program analysis framework), along with a declarative implementation (using the Doop~\cite{bravenboer09:_stric_declar_specif_sophis_point_analy} framework). While the core analysis is similar, the different implementation technologies have different affordances. For instance, it is easier for the Doop version to mark a field as mock-containing than for the Soot version to do so. In Section~\ref{sec:evaluation}, we compare the results obtained using each technology.
 
 \subsection{Common Infrastructure}
 We have parameterized our technique with respect to mocking libraries and have instantiated it with respect to the popular Java libraries Mockito\footnote{\url{https://site.mockito.org/}}, EasyMock\footnote{\url{https://easymock.org/}}, and PowerMock\footnote{\url{https://github.com/powermock/powermock}}. We also support different versions of JUnit\footnote{\url{https://junit.org}}: 3, and 4+. We discuss the parameterization in this subsection.
@@ -9,20 +9,20 @@ We have parameterized our technique with respect to mocking libraries and have i
 Both JUnit and mocking libraries are highly-reflective and would normally pose problems for static analyses. Fortunately, they use reflection in limited, stylized ways, and we have designed our analyses to soundly handle these libraries.
 
 \paragraph{JUnit}
-JUnit tests are simply methods that developers write in test classes, appropriately annotated (in JUnit 3 by method name starts with "test", in 4+ by a @Test annotation). A JUnit test runner uses reflection to find tests. Out of the box, static analysis engines do not perceive tests as reachable code.
+JUnit tests are simply methods that developers write in test classes, appropriately annotated (in JUnit 3 by method name starting with "test", in 4+ by a @Test annotation). A JUnit test runner uses reflection to find tests. Out of the box, static analysis engines do not see tests as reachable code.
 
 % what about hierarchical drivers?
 
-To enable static analysis over the test suite classes, our tool uses Soot to generate a driver class for each sub-package. In each of these sub-package driver classes, we create a \textit{runall()} method, which invokes all methods within the sub-package that JUnit (either 3 or 4) considers to be public, non-constructor test cases, surrounded by calls to class-level init/setup and teardown methods. Concrete test methods are particularly easy to call from a driver, as they are specified to have no parameters and are not supposed to rely on any particular ordering. 
-Our tool then creates a RootDriver class at the root package level, which would invoke \textit{runall()} method in each sub-package driver class, along with invocations on the Test/Before/After methods created in the classes located on the root level. The drivers that we generate also contains code to catch all checked exceptions declared to be thrown by the unit tests. The generated driver classes are used by both Soot and Doop implementations of the analysis.
+Thus, to enable static analysis over a benchmark's test suite, our tool uses Soot to generate a driver class for each Java sub-package of the suite. In each of these sub-package driver classes, our tool creates a \textit{runall()} method, which invokes all methods within the sub-package that JUnit (either 3 or 4) considers to be public as well as non-constructor test cases, surrounded by calls to class-level init/setup and teardown methods. Concrete test methods are particularly easy to call from a driver, as they are specified to have no parameters and are not supposed to rely on any particular ordering. 
+Our tool then creates a RootDriver class at the root package level, which invokes the \textit{runall()} method in each sub-package driver class, along with the Test/Before/After methods created for the classes located at the root level. The drivers that we generate also contain code to catch all checked exceptions declared to be thrown by the unit tests. Both our Soot and Doop implementations use the generated driver classes.
 
-The Wala framework~\cite{wala19:_t} also creates synthetic entry points, but it does this to do pointer analysis on the program itself rather than for the program's test cases.
+Analogously to our approach, the Wala framework~\cite{wala19:_t} also creates synthetic entry points, but it does this to perform pointer analysis on the program itself rather than for the program's test cases.
 
 \paragraph{Mock Libraries}
 Our supported mock libraries take different approaches to declaring mocks. All of the libraries have methods that generate mock objects; for instance, EasyMock contains the \texttt{createMock()} method. We consider return values from these methods to be mock objects. Additionally, Mockito contains a fluent \texttt{verify()} method which returns a mock object. Finally, Mockito also allows developers to mark fields as \texttt{@Mock}; we treat reads from such fields as mock objects. Both implementations start the analysis by hard coding these facts on mock source methods from the mock libraries' documentation. 
 
 \subsection{Soot Implementation}
-In this section, we describe the imperative dataflow analysis (Soot-based) technique that \textsc{MockDetector} applies to find unit test cases with mock objects created in the test body. Our tool tracks the creation sites and occurrences of the mock object through forward flow may analysis, meaning the evaluation of mockness would hold true as long as the variable is a mock on any path. It also looks into containers like array or Collection, and check if the container holds any may mock object. It treats as the mockness has propagated to the container if it indeed holds may mock object.
+We continue with describing each implementation in turn. In this section, we describe the Soot-based imperative dataflow analysis to find mock invocation sites. Our tool tracks information from the creation sites through the control-flow graph using a forward dataflow may-analysis---an object is declared a mock if there exists some execution path where it may receive a mock value. Our implementation also understands containers like arrays and collections, and tracks whether containers holds any mock objects. The abstraction treats all the contents of an array or container as mocks if it observes any mock object being put into the array or container.
 
 % Mock Libraries discussed in Common Infrastructure section
 %\paragraph{Define Common Mocking Library APIs}
@@ -36,51 +36,60 @@ In this section, we describe the imperative dataflow analysis (Soot-based) techn
 \paragraph{Forward May Dataflow Analysis}
 \label{subsubsec:forward}
 
-To solve the problem, our tool uses forward may analysis, where it analyzes statements from top to bottom, and to keep variables that are verified to be mocks on any possible path at merged points. \textsc{MockDetector} uses the abstraction 
+%To solve the problem, our tool uses forward may analysis, where it analyzes statements from top to bottom, and to keep variables that are verified to be mocks on any possible path at merged points. \textsc{MockDetector} uses the abstraction 
+Our forward dataflow analysis maps values (locals and field references) in the Jimple intermediate representation to our abstraction:
+\[ \mathtt{Value} \mapsto \mathtt{MockStatus}. \]
+\texttt{MockStatus} records three bits: one for the value being a mock, one for it being an array containing a mock, and one for it being a collection containing a mock. At most one of the three bits may be true for any given value.
 
-\begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
-Map<Unit, Map<Value, MockStatus>>
-\end{lstlisting}
-to maintain the mock information for local variables or field references in the flow (represented by Value in Soot). \texttt{MockStatus} is a class holding three bits, each representing the status of "May Mock", "Array Mock", and "Collection Mock", respectively, with the restriction of at most one bit being 1. Such abstraction would have each Unit $\times$ Value combination mapping to one MockStatus.
+We chose to implement a may-analysis for two reasons: 1) we did not observe any cases where a value was assigned a mock on one branch and a real object on the other branch; 2) implementing a must-analysis would not help heuristics to find focal methods, as a must-analysis would rule out fewer mock invocations. Our merge operation is therefore a fairly standard pointwise disjunction of the two incoming values in terms of values and in terms of the 3 bits of \texttt{MockStatus}.
 
-\textsc{MockDetector} uses may analysis for two reasons: first, for one variable, programmers rarely make it a real object in one branch, and a mock object in a different branch; second, such approximation would not impose issue towards focal methods finding, since a method invoked on a "may" mock object defined in one path, would unlikely be a focal method in a unit test. 
+%% \textsc{MockDetector} implements the "may" logic in the following manner: it checks the two in-flows 
+%% of \begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
+%% Map<Value, MockStatus>
+%% \end{lstlisting}
+%% from two paths. For any variable that is only stored in one map, the key-value pair is directly passed to the out-flow map. For a variable that is a shared key of the two maps, the analysis would update the out-flow's MockStatus by applying the "OR" operation on the "May Mock", "Array Mock", and "Collection Mock" bits from the MockStatus value retrieved from both in-flow maps. 
 
-\textsc{MockDetector} implements the "may" logic in the following manner: it checks the two in-flows 
-of \begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
-Map<Value, MockStatus>
-\end{lstlisting}
-from two paths. For any variable that is only stored in one map, the key-value pair is directly passed to the out-flow map. For a variable that is a shared key of the two maps, the analysis would update the out-flow's MockStatus by applying the "OR" operation on the "May Mock", "Array Mock", and "Collection Mock" bits from the MockStatus value retrieved from both in-flow maps. 
+%% For each statement in a forward flow analysis, we consider two sets: generated set and killed set. In this study, the first set contains the locals that are judged to become mocks, whereas the killed set containing locals that are determined to no longer to be mocks. Equations (1) and (2) illustrates how the inflow and outflow are defined and calculated for each unit: $In(u)$, representing a program point before executing $u$, is the intersection of all outflows after executing each element in immediate predecessor statements of $u$; $Out(u)$, on the other hand, is determined by first removing the killed set from $In(u)$, and union the result with generated set. 
 
-For each statement in a forward flow analysis, we consider two sets: generated set and killed set. In this study, the first set contains the locals that are judged to become mocks, whereas the killed set containing locals that are determined to no longer to be mocks. Equations (1) and (2) illustrates how the inflow and outflow are defined and calculated for each unit: $In(u)$, representing a program point before executing $u$, is the intersection of all outflows after executing each element in immediate predecessor statements of $u$; $Out(u)$, on the other hand, is determined by first removing the killed set from $In(u)$, and union the result with generated set. 
+%% \begin{equation}
+%% \mathrm{In}(u) = \bigcap_{u' \in preds(u)} \mathrm{Out}(u') 
+%% \end{equation}
 
-\begin{equation}
-\mathrm{In}(u) = \bigcap_{u' \in preds(u)} \mathrm{Out}(u') 
-\end{equation}
+%% \begin{equation}
+%% \mathrm{Out}(u) = (\mathrm{In}(u) - \mathrm{Kill}(u)) \bigcup \mathrm{Gen}(u) 
+%% \end{equation}
 
-\begin{equation}
-\mathrm{Out}(u) = (\mathrm{In}(u) - \mathrm{Kill}(u)) \bigcup \mathrm{Gen}(u) 
-\end{equation}
+Our dataflow analysis uses fairly standard gen and kill sets in the flow function. We point out that...?
 
-In our analysis, the generated set consists of two steps. Consider the statement: 
-\begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
-Employee employee = mock(Employee.class);
-\end{lstlisting}
-The intermediate representation generated in Jimple format would be:
-\begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
-$r1 = staticinvoke <org.mockito.Mockito: 
-java.lang.Object mock(java.lang.Class)>
-(class "Lca/liang/Employee;")
+OK BELOW: what are the two steps that you use to create the gen set? Let's try again here and say what's special about our analysis.
 
-r2 = (ca.liang.Employee) $r1
-\end{lstlisting}
+%% ---------
 
-In this example, $\$r1$ is the immediate receiver from Mockito's mock creation site, whereas $r2$ is the casted expression that gets carried along in the subsequent program. Thus, our tool would include the immediate receivers, and the casted expressions of mock objects into the generation set, in two steps. 
+%% In our analysis, the generated set consists of two steps. Consider the statement: 
+%% \begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
+%% Employee employee = mock(Employee.class);
+%% \end{lstlisting}
+%% The intermediate representation generated in Jimple format would be:
+%% \begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
+%% $r1 = staticinvoke <org.mockito.Mockito: 
+%% java.lang.Object mock(java.lang.Class)>
+%% (class "Lca/liang/Employee;")
+
+%% r2 = (ca.liang.Employee) $r1
+%% \end{lstlisting}
+
+%% In this example, $\$r1$ is the immediate receiver from Mockito's mock creation site, whereas $r2$ is the casted expression that gets carried along in the subsequent program. Thus, our tool would include the immediate receivers, and the casted expressions of mock objects into the generation set, in two steps. 
 
 \paragraph{Interprocedural support} The Heroes framework\cite{bodden12:_inter_proced_data_flow_analy} implements IFDS/IDE for program analysis frameworks including Soot. With some effort, it would be possible to rewrite our mock analysis with Heroes; however, this would be a more involved process than simply adding a line to the declarative analysis, as described below. In particular, Heroes uses a different API in its implementation than does Soot. However, conceptually, it should be no harder to implement a Heroes analysis than a Soot dataflow analysis.
 
-\paragraph{Containers} Several benchmarks use arrays or collection objects to hold mock objects. In this scenario, our tool would consider that mockness has been passed along to the container. Taking an array as an example, our tool would first look for an array reference in the executing statement, meaning there is a read or a write from an array. Then, \textsc{MockDetector} would look for variables to be stored into the array, and check whether any of the variables have been found to be mocks. If so, it would label the array as "ArrayMock".
+\paragraph{Containers} Several test suites use arrays or collection objects to hold mock objects. In this scenario, our tool would consider that mockness propagates out to the container. For instance, say the flow function encounters an array read [GIVE EXAMPLE]. Then, [WHAT HAPPENS]. 
 
-A similar process is applied to Collection. The main difference is Collection has multiple sub-types that may store objects in different manners. \textsc{MockDetector} resolves this problem by first holding a pool of reading and writing method APIs associated with each sub-type of Collection. It subsequently checks if any sub-type of collection are present in the statement, which could be done by checking the hierarchy for each variable. If a collection sub-type container is presented, \textsc{MockDetector} would then check if a STORE effect is applied to the container, indicating some object is to be stored in the container. Once the object is determined "MayMock", the collection container variable would immediately be labelled as "CollectionMock".\\
+
+Taking an array as an example, our tool would first look for an array reference in the executing statement, meaning there is a read or a write from an array. Then, \textsc{MockDetector} would look for variables to be stored into the array, and check whether any of the variables have been found to be mocks. If so, it would label the array as "ArrayMock".
+
+*** we say more about collections in the related work, we should probably move that to here.
+
+We treat collections analogously. The main difference is Java's \texttt{Collection} interface has multiple implementations, which expose different APIs for objects. \textsc{MockDetector} resolves this problem by first holding a pool of reading and writing method APIs associated with each sub-type of Collection. It subsequently checks if any sub-type of collection are present in the statement, which could be done by checking the hierarchy for each variable. If a collection sub-type container is presented, \textsc{MockDetector} would then check if a STORE effect is applied to the container, indicating some object is to be stored in the container. Once the object is determined "MayMock", the collection container variable would immediately be labelled as "CollectionMock".\\
 
 \paragraph{Pre-Analysis for Field Mocks Defined in Default Init and Before Methods}
 \label{subsubsec:pre-analysis} This is the paragraph to discuss about the pre-analysis on field mocks.
