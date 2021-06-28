@@ -7,19 +7,19 @@
 	%	\begin{adjustbox}{width=0.1\textwidth}
 	\begin{tabular}{lrrrr}
 		\toprule
-		Benchmark & Total LOC & Test Suite LOC & Soot's Runtime (s)  & \thead{Doop's Runtime \\ on mock analysis \\ NO\_INTERPROC (s)} \\
+		Benchmark & Total LOC & Test Suite LOC & Soot Intra-proc \\ Mock Analsis (s)  & \thead{Doop Intra-proc \\ Mock Analysis (s)} \\
 		\midrule
-		bootique-2.0.B1-bootique           		&  15530   & 8595   &  59   & 86    \\
-		commons-collections4-4.4           		&  65273   & 36318  &  88   & 53        \\
-		flink-core-1.13.0-rc1           		&  117310  & 49730  &  282  & 194        \\
-		jsonschema2pojo-core-1.1.1         		&  8233    & 2885   &  187  & 180       \\
-		maven-core-3.8.1   		           		&  38866   & 11104  &  169  & 126        \\
-		micro-benchmark         		  		&  559     & 491	&  50   & 24        \\
-		mybatis-3.5.6         		  			&  68268   & 46334  &  391  & 344        \\
-		quartz-core-2.3.1        	  			&  35355   & 8423   &  210  & 40      \\
-		vraptor-core-3.5.5         	  			&  34244   & 20133  &  177  & 251      \\
+		bootique-2.0.B1-bootique           		&  15530   & 8595   &  0.293   & 86    \\
+		commons-collections4-4.4           		&  65273   & 36318  &  0.345   & 53        \\
+		flink-core-1.13.0-rc1           		&  117310  & 49730  &  0.358   & 194        \\
+		jsonschema2pojo-core-1.1.1         		&  8233    & 2885   &  0.282   & 180       \\
+		maven-core-3.8.1   		           		&  38866   & 11104  &  0.192   & 126        \\
+		micro-benchmark         		  		&  559     & 491	&  0.113   & 24        \\
+		mybatis-3.5.6         		  			&  68268   & 46334  &  0.524   & 344        \\
+		quartz-core-2.3.1        	  			&  35355   & 8423   &  0.215   & 40      \\
+		vraptor-core-3.5.5         	  			&  34244   & 20133  &  0.340   & 251      \\
 		\bottomrule
-		Total         	  						&  383638  & 184013 &  1613  & 1298      \\
+		Total         	  						&  383638  & 184013 &  2.659   & 1298      \\
 	\end{tabular}
 	%	\end{adjustbox}
 	\label{tab:runtimes}
@@ -87,7 +87,7 @@ The goal of our study is to correctly identify and trace mock objects as well as
 \subsection{Quantitative Analysis}
 \label{subsec:effectiveness}
 
-We have evaluated \textsc{MockDetector} on 8 open-source benchmarks, along with a micro-benchmark that we developed to test our tool. Table~\ref{tab:runtimes} presents the LOC and runtime information for each benchmark. The 9 benchmarks include over 383 kLOC, with 184 kLOC in the test suites measured by SLOCCount. Our Doop analysis's runtime on intra-procedural mock analysis is obtained by taking the difference of two Doop runs on the same benchmark, where one run is associated with extra logic analyzing intra-procedural mocks, which would correctly reflect the run-time spent on analyzing intra-procedural mock invocations.   %Add reference for SLOCCount.
+We have evaluated \textsc{MockDetector} on 8 open-source benchmarks, along with a micro-benchmark that we developed to test our tool. Table~\ref{tab:runtimes} presents the LOC and runtime information for each benchmark. The 9 benchmarks include over 383 kLOC, with 184 kLOC in the test suites measured by SLOCCount. The runtime on Soot implementation's intra-procedural mock analysis  is obtained by summing up the soot timer's counts over the three transformers, which are responsible for analyzing field mocks defined by annotation or in <init>, field mocks defined in before methods, and mocks created in test cases, respectively. Meanwhile, our Doop implementation's runtime on intra-procedural mock analysis is obtained by taking the difference of two Doop runs on the same benchmark, where one run is associated with extra logic analyzing intra-procedural mocks. This would correctly reflect the run-time spent on analyzing intra-procedural mock invocations.  %Add reference for SLOCCount.
 
 There are more test cases holding inter-procedural mocks (i.e., the mock object is created in a helper method and passed into the test case) in commons-collections and micro-benchmark. The inter-procedural analysis is currently in development and will be discussed in Section~\ref{sec:discussion}.
 
