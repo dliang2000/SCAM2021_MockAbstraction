@@ -10,7 +10,7 @@ To motivate our work, consider Listing~\ref{lis:mockCall}, which presents a unit
 
 \textsc{MockDetector} maintains an abstraction mapping values (local variables or field references) in the Jimple intermediate representation (IR) to \texttt{MockStatus}, which holds three bits monitoring each value's status being a mock, a mock-containing array, and a mock-containing collection, respectively.
 
-Figure~\ref{fig:mockInvocationIllustration} shows how our analysis tool marks mock calls as not being potential focal method calls. Assuming we begin with an empty abstraction before line 2. For the object creation on line 2, since the \textit{Object()} constructor is not a Mock API, \texttt{object1} is not considered as a mock object. It is worth noting that our abstraction would not store \texttt{object1}'s Jimple IR with MockStatus's mock bit set to 0, but rather it is for demonstration purpose. When we iterate to line 5, as \texttt{object1}'s Jimple IR could not be found in the abstraction, we could not eliminate the possibility of method \textit{foo()} invoked on \texttt{object1} being the focal method.
+Figure~\ref{fig:focalMethodIllustration} shows how our analysis tool marks mock calls as not being potential focal method calls. Assuming we begin with an empty abstraction before line 2. For the object creation on line 2, since the \textit{Object()} constructor is not a Mock API, \texttt{object1} is not considered as a mock object. It is worth noting that our abstraction would not store \texttt{object1}'s Jimple IR with MockStatus's mock bit set to 0, but rather it is for demonstration purpose. When we iterate to line 5, as \texttt{object1}'s Jimple IR could not be found in the abstraction, we could not eliminate the possibility of method \textit{foo()} invoked on \texttt{object1} being the focal method.
 
 On the other hand, our tool locates the mock-creation API, \textit{java.lang.Object mock(java.lang.Class)} on line 8, and the abstraction will store the mapping of \texttt{object2}'s Jimple IR to MockStatus with the mock bit set to 1. When it iterates to line 11, as \texttt{object2}'s Jimple IR could be found in the abstraction's key set,  with the mock bit being 1, \textsc{MockDetector} will deduce that method \textit{foo()} on line 11 cannot be a focal method, and stores the method's signature, along the class and line number where it is invoked, into an array list, named \textsc{NonFocalMethodList}. 
 
@@ -81,7 +81,7 @@ protected void setUp() throws Exception {
     \includegraphics[width=.25\textwidth]{Images/mockInvocationIllustration.png}
     
     \caption{Illustration of the process locating mock object and determining mock calls.}
-    \label{fig:mockInvocationIllustration}
+    \label{fig:focalMethodIllustration}
     
 \end{figure}
 
