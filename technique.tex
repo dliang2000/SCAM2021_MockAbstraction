@@ -43,8 +43,6 @@ Our forward dataflow analysis maps values (locals and field references) in the J
 
 We chose to implement a may-analysis rather than a must-analysis for two reasons: 1) we did not observe any cases where a value was assigned a mock on one branch and a real object on the other branch; 2) implementing a must-analysis would not help heuristics to find focal methods, as a must-analysis would rule out fewer mock invocations. Our merge operation is therefore a fairly standard pointwise disjunction of the two incoming values in terms of values and in terms of the 3 bits of \texttt{MockStatus}.
 
-\paragraph{Intraprocedural Analysis} In the intraprocedural version of the Soot analysis, 
-
 %% \textsc{MockDetector} implements the "may" logic in the following manner: it checks the two in-flows 
 %% of \begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
 %% Map<Value, MockStatus>
@@ -61,11 +59,54 @@ We chose to implement a may-analysis rather than a must-analysis for two reasons
 %% \mathrm{Out}(u) = (\mathrm{In}(u) - \mathrm{Kill}(u)) \bigcup \mathrm{Gen}(u) 
 %% \end{equation}
 
-Our dataflow analysis uses fairly standard gen and kill sets in the flow function. For the gen set, we consider 
+Our dataflow analysis uses fairly standard gen and kill sets in the flow function. For the gen set, we consider for the Values in the following scenarios to be included in the abstraction, with mock bit set to 1:
 
-We point out that...?
+First, the gen set will include the pre-analyzed fields that are mock objects defined via annotation or inside \texttt{<init>} or before methods. This will be discussed in (a later section to be replaced by correct label). Second, it will add local variables on the receiving end of mock-creation source methods:
+\begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
+X x = mock(X);
+\end{lstlisting}
+Third, it will append values that are assigned from the return value of the read methods from a mock-containing array or collection:
+\begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
+// array read;
+// r1 is in the gen set with array mock bit on.
+X x = r1[0];
+// collection read;
+// r2 is in the gen set with collection mock bit on.
+X x = r2.get(0);
+\end{lstlisting}
+Fourth, the gen set will insert the casted expressions of the values that already exist in the gen set (for instance, \texttt{r1} in Listing~\ref{lis:arrayIllustrationIR} is a casted expression that is included in the gen set).
+\begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
+// x is in the gen set with mock bit on.
+X x_cast = (X) x;
+\end{lstlisting}
 
-OK BELOW: what are the two steps that you use to create the gen set? Let's try again here and say what's special about our analysis.
+Last, it will include values that traverse the program's control-flow graph via assignments, from a value that already has mock bit on in the gen set.
+\begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
+// x is in the gen set with mock bit on.
+X y = x;
+\end{lstlisting}
+
+The gen set will also add in values representing mock-containing array or collection with the corresponding bit turned on:
+
+For the examples illustrated below, \texttt{r1} will be included in the gen set with mock-containing array bit on, since it invokes an array write method, and \texttt{r2} stored in the array is a mock object already existing in the gen set. Similarly, \texttt{\$r4} will be added to the gen set with mock-containing collection bit on, as it invokes an ArrayList's write method, in which ArrayList implements the \texttt<java.util.Collection> interface, and \texttt{r3}, the object added to the ArrayList is a known mock object.
+\begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
+// r2 is in the gen set with mock bit on.
+r1[0] = r2;
+// r3 is in the gen set with mock bit on.
+$r4.<java.util.ArrayList: 
+		boolean add(java.lang.Object)>(r3);
+\end{lstlisting}
+
+In a similar fashion, the set will include values that traverse the program's control-flow graph via assignments, from a value that already has mock-containing array or mock-containing collection bit set to true.
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
+// arr2 is already in the gen set 
+// with mock-containing array bit on.
+arr1 = arr2
+// arr2 is already in the gen set 
+// with collection containing mock bit on.
+collection1 = collection2
+\end{lstlisting}
 
 %% ---------
 
@@ -84,18 +125,21 @@ OK BELOW: what are the two steps that you use to create the gen set? Let's try a
 
 %% In this example, $\$r1$ is the immediate receiver from Mockito's mock creation site, whereas $r2$ is the casted expression that gets carried along in the subsequent program. Thus, our tool would include the immediate receivers, and the casted expressions of mock objects into the generation set, in two steps. 
 
+\paragraph{Intraprocedural Analysis} In the intraprocedural version of the Soot analysis, since we need a procedure summary for each test related method in the test suite, in order to report the mock related information per-method and per-class. Therefore, a complete call graph and pointer analysis would be required, with the generated RootDriver class as the entry point, so that each test related method could be reached and analyzed by the forward dataflow analysis.
+
 \paragraph{Interprocedural support} The Heroes framework\cite{bodden12:_inter_proced_data_flow_analy} implements IFDS/IDE for program analysis frameworks including Soot. With some effort, it would be possible to rewrite our mock analysis with Heroes; however, this would be a more involved process than simply adding a line to the declarative analysis, as described below. In particular, Heroes uses a different API in its implementation than does Soot. However, conceptually, it should be no harder to implement an interprocedural Heroes analysis than a intraprocedural Soot dataflow analysis.
 
-\paragraph{Containers} Several test suites use arrays or collection objects to hold mock objects. In this scenario, our tool would consider that mockness propagates out to the container. For instance, say the flow function encounters an array read [GIVE EXAMPLE]. Then, [WHAT HAPPENS]. 
+\paragraph{Containers} Several test suites use arrays or collection objects to hold mock objects. In this scenario, our tool would consider that mockness propagates out to the container. For instance, say the flow function encounters an array write \begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
+r1[0] = r2
+\end{lstlisting} 
+Then, the tool will look for \texttt{r2} in the abstraction. Once the abstraction pinpoints \texttt{r2} (with mock bit on), it will include \texttt{r1} with mock-containing array bit set to true. (THIS PART STILL FEELS REPETITIVE.)
 
 
-Taking an array as an example, our tool would first look for an array reference in the executing statement, meaning there is a read or a write from an array. Then, \textsc{MockDetector} would look for variables stored into the array, and check whether any of the variables have been found to be mocks. If so, it would label the array as an array mock, and set the relevant bit in the abstraction to true.
+Taking an array as an example, our tool would first look for an array reference in the executing statement, meaning there is a read or a write from an array. If the effect is a STORE to the array, \textsc{MockDetector} would look for variables stored into the array, and check whether any of the variables have been found to be mocks. If so, it would label the array as an array mock, and set the relevant bit in the abstraction to true. Reversely, if is a LOAD effect from the array, \textsc{MockDetector} would check if the array itself has mock-containing array bit on in the abstraction. If so, it will mark the value assigned from the array LOAD with mock bit on, and store it in the abstraction.
 
 *** we say more about collections in the related work, we should probably move that to here.
 
-We treat collections analogously. The main difference is Java's \texttt{Collection} interface has multiple implementations, which expose different APIs for objects. \textsc{MockDetector} resolves this problem with a manually-constructed pool of read and write method APIs associated with each sub-type of \texttt{Collection}. It subsequently checks (using the hierarchy) whether collection classes appear in statements. If a collection sub-type container is presented, \textsc{MockDetector} would then check if a STORE effect is applied to the container, indicating some object is to be stored in the container. Once the object is determined to be a mock, the collection container variable would immediately be labelled as a collection mock, setting the relevant bit in the abstraction to true.\\
-
-[HOW DOES A COLLECTION CLASS APPEAR IN A STATEMENT? BE SPECIFIC]
+We treat collections analogously. The main difference is Java's \texttt{Collection} interface has multiple implementations, which expose different APIs for objects. \textsc{MockDetector} resolves this problem with a manually-constructed pool of read and write method APIs associated with each sub-type of the interface \texttt{java.util.Collection}. It subsequently checks (using the hierarchy) whether collection classes appear in statements containing invoke expression. This is achieved by first determining the declaring class of the invoked method. If the declaring class is of an interface, \textsc{MockDetector} would check whether \texttt{java.util.Collection} is a super-interface for the declaring class. Otherwise, if the declaring class is of a class type, \textsc{MockDetector} would check whether \texttt{java.util.Collection} is a super-interface for any of declaring class's implemented interfaces. If a collection sub-type container is presented, \textsc{MockDetector} would then check if a STORE effect is applied to the container, indicating some object is to be stored in the container. Once the object is determined to be a mock, the collection container variable would immediately be labelled as a collection mock, setting the relevant bit in the abstraction to true. Reversely, if a LOAD effect is applied to the container labelled as a collection mock, the object retrieved from the container will be labelled a mock, and setting the mock bit in the abstraction to true.
 
 \paragraph{Pre-Analysis for Field Mocks Defined in Default Init and Before Methods}
 \label{subsubsec:pre-analysis} This is the paragraph to discuss about the pre-analysis on field mocks.
