@@ -39,9 +39,11 @@ We continue with describing each implementation in turn. In this section, we des
 %To solve the problem, our tool uses forward may analysis, where it analyzes statements from top to bottom, and to keep variables that are verified to be mocks on any possible path at merged points. \textsc{MockDetector} uses the abstraction 
 Our forward dataflow analysis maps values (locals and field references) in the Jimple intermediate representation to our abstraction:
 \[ \mathtt{Value} \mapsto \mathtt{MockStatus}. \]
-\texttt{MockStatus} records three bits: one for the value being a mock, one for it being an array containing a mock, and one for it being a collection containing a mock. At most one of the three bits may be true for any given value.
+\texttt{MockStatus} records three bits: one for the value being a mock, one for it being an array containing a mock, and one for it being a collection containing a mock. At most one of the three bits may be true for any given value. For any value that does not have a mapping in the abstraction, it is the same as MockStatus having all three bits false. Our tool would only store a value with MockStatus holding three false bits into the abstraction if and only if the value was once a mock or mock-containing container, but later redefined to a non-mock object or container without mock object.
 
 We chose to implement a may-analysis rather than a must-analysis for two reasons: 1) we did not observe any cases where a value was assigned a mock on one branch and a real object on the other branch; 2) implementing a must-analysis would not help heuristics to find focal methods, as a must-analysis would rule out fewer mock invocations. Our merge operation is therefore a fairly standard pointwise disjunction of the two incoming values in terms of values and in terms of the 3 bits of \texttt{MockStatus}.
+
+\paragraph{Intraprocedural Analysis} In the intraprocedural version of the Soot analysis, 
 
 %% \textsc{MockDetector} implements the "may" logic in the following manner: it checks the two in-flows 
 %% of \begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
@@ -59,7 +61,9 @@ We chose to implement a may-analysis rather than a must-analysis for two reasons
 %% \mathrm{Out}(u) = (\mathrm{In}(u) - \mathrm{Kill}(u)) \bigcup \mathrm{Gen}(u) 
 %% \end{equation}
 
-Our dataflow analysis uses fairly standard gen and kill sets in the flow function. We point out that...?
+Our dataflow analysis uses fairly standard gen and kill sets in the flow function. For the gen set, we consider 
+
+We point out that...?
 
 OK BELOW: what are the two steps that you use to create the gen set? Let's try again here and say what's special about our analysis.
 
@@ -76,7 +80,7 @@ OK BELOW: what are the two steps that you use to create the gen set? Let's try a
 %% (class "Lca/liang/Employee;")
 
 %% r2 = (ca.liang.Employee) $r1
-%% \end{lstlisting}
+%% \end{lstlisting}W
 
 %% In this example, $\$r1$ is the immediate receiver from Mockito's mock creation site, whereas $r2$ is the casted expression that gets carried along in the subsequent program. Thus, our tool would include the immediate receivers, and the casted expressions of mock objects into the generation set, in two steps. 
 
@@ -105,10 +109,8 @@ public class DefaultToolchainManagerTest
 {
     @Mock
     private Logger logger;
-    
     @Mock
     private ToolchainFactory toolchainFactory_basicType;
-    
     @Mock
     private ToolchainFactory toolchainFactory_rareType;
     
