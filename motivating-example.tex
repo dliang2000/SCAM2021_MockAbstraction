@@ -13,7 +13,7 @@ Figure~\ref{fig:mockMethodIllustration} shows how our dataflow analysis works. W
 
 On the other hand, our imperative analysis sees the mock creation API \texttt{java.lang.Object mock(java.lang.Class)} on line 8. It thus adds a mapping from local variable \texttt{object2} to a new \texttt{MockStatus} with the mock bit set to true. When the analysis reaches line 11, because \texttt{object2} has a mapping in the abstraction with the mock bit being set, \textsc{MockDetector} will deduce that the call on line 11 is a mock invocation. This implies that the call to method \textit{foo()} on line 11 cannot be a focal method.
 
-\paragraph{Extensions: arrays and collections} While we were designing \textsc{MockDetector}, we observed several cases where developers store mock objects in arrays and collections. Listing~\ref{lis:container} presents method \textit{setUp()} in class \texttt{NodeListIteratorTest} from commons-collections-4.4, where line \ref{line:storeMocksInArray} puts the mock \texttt{Node} objects in the array-typed field \texttt{nodes}. This field is later used in test cases. To find arrays containing mock objects, our analysis would first locate assignment statements containing array references, and would gather all the local variables or field references which appear as sources in these statements. It then checks whether any of these local variables or field reference sources have been marked as mock objects in the analysis. If so, then the tool would mark the local variable or field reference representing the array as an array mock---it propagates the mockness to this array container.
+\paragraph{Extensions: arrays and collections} While we were designing \textsc{MockDetector}, we observed several cases where developers store mock objects in arrays and collections. Listing~\ref{lis:container} presents method \textit{setUp()} in class \texttt{NodeListIteratorTest} from commons-collections-4.4, where line \ref{line:storeMocksInArray} puts the mock \texttt{Node} objects in the array-typed field \texttt{nodes}. This field is later used in test cases. When the dataflow analysis is given an assignment statement containing an array reference, \textsc{MockDetector} would first look for values (local variables or field reference sources) on the opposite side of the assignment statement where array reference is presented in the Jimple intermediate representation. It then checks whether any of these local variables or field reference sources have been marked as mock objects in the analysis. If so, then the tool would mark the local variable or field reference representing the array as an array mock---it propagates the mockness to this array container.
 
 Figure~\ref{fig:arrayMockIllustration} illustrates the process of identifying a mock-containing array. As \textsc{MockDetector} finds a Mock API on line 2, it stores \texttt{object1}'s Jimple IR with MockStatus setting mock bit to 1 into the abstraction. When analysis iterates to line 5, \textsc{MockDetector} finds an array reference, along with \texttt{object1} stored in the array at right hand side of the assignment statement. It finds \texttt{object1}'s Jimple IR in the abstraction's key set, with the mock bit turned on. It can now deduce that \textsc{objects} at the left hand side must represent an array container holding at least one mock object. Therefore, \textsc{MockDetector} puts \textsc{objects}' Jimple IR mapped to a MockStatus setting mock-containing array bit (named arrayMock flag) turned on into the abstraction. 
 
@@ -57,11 +57,8 @@ public void testMisconfiguredToolchain()
 basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm, framexleftmargin=1.0mm, captionpos=b, xleftmargin=3.5ex, label=lis:container, escapechar=|]
 // Node array to be filled with mock Node instances
 private Node[] nodes;
-
 @Test
 protected void setUp() throws Exception {
-    // ...
-
     // create mock Node Instances and 
     // fill Node[] to be used by test cases
     final Node node1 = createMock(Element.class);
@@ -89,3 +86,24 @@ protected void setUp() throws Exception {
     \label{fig:arrayMockIllustration}
     
 \end{figure}
+
+\begin{lstlisting}[basicstyle=\ttfamily, caption={Jimple Intermediate Representation for the sample code in Figure~\ref{fig:mockMethodIllustration}.},
+basicstyle=\scriptsize\ttfamily, framesep=4.5mm, framexleftmargin=1.0mm, captionpos=b, xleftmargin=3.5ex, label=lis:mockMethodIllustrationIR, escapechar=|]
+
+\end{lstlisting}
+
+\begin{lstlisting}[basicstyle=\ttfamily, caption={Jimple Intermediate Representation for the sample code in Figure~\ref{fig:arrayMockIllustration}.},
+basicstyle=\scriptsize\ttfamily, framesep=4.5mm, framexleftmargin=1.0mm, captionpos=b, xleftmargin=3.5ex, label=lis:arrayIllustrationIR, escapechar=|]
+java.lang.Object r1;
+java.lang.Object $r2;
+java.lang.Object[] $r3;
+
+$r2 = staticinvoke <org.easymock.EasyMock: java.lang.Object
+ createMock(java.lang.Class)>(class "java.lang.Object;");
+
+r1 = (java.lang.Object) $r2;
+
+$r3 = newarray (java.lang.Object)[1];
+
+$r3[0] = r1;
+\end{lstlisting}
