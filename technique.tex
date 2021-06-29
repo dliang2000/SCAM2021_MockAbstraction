@@ -178,11 +178,23 @@ It then declares that a variable {\tt v} satisfies \verb+isMockVar(v)+ if it is 
 
 We designed the analysis in a modular fashion, such that the interprocedural, collections, arrays, and fields support can all be disabled through the use of \verb+#ifdef+s, which can be specified on the Doop command-line.
 
-\paragraph{Interprocedural support} From our perspective, including interprocedural support is almost trivial; we only need to add the line 
+\paragraph{Interprocedural support} From our perspective, including interprocedural support is almost trivial; we only need to add two rules
 \begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
-  mainAnalysis.CallGraphEdge(_, mi, _, callee)
+isInterprocMockVar(v) :-
+  AssignReturnValue(mi, v),
+  mainAnalysis.CallGraphEdge(_, mi, _, callee),
+  ReturnVar(v_callee, callee),
+  isMockVar(v_callee).
+
+isInterprocMockVar(v_callee) :-
+  isMockVar(v),
+  ActualParam(n, mi, v),
+  FormalParam(n, callee, v_callee),
+  mainAnalysis.CallGraphEdge(_, mi, _, callee),
+  Method_DeclaringType(callee, callee_class),
+  ApplicationClass(callee_class).
 \end{lstlisting}
-stating that there is a call graph edge between the method invocation {\tt mi} and its callee {\tt callee}. We chose to run our analysis on top of Doop's context-insensitive analysis, but that can be easily changed via command-line option.
+using call graph edges between the method invocation {\tt mi} and its callee {\tt callee}; the first rule propagates information from callees back to their callers, while the second rule propagates information from callers to callees through parameters. We chose to run our analysis on top of Doop's context-insensitive analysis, but that can be easily changed via command-line option.
 
 \paragraph{Arrays} Consistent with our analysis being a may-analysis, we use predicate {\tt isArrayLocalThatContainsMocks} to record local variables pointing to arrays that may contain mock objects. This predicate is true whenever the program under analysis stores a mock variable into an array; we also transfer array-mockness through assignments and casts. When a local variable is read from a mock-containing array, then the local variable itself is marked as a mock variable.
 
