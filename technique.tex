@@ -251,5 +251,3 @@ using call graph edges between the method invocation {\tt mi} and its callee {\t
 \paragraph{Containers} We support containers the same way we support arrays, except that we hardcode all relevant methods from the Java Collections API. There are 60 such methods in total, which together account for about 1/6th of our Doop analysis. In addition to straightforward get and put methods, we also support iterators, add-all methods, and collection copies via constructors. We also handle {\tt toArray} by propagating mockness from the collection to the array.
 
 We also support containers stored in fields.
-
-% TODO compare with taint analysis
