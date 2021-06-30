@@ -5,21 +5,21 @@
 	\centering
 	\caption{LOC and Runtime information for each benchmark.}
 	%	\begin{adjustbox}{width=0.1\textwidth}
-	\begin{tabular}{lrrrr}
+	\begin{tabular}{lrrrrrr}
 		\toprule
-		Benchmark & Total LOC & Test Suite LOC & \thead{Soot Intra-proc \\ Mock Analsis (s)}  & \thead{Doop Intra-proc \\ Mock Analysis (s)} \\
+		Benchmark & Total LOC & Test Suite LOC & \thead{Soot Intra-proc \\ Total Time (s)} & \thead{Doop Intra-proc \\ Total Time (s)} & \thead{Soot Intra-proc \\ Mock Analysis (s)}  & \thead{Doop Intra-proc \\ Mock Analysis (s)} \\
 		\midrule
-		bootique-2.0.B1-bootique           		&  15530   & 8595   &  0.293   & 86    \\
-		commons-collections4-4.4           		&  65273   & 36318  &  0.345   & 53        \\
-		flink-core-1.13.0-rc1           		&  117310  & 49730  &  0.358   & 194        \\
-		jsonschema2pojo-core-1.1.1         		&  8233    & 2885   &  0.282   & 180       \\
-		maven-core-3.8.1   		           		&  38866   & 11104  &  0.192   & 126        \\
-		micro-benchmark         		  		&  954     & 883	&  0.126   & 24        \\
-		mybatis-3.5.6         		  			&  68268   & 46334  &  0.524   & 344        \\
-		quartz-core-2.3.1        	  			&  35355   & 8423   &  0.215   & 40      \\
-		vraptor-core-3.5.5         	  			&  34244   & 20133  &  0.340   & 251      \\
+		bootique-2.0.B1-bootique           		&  15530   & 8595   &  &  &  0.293   & 86    \\
+		commons-collections4-4.4           		&  65273   & 36318  &  &  &  0.345   & 53        \\
+		flink-core-1.13.0-rc1           		&  117310  & 49730  &  &  &  0.358   & 194        \\
+		jsonschema2pojo-core-1.1.1         		&  8233    & 2885   &  &  &  0.282   & 180       \\
+		maven-core-3.8.1   		           		&  38866   & 11104  &  &  &  0.192   & 126        \\
+		micro-benchmark         		  		&  954     & 883	&  &  &  0.126   & 24        \\
+		mybatis-3.5.6         		  			&  68268   & 46334  &  &  &  0.524   & 344        \\
+		quartz-core-2.3.1        	  			&  35355   & 8423   &  &  &  0.215   & 40      \\
+		vraptor-core-3.5.5         	  			&  34244   & 20133  &  &  &  0.340   & 251      \\
 		\bottomrule
-		Total         	  						&  384033  & 184405 &  2.675   & 1298      \\
+		Total         	  						&  384033  & 184405 &  &  &  2.675   & 1298      \\
 	\end{tabular}
 	%	\end{adjustbox}
 	\label{tab:runtimes}
@@ -72,6 +72,54 @@
 	\end{tabular}
 	%	\end{adjustbox}
 	\label{tab:invokes}
+\end{table*}
+
+\begin{table*}
+	\centering
+	\caption{Doop's runtime analysis with basic-only and context-insensitive options.}
+	%	\begin{adjustbox}{width=0.1\textwidth}
+	\begin{tabular}{lrrrrrr}
+		\toprule
+		Benchmark & \thead{Basic-only, \\ no-mock (s)} & \thead{Basic-only, \\ interproc-mock (s)} & \thead{Basic-only, \\ delta (s)} & \thead{Context-insensitive, \\ no-mock (s)}  & \thead{Context-insensitive, \\ interproc-mock (s)} & \thead{Context-insensitive, \\ delta (s)} \\
+		\midrule
+		bootique-2.0.B1-bootique           		&    &    &   &   &    &     \\
+		commons-collections4-4.4           		&    &    &   &   &    &         \\
+		flink-core-1.13.0-rc1           		&    &    &   &   &    &         \\
+		jsonschema2pojo-core-1.1.1         		&    &    &   &   &    &        \\
+		maven-core-3.8.1   		           		&    &    &   &   &    &         \\
+		micro-benchmark         		  		&    & 	  &   &   &    &         \\
+		mybatis-3.5.6         		  			&    &    &   &   &    &         \\
+		quartz-core-2.3.1        	  			&    &    &   &   &    &       \\
+		vraptor-core-3.5.5         	  			&    &    &   &   &    &      \\
+		\bottomrule
+		Total         	  						&    &    &   &   &    &       \\
+	\end{tabular}
+	%	\end{adjustbox}
+	\label{tab:doop-runtimes}
+\end{table*}
+
+\begin{table*}
+	\centering
+	\caption{Counts of mock invocations for Doop in basic-only and context-insensitive options, and for inter-procedural and intra-procedural .}
+	%	\begin{adjustbox}{width=0.1\textwidth}
+	\begin{tabular}{lrrrr}
+		\toprule
+		Benchmark & \thead{Basic-only, \\ intraproc} & \thead{Context-insensitive, \\ intraproc} & \thead{Basic-only, \\ interproc} & \thead{Context-insensitive, \\ interproc} \\
+		\midrule
+		bootique-2.0.B1-bootique           		&    &    &   &       \\
+		commons-collections4-4.4           		&    &    &   &        \\
+		flink-core-1.13.0-rc1           		&    &    &   &         \\
+		jsonschema2pojo-core-1.1.1         		&    &    &   &          \\
+		maven-core-3.8.1   		           		&    &    &   &           \\
+		micro-benchmark         		  		&    & 	  &   &           \\
+		mybatis-3.5.6         		  			&    &    &   &          \\
+		quartz-core-2.3.1        	  			&    &    &   &         \\
+		vraptor-core-3.5.5         	  			&    &    &   &         \\
+		\bottomrule
+		Total         	  						&    &    &   &         \\
+	\end{tabular}
+	%	\end{adjustbox}
+	\label{tab:doop-mock-invokes}
 \end{table*}
 
 The goal of our study is to correctly identify and trace mock objects as well as the method invocations in the test suite. To this end, we conduct quantitative and qualitative research focusing on two research questions:
