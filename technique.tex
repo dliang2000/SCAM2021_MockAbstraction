@@ -74,23 +74,6 @@ Second, it includes local variables assigned from mock-creation source methods:
 \end{lstlisting}
 Third, it includes values assigned from return values of read methods from mock-containing collections or their array counterparts:
 \begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
-// array read;
-// r1 is in the in set as an array mock
-X x = r1[0];
-// collection read;
-// r2 is in the in set as a collection mock
-X x = r2.get(0);
-\end{lstlisting}
-Fourth, if \texttt{x} is a mock and casted and assigned to \texttt{x\_cast}, then the gen set includes \texttt{x\_cast} (e.g. \texttt{r1} in Listing~\ref{lis:arrayIllustrationIR}):
-\begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
-// x is in the in set as a mock
-X x_cast = (X) x;
-\end{lstlisting}
-Finally, the gen set includes copies of already-flagged mocks:
-\begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
-// x is in the in set with mock bit on
-X y = x;
-=======
     // array read;
     // r1 is in the in set as an array mock
     X x = r1[0];
@@ -112,12 +95,6 @@ The copy-related rules also apply to mock-containing arrays and collections, but
 
 For instance, in the below example, \texttt{r1} will be included in the gen set as an array mock, since it invokes an array write method, and \texttt{r2} (to be stored in the array) is a mock object as indicated in the in set. Similarly, \texttt{\$r4} will be added to the gen set as a collection mock, as it invokes an \texttt{ArrayList}'s write method, and \texttt{r3}, the object added to the ArrayList, is a known mock object.
 \begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
-// r2 is in the in set as a mock
-r1[0] = r2;
-// r3 is in the in set as a mock
-$r4.<java.util.ArrayList: boolean
-add(java.lang.Object)>(r3);
-=======
     // r2 is in the in set as a mock
     r1[0] = r2;
     // r3 is in the in set as a mock
@@ -189,53 +166,48 @@ basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm,
 framexleftmargin=1mm, captionpos=b, xleftmargin=3.5ex, label=lis:annotatedMock]
 public class DefaultToolchainManagerTest
 {
-	@Mock
-	private Logger logger;
-	@Mock
-	private ToolchainFactory toolchainFactory_basicType;
-	@Mock
-	private ToolchainFactory toolchainFactory_rareType;
-	
-	@Before
-	public void onSetup() throws Exception
-	{    
-		// ...
-		MockitoAnnotations.initMocks( this );
-		// ...
-	}
+    @Mock
+    private Logger logger;
+    @Mock
+    private ToolchainFactory toolchainFactory_basicType;
+    @Mock
+    private ToolchainFactory toolchainFactory_rareType;
+    
+    @Before
+    public void onSetup() throws Exception
+    {    
+        // ...
+        MockitoAnnotations.initMocks( this );
+        // ...
+    }
 }
-
 \end{lstlisting}
 
 \begin{lstlisting}[basicstyle=\ttfamily, caption={Example for field mocks defined by field initializations from \texttt{TypeRuleTest.java} in jsonschema2pojo.},
 basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm,
 framexleftmargin=1mm, captionpos=b, xleftmargin=3.5ex, label=lis:fieldMock]
-public class TypeRuleTest {
-	private GenerationConfig config 
-	= mock(GenerationConfig.class);
-	private RuleFactory ruleFactory 
-	= mock(RuleFactory.class);
-	// ...
-}
-
+    private GenerationConfig config
+                = mock(GenerationConfig.class);
+    private RuleFactory ruleFactory
+                = mock(RuleFactory.class);
+    // ...
 \end{lstlisting}
 
 \begin{lstlisting}[basicstyle=\ttfamily, caption={Example for field mocks defined in Before method from \texttt{PayRollMockTest.java} in microbenchmark.},
 basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm,
 framexleftmargin=1mm, captionpos=b, xleftmargin=3.5ex, label=lis:fieldMock2]
 public class PayRollMockTest {
-private EmployeeDB employeeDB;
-private BankService bankService;
-
-@Before
-public void init() {
-	...
-	employeeDB = mock(EmployeeDB.class);
-	bankService = mock(BankService.class);
-	...
+    private EmployeeDB employeeDB;
+    private BankService bankService;
+    
+    @Before
+    public void init() {
+        // ...
+        employeeDB = mock(EmployeeDB.class);
+        bankService = mock(BankService.class);
+        // ...
+    }
 }
-}
-
 \end{lstlisting}
 
 \subsection{Declarative Doop Implementation}
@@ -247,17 +219,17 @@ The core of the implementation starts by declaring facts for 9 mock source metho
 It then declares that a variable {\tt v} satisfies \verb+isMockVar(v)+ if it is assigned from the return value of a mock source, or otherwise traverses the program's interprocedural control-flow graph, through assignments, which may possibly flow through fields, collections, or arrays. Finally, an invocation site is a mock invocation if the receiver object {\tt v} satisfies \verb+isMockVar(v)+. Listing~\ref{lst:core} presents the core rules for {\tt isMockVar}.
 
 \begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none,label={lst:core},caption={Core rules for propagating mockness via predicate {\tt isMockVar}.}]
-.decl isMockVar(v: Var)
-isMockVar(v) :-
-AssignReturnValue(mi, v),
-callsMockSource(mi).
-isMockVar(v) :-
-isMockVar(from),
-AssignCast(_ /* type */, from,
-v, _ /* inmethod */).
-isMockVar(v) :-
-isMockVar(v1),
-AssignLocal(v1, v, _).
+    .decl isMockVar(v: Var)
+    isMockVar(v) :-
+        AssignReturnValue(mi, v),
+        callsMockSource(mi).
+    isMockVar(v) :-
+        isMockVar(from),
+        AssignCast(_ /* type */, from,
+                      v, _ /* inmethod */).
+    isMockVar(v) :-
+        isMockVar(v1),
+        AssignLocal(v1, v, _).
 \end{lstlisting}
 
 We designed the analysis in a modular fashion, such that the interprocedural, collections, arrays, and fields support can all be disabled through the use of \verb+#ifdef+s, which can be specified on the Doop command-line.
@@ -265,18 +237,18 @@ We designed the analysis in a modular fashion, such that the interprocedural, co
 \paragraph{Interprocedural support} From our perspective, including (context-insensitive) interprocedural support is almost trivial; we only need to add two rules
 \begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
 isInterprocMockVar(v) :-
-AssignReturnValue(mi, v),
-mainAnalysis.CallGraphEdge(_, mi, _, callee),
-ReturnVar(v_callee, callee),
-isMockVar(v_callee).
+  AssignReturnValue(mi, v),
+  mainAnalysis.CallGraphEdge(_, mi, _, callee),
+  ReturnVar(v_callee, callee),
+  isMockVar(v_callee).
 
 isInterprocMockVar(v_callee) :-
-isMockVar(v),
-ActualParam(n, mi, v),
-FormalParam(n, callee, v_callee),
-mainAnalysis.CallGraphEdge(_, mi, _, callee),
-Method_DeclaringType(callee, callee_class),
-ApplicationClass(callee_class).
+  isMockVar(v),
+  ActualParam(n, mi, v),
+  FormalParam(n, callee, v_callee),
+  mainAnalysis.CallGraphEdge(_, mi, _, callee),
+  Method_DeclaringType(callee, callee_class),
+  ApplicationClass(callee_class).
 \end{lstlisting}
 using call graph edges between the method invocation {\tt mi} and its callee {\tt callee}; the first rule propagates information from callees back to their callers, while the second rule propagates information from callers to callees through parameters. Note that we restrict our analysis to so-called ``application classes'', excluding in particular the Java standard library. We chose to run our conext-insensitive analysis on top of Doop's context-insensitive call graph, but have also reported results with Doop's \texttt{basic-only} analysis, which implements Class Hierarchy Analysis. Mirroring Doop, it would also be possible to add context sensitivity to our analysis, but our results suggest that this would not help much; we'll return to that point in Section~\ref{sec:evaluation}.
 
