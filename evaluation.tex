@@ -52,23 +52,23 @@
 
 \begin{table*}
 	\centering
-	\caption{Comparison of Number of InstanceInvokeExprs on MayMock objects analyzed by Soot and Doop, and Total Number of InstanceInvokeExprs, in each benchmark's test suite.}
+	\caption{Comparison of Number of InstanceInvokeExprs on Mock objects analyzed by Soot and Doop, and Total Number of InstanceInvokeExprs, in each benchmark's test suite.}
 	%	\begin{adjustbox}{width=0.1\textwidth}
-	\begin{tabular}{lrrr}
+	\begin{tabular}{lrrrrrr}
 		\toprule
-		Benchmark & \thead{Total Number \\ of Invocations} & \thead{\# of Invocations \\ on MayMocks (Soot)} & \thead{\# of Invocations \\ on MayMocks (Doop)} \\
+		Benchmark & \thead{Total Number \\ of Invocations} & \thead{Mock Invokes \\ Intra-proc(Soot)} & \thead{Basic-only, \\ intraproc} & \thead{Context-insensitive, \\ intraproc} & \thead{Basic-only, \\ interproc} & \thead{Context-insensitive, \\ interproc} \\
 		\midrule
-		bootique-2.0.B1-bootique           		&  3366     &  99  & 99  \\
-		commons-collections4-4.4       			&  12753    &  11  & 3  \\
-		flink-core-1.13.0-rc1           		&  11923    &  40  & 40  \\
-		jsonschema2pojo-core-1.1.1           	&  1896     &  276  & 282  \\
-		maven-core-3.8.1           				&  4072     &  23   & 23  \\
-		microbenchmark         		  			&  471      &  108  & 123      \\
-		mybatis-3.5.6         		  			&  19232    &  575  & 577       \\
-		quartz-core-2.3.1       	  			&  3436     &  21   & 21    \\
-		vraptor-core-3.5.51        	  			&  5868     &  942  & 962    \\
+		bootique-2.0.B1-bootique           		&  3366     &  99  & 99  &   &   &    \\
+		commons-collections4-4.4       			&  12753    &  11  & 3   &   &   &    \\
+		flink-core-1.13.0-rc1           		&  11923    &  40  & 40  &   &   &    \\
+		jsonschema2pojo-core-1.1.1           	&  1896     &  276  & 282   &   &   &    \\
+		maven-core-3.8.1           				&  4072     &  23   & 23    &   &   &    \\
+		microbenchmark         		  			&  471      &  108  & 123   &   &   &     \\
+		mybatis-3.5.6         		  			&  19232    &  575  & 577   &   &   &       \\
+		quartz-core-2.3.1       	  			&  3436     &  21   & 21    &   &   &     \\
+		vraptor-core-3.5.51        	  			&  5868     &  942  & 962   &   &   &     \\
 		\bottomrule
-		Total        	  						&  63017    & 2095  & 2125    \\
+		Total        	  						&  63017    & 2095  & 2125   &   &   &    \\
 	\end{tabular}
 	%	\end{adjustbox}
 	\label{tab:invokes}
@@ -76,7 +76,7 @@
 
 \begin{table*}
 	\centering
-	\caption{Doop's runtime analysis with basic-only and context-insensitive options.}
+	\caption{Doop runtime with basic-only and context-insensitive options.}
 	%	\begin{adjustbox}{width=0.1\textwidth}
 	\begin{tabular}{lrrrrrr}
 		\toprule
@@ -98,29 +98,29 @@
 	\label{tab:doop-runtimes}
 \end{table*}
 
-\begin{table*}
-	\centering
-	\caption{Counts of mock invocations for Doop in basic-only and context-insensitive options, and for inter-procedural and intra-procedural .}
-	%	\begin{adjustbox}{width=0.1\textwidth}
-	\begin{tabular}{lrrrr}
-		\toprule
-		Benchmark & \thead{Basic-only, \\ intraproc} & \thead{Context-insensitive, \\ intraproc} & \thead{Basic-only, \\ interproc} & \thead{Context-insensitive, \\ interproc} \\
-		\midrule
-		bootique-2.0.B1-bootique           		&    &    &   &       \\
-		commons-collections4-4.4           		&    &    &   &        \\
-		flink-core-1.13.0-rc1           		&    &    &   &         \\
-		jsonschema2pojo-core-1.1.1         		&    &    &   &          \\
-		maven-core-3.8.1   		           		&    &    &   &           \\
-		micro-benchmark         		  		&    & 	  &   &           \\
-		mybatis-3.5.6         		  			&    &    &   &          \\
-		quartz-core-2.3.1        	  			&    &    &   &         \\
-		vraptor-core-3.5.5         	  			&    &    &   &         \\
-		\bottomrule
-		Total         	  						&    &    &   &         \\
-	\end{tabular}
-	%	\end{adjustbox}
-	\label{tab:doop-mock-invokes}
-\end{table*}
+%\begin{table*}
+%	\centering
+%	\caption{Counts of mock invocations for Doop in basic-only and context-insensitive options, and for inter-procedural and intra-procedural .}
+%	%	\begin{adjustbox}{width=0.1\textwidth}
+%	\begin{tabular}{lrrrr}
+%		\toprule
+%		Benchmark & \thead{Basic-only, \\ intraproc} & \thead{Context-insensitive, \\ intraproc} & \thead{Basic-only, \\ interproc} & \thead{Context-insensitive, \\ interproc} \\
+%		\midrule
+%		bootique-2.0.B1-bootique           		&    &    &   &       \\
+%		commons-collections4-4.4           		&    &    &   &        \\
+%		flink-core-1.13.0-rc1           		&    &    &   &         \\
+%		jsonschema2pojo-core-1.1.1         		&    &    &   &          \\
+%		maven-core-3.8.1   		           		&    &    &   &           \\
+%		micro-benchmark         		  		&    & 	  &   &           \\
+%		mybatis-3.5.6         		  			&    &    &   &          \\
+%		quartz-core-2.3.1        	  			&    &    &   &         \\
+%		vraptor-core-3.5.5         	  			&    &    &   &         \\
+%		\bottomrule
+%		Total         	  						&    &    &   &         \\
+%	\end{tabular}
+%	%	\end{adjustbox}
+%	\label{tab:doop-mock-invokes}
+%\end{table*}
 
 The goal of our study is to correctly identify and trace mock objects as well as the method invocations in the test suite. To this end, we conduct quantitative and qualitative research focusing on two research questions:
 
