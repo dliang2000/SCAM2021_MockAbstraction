@@ -131,10 +131,10 @@ For instance, in the below example, \texttt{r1} will be included in the gen set 
 
 %% In this example, $\$r1$ is the immediate receiver from Mockito's mock creation site, whereas $r2$ is the casted expression that gets carried along in the subsequent program. Thus, our tool would include the immediate receivers, and the casted expressions of mock objects into the generation set, in two steps. 
 
-\paragraph{Interprocedural support} The Heroes framework\cite{bodden12:_inter_proced_data_flow_analy} implements IFDS/IDE for program analysis frameworks including Soot. With some effort, it would be possible to rewrite our mock analysis with Heroes; however, this would be a more involved process than simply adding a line to the declarative analysis, as described below. In particular, Heroes uses a different API in its implementation than does Soot. However, conceptually, it should be no harder to implement an interprocedural Heroes analysis than a intraprocedural Soot dataflow analysis.
+\paragraph{Interprocedural support} The Heros framework\cite{bodden12:_inter_proced_data_flow_analy} implements IFDS/IDE for program analysis frameworks including Soot. With some effort, it would be possible to rewrite our mock analysis with Heros; however, this would be a more involved process than simply adding a line to the declarative analysis, as described below. In particular, Heros uses a different API in its implementation than does Soot. However, conceptually, it should be no harder to implement an interprocedural Heros analysis than a intraprocedural Soot dataflow analysis.
 
 \paragraph{Containers} Several test suites use arrays or collection objects to hold mock objects. In this scenario, our tool would consider that mockness propagates out to the container. For instance, say the flow function encounters an array write \begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
-r1[0] = r2
+    r1[0] = r2
 \end{lstlisting} 
 Then, the tool will look for \texttt{r2} in the abstraction. Once the abstraction pinpoints \texttt{r2} (with mock bit on), it will include \texttt{r1} with mock-containing array bit set to true. (THIS PART STILL FEELS REPETITIVE.)
 
@@ -145,43 +145,41 @@ Taking an array as an example, our tool would first look for an array reference 
 
 We treat collections analogously. The main difference is Java's \texttt{Collection} interface has multiple implementations, which expose different APIs for objects. \textsc{MockDetector} resolves this problem with a manually-constructed pool of read and write method APIs associated with each sub-type of the interface \texttt{java.util.Collection}. It subsequently checks (using the hierarchy) whether collection classes appear in statements containing invoke expression. This is achieved by first determining the declaring class of the invoked method. If the declaring class is of an interface, \textsc{MockDetector} would check whether \texttt{java.util.Collection} is a super-interface for the declaring class. Otherwise, if the declaring class is of a class type, \textsc{MockDetector} would check whether \texttt{java.util.Collection} is a super-interface for any of declaring class's implemented interfaces. If a collection sub-type container is presented, \textsc{MockDetector} would then check if a STORE effect is applied to the container, indicating some object is to be stored in the container. Once the object is determined to be a mock, the collection container variable would immediately be labelled as a collection mock, setting the relevant bit in the abstraction to true. Reversely, if a LOAD effect is applied to the container labelled as a collection mock, the object retrieved from the container will be labelled a mock, and setting the mock bit in the abstraction to true.
 
-\subsubsection{Pre-Analysis for Field Mocks Defined in Default Init and Before Methods}
-\label{subsubsec:pre-analysis} Multiple benchmarks have defined fields as mock objects via annotations, or defined in the default \texttt{<init>} or \texttt{@Before} methods (\textit{setUp()} or \textit{init()}) at the beginning of test classes. These field type mock objects or mock-containing containers are later used in multiple test cases, supporting the actual object to be tested. The field mocks are collected by the pre-analysis of two transformers ahead of the main analysis, under the assumption that fields are scarcely mutated in the test cases. (Table~\ref{tab:mutations} displays the preliminary analysis results of field mutation frequency inside test cases. Less than 0.3\% of fields are mutated in test cases.)  
+\subsubsection{Pre-Analysis for Field Mocks Defined in Constructors and Before Methods}
+\label{subsubsec:pre-analysis} A number of our benchmarks define fields as mock objects via EasyMock or Mockito \texttt{@Mock} annotations, or initialize these fields in the \texttt{<init>} constructor or \texttt{@Before} methods (\textit{setUp()} in JUnit 3), which run before any test methods from those classes. These mock field or mock-containing container fields are then used in tests. In the Soot implementation, we use two pre-analyses before running the main analysis, under the assumption that fields are rarely, and not correctly, mutated in the test cases. (We have validated our assumption on benchmarks. Table~\ref{tab:mutations} shows a preliminary analysis of field mutation frequency inside test cases---fewer than 0.3\% of fields are mutated in test cases.)  
 
-The first transformer takes care of the annotated field mocks and field mocks defined in default \texttt{<init>} method. 
+The first transformer handles annotated field mocks and field mocks defined in the constructors (\texttt{<init>} methods), while the second transformer handles \texttt{@Before} and \texttt{setUp()} methods. These transformers are implemented similarly.
 
-The detection of annotated field mock is fairly easy. \textsc{MockDetector} will retrieve all the fields in the test class via Soot's Scene, and get the visibility annotation tag for each field, if possible. It then add the fields with annotation type of {\tt Lorg/mockito/Mock;} or {\tt Lorg/easymock/Mock;} to \texttt{annotatedMocks}. Listing~\ref{lis:annotatedMock} illustrates a Mockito annotated field mock example taken from \texttt{DefaultToolchainManagerTest.java} class in maven-core. \textsc{MockDetector} will store the three fields with \texttt{@Mock} into a HashSet, which later to be used in the main analysis.
+\textsc{MockDetector} retrieves all fields in all test classes, and marks fields annotated {\tt Lorg/mockito/Mock;} or {\tt Lorg/easymock/Mock;} to its set of annotated mocks. \textsc{MockDetector} will store the three fields with \texttt{@Mock} into a HashSet, which later to be used in the main analysis.
+% obvious enough that we don't need to belabour this point
+% Listing~\ref{lis:annotatedMock} illustrates a Mockito annotated field mock example taken from \texttt{DefaultToolchainManagerTest.java} class in maven-core.
 
-Listing~\ref{lis:fieldMock} depicts an example where the field mocks are initialized at their declarations prior to the @Before method. These initializations would be included in default \texttt{<init>} method in Soot's Jimple IR. The detection of field mocks defined by field initializations (with known mock-creation source methods) are done by applying the forward dataflow analysis strictly on all default \texttt{<init>} methods in the test classes prior to the main analysis, where the same logic looking for values that are mock objects or mock-containing containers in the main analysis are applied.
+Listing~\ref{lis:fieldMock} depicts an example where instance fields are initialized using field initializers. Java copies such initializers into all class constructors (\texttt{<init>}). To detect such mock-containing fields, we simply apply the forward dataflow analysis on all constructors in the test classes prior to running the main analysis, using the same logic that we use to detect mock objects or mock-containing containers in the main analysis. The second pre-analysis transformer handles field mocks defined in \texttt{@Before} methods just like the first pre-analysis transformer handled constructors.
 
-The second pre-analysis transformer takes care of the field mocks defined in @Before methods, subsequent to the pre-analysis performed on default \texttt{<init>} methods.
-
-Listing~\ref{lis:fieldMock2} illustrates an example where the fields are defined as mocks via mock-creation source methods inside the @Before method. Similarly, the field mocks initialized inside the @Before methods are determined by applying the forward dataflow analysis strictly on all @Before methods before the main analysis, where the values  
+%% Listing~\ref{lis:fieldMock2} illustrates an example where fields are defined as mocks via mock-creation source methods inside the @Before method. Similarly, the field mocks initialized inside the @Before methods are determined by applying the forward dataflow analysis strictly on all @Before methods before the main analysis, where the values  
 
 
-[WRITE THIS]
-
-\begin{lstlisting}[basicstyle=\ttfamily, caption={Example for Annotated field mocks from \texttt{DefaultToolchainManagerTest.java} in maven-core.},
-basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm,
-framexleftmargin=1mm, captionpos=b, xleftmargin=3.5ex, label=lis:annotatedMock]
-public class DefaultToolchainManagerTest
-{
-    @Mock
-    private Logger logger;
-    @Mock
-    private ToolchainFactory toolchainFactory_basicType;
-    @Mock
-    private ToolchainFactory toolchainFactory_rareType;
+%% \begin{lstlisting}[basicstyle=\ttfamily, caption={Example for Annotated field mocks from \texttt{DefaultToolchainManagerTest.java} in maven-core.},
+%% basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm,
+%% framexleftmargin=1mm, captionpos=b, xleftmargin=3.5ex, label=lis:annotatedMock]
+%% public class DefaultToolchainManagerTest
+%% {
+%%     @Mock
+%%     private Logger logger;
+%%     @Mock
+%%     private ToolchainFactory toolchainFactory_basicType;
+%%     @Mock
+%%     private ToolchainFactory toolchainFactory_rareType;
     
-    @Before
-    public void onSetup() throws Exception
-    {    
-        // ...
-        MockitoAnnotations.initMocks( this );
-        // ...
-    }
-}
-\end{lstlisting}
+%%     @Before
+%%     public void onSetup() throws Exception
+%%     {    
+%%         // ...
+%%         MockitoAnnotations.initMocks( this );
+%%         // ...
+%%     }
+%% }
+%% \end{lstlisting}
 
 \begin{lstlisting}[basicstyle=\ttfamily, caption={Example for field mocks defined by field initializations from \texttt{TypeRuleTest.java} in jsonschema2pojo.},
 basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm,
@@ -193,22 +191,23 @@ framexleftmargin=1mm, captionpos=b, xleftmargin=3.5ex, label=lis:fieldMock]
     // ...
 \end{lstlisting}
 
-\begin{lstlisting}[basicstyle=\ttfamily, caption={Example for field mocks defined in Before method from \texttt{PayRollMockTest.java} in microbenchmark.},
-basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm,
-framexleftmargin=1mm, captionpos=b, xleftmargin=3.5ex, label=lis:fieldMock2]
-public class PayRollMockTest {
-    private EmployeeDB employeeDB;
-    private BankService bankService;
+% not necessary here. you can add it to your thesis.
+%% \begin{lstlisting}[basicstyle=\ttfamily, caption={Example for field mocks defined in a \texttt{@Before} method.},
+%% basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm,
+%% framexleftmargin=1mm, captionpos=b, xleftmargin=3.5ex, label=lis:fieldMock2]
+%% public class PayRollMockTest {
+%%     private EmployeeDB employeeDB;
+%%     private BankService bankService;
     
-    @Before
-    public void init() {
-        // ...
-        employeeDB = mock(EmployeeDB.class);
-        bankService = mock(BankService.class);
-        // ...
-    }
-}
-\end{lstlisting}
+%%     @Before
+%%     public void init() {
+%%         // ...
+%%         employeeDB = mock(EmployeeDB.class);
+%%         bankService = mock(BankService.class);
+%%         // ...
+%%     }
+%% }
+%% \end{lstlisting}
 
 \subsection{Declarative Doop Implementation}
 We next describe the declarative Doop-based technique that \textsc{MockDetector} uses. Similarly to the dataflow analysis, the declarative approach propagates mockness from known mock sources, through the statements in the intermediate representation, to potential mock invocation sites.

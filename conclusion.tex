@@ -17,4 +17,6 @@ What we'll have for analysis results: context-insensitive intraproc; context-ins
 
 What we'll have for analysis timings: basic-only without mocks, basic-only with mocks, context-insensitive with mocks
 
+Differences between Soot and Doop: pre-analysis isn't a thing in Doop; it's hard to add timers. Less imperative in Doop in general for obvious reasons.
+
 \textsc{MockDetector} has demonstrated its capability of correctly identifying and tracing mock objects and containers containing them intra-procedurally in the test cases, in a suite of three benchmarks. It has the potential to be a helper static analysis tool, passing the mock information into existing static analysis frameworks for better call graph analysis. Future work of this project including adding the interprocedual analysis, and gathering results for more benchmarks. 
