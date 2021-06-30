@@ -11,5 +11,10 @@ into complex imperative code for implementation purposes.
 \end{quote}
 
 
+Which base pointer analysis to use in the Doop? Assuming that we're talking about conservative call graphs (over-approximation), you would expect better call graphs to return fewer mocks. We performed experiments with the context-insensitive call graph versus the basic call graph and found XXX.
+
+What we'll have for analysis results: context-insensitive intraproc; context-insensitive interproc; basic-only intraproc; basic-only interproc. The difference will be that the virtual method calls in the tests will be better resolved.
+
+What we'll have for analysis timings: basic-only without mocks, basic-only with mocks, context-insensitive with mocks
 
 \textsc{MockDetector} has demonstrated its capability of correctly identifying and tracing mock objects and containers containing them intra-procedurally in the test cases, in a suite of three benchmarks. It has the potential to be a helper static analysis tool, passing the mock information into existing static analysis frameworks for better call graph analysis. Future work of this project including adding the interprocedual analysis, and gathering results for more benchmarks. 
