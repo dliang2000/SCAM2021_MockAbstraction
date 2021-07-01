@@ -46,7 +46,7 @@ We make the following contributions in this paper:
 \begin{itemize}
 \item We designed and implemented two variants of a static mock detection algorithm, one as a dataflow analysis implemented imperatively (using Soot) and the other declaratively (using Doop).
 \item We evaluate both the relative ease-of-implementation and precision of the imperative and declarative approaches, both intraprocedurally and interprocedurally (for Doop). % potentially intraprocedural as well
-\item We characterize our benchmark suite (8 open-source benchmarks, 184 kLOC) with respect to their use of mock objects, finding that 981 out of 6282 unit tests use intraprocedurally-detectable mock objects, and that there are a total of 1811 method invocations on mock objects. We further identify how powerful an analysis is required to identify mock object use---adding fields and collections adds X mock objects, while interprocedural techniques add Y mock objects.
+\item We characterize our benchmark suite (8 open-source benchmarks, 184 kLOC) with respect to their use of mock objects, finding that 981 out of 6282 unit tests use intraprocedurally-detectable mock objects, and that there are a total of 1811 method invocations on mock objects. %We further identify how powerful an analysis is required to identify mock object use---adding fields and collections adds X mock objects, while interprocedural techniques add Y mock objects.
 \end{itemize}
 At a higher level, we see this paper as making both a contribution and a meta-contribution to
 problems in source code analysis. The contribution, mock detection, enables more accurate analyses
