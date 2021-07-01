@@ -26,6 +26,7 @@ Call graphs are useful to our analysis in two ways: first, because they come wit
 Our supported mock libraries take different approaches to declaring mocks. All of the libraries have methods that generate mock objects; for instance, EasyMock contains the \texttt{createMock()} method. We consider return values from these methods to be mock objects. Additionally, Mockito contains a fluent \texttt{verify()} method which returns a mock object. Finally, Mockito also allows developers to mark fields as \texttt{@Mock}; we treat reads from such fields as mock objects. Both implementations start the analysis by using these hard coded these facts on mock source methods, as described in the mock libraries' documentation.
 
 \subsection{Imperative Soot Implementation}
+\label{subsec:soot}
 We continue with describing each implementation in turn. In this subsection, we describe the Soot-based imperative dataflow analysis to find mock invocation sites. Our tool tracks information from the creation sites through the control-flow graph using a forward dataflow may-analysis---an object is declared a mock if there exists some execution path where it may receive a mock value. Our implementation also understands containers like arrays and collections, and tracks whether containers holds any mock objects. The abstraction marks all the contents of an array or container as potential mocks if it observes any mock object being put into the array or container.
 
 % Mock Libraries discussed in Common Infrastructure section
