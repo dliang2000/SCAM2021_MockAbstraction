@@ -9,17 +9,17 @@
 		\toprule
 		Benchmark & Total LOC & Test Suite LOC & \thead{Soot Intra-proc \\ Total Time (s)} & \thead{Doop Intra-proc \\ Total Time (s)} & \thead{Soot Intra-proc \\ Mock Analysis (s)}  & \thead{Doop Intra-proc \\ Mock Analysis (s)} \\
 		\midrule
-		bootique-2.0.B1-bootique           		&  15530   & 8595   &  &  &  0.293   & 86    \\
-		commons-collections4-4.4           		&  65273   & 36318  &  &  &  0.345   & 53        \\
-		flink-core-1.13.0-rc1           		&  117310  & 49730  &  &  &  0.358   & 194        \\
-		jsonschema2pojo-core-1.1.1         		&  8233    & 2885   &  &  &  0.282   & 180       \\
-		maven-core-3.8.1   		           		&  38866   & 11104  &  &  &  0.192   & 126        \\
-		micro-benchmark         		  		&  954     & 883	&  &  &  0.126   & 24        \\
-		mybatis-3.5.6         		  			&  68268   & 46334  &  &  &  0.524   & 344        \\
-		quartz-core-2.3.1        	  			&  35355   & 8423   &  &  &  0.215   & 40      \\
-		vraptor-core-3.5.5         	  			&  34244   & 20133  &  &  &  0.340   & 251      \\
+		bootique-2.0.B1-bootique           		&  15530   & 8595   & 58  &  &  0.293   &     \\
+		commons-collections4-4.4           		&  65273   & 36318  & 114 & 537 &  0.345   & 12.26       \\
+		flink-core-1.13.0-rc1           		&  117310  & 49730  & 341 & 1775 &  0.358   & 25.30        \\
+		jsonschema2pojo-core-1.1.1         		&  8233    & 2885   & 313  & 835  &  0.282   & 26.27       \\
+		maven-core-3.8.1   		           		&  38866   & 11104  & 183 & 564 &  0.192   & 16.34        \\
+		micro-benchmark         		  		&  954     & 883	& 47  & 283 &  0.126   & 10.50        \\
+		mybatis-3.5.6         		  			&  68268   & 46334  & 500 &   &  0.524   &         \\
+		quartz-core-2.3.1        	  			&  35355   & 8423   & 155 & 702 &  0.215   & 19.83     \\
+		vraptor-core-3.5.5         	  			&  34244   & 20133  & 371 & 1547 &  0.340   & 23.81      \\
 		\bottomrule
-		Total         	  						&  384033  & 184405 &  &  &  2.675   & 1298      \\
+		Total         	  						&  384033  & 184405 & 2082 &  &  2.675   &       \\
 	\end{tabular}
 	%	\end{adjustbox}
 	\label{tab:runtimes}
@@ -58,17 +58,17 @@
 		\toprule
 		Benchmark & \thead{Total Number \\ of Invocations} & \thead{Mock Invokes \\ Intra-proc(Soot)} & \thead{Basic-only, \\ intraproc} & \thead{Context-insensitive, \\ intraproc} & \thead{Basic-only, \\ interproc} & \thead{Context-insensitive, \\ interproc} \\
 		\midrule
-		bootique-2.0.B1-bootique           		&  3366     &  99  & 99  &   &   &    \\
-		commons-collections4-4.4       			&  12753    &  11  & 3   &   &   &    \\
-		flink-core-1.13.0-rc1           		&  11923    &  40  & 40  &   &   &    \\
-		jsonschema2pojo-core-1.1.1           	&  1896     &  276  & 282   &   &   &    \\
-		maven-core-3.8.1           				&  4072     &  23   & 23    &   &   &    \\
-		microbenchmark         		  			&  471      &  108  & 123   &   &   &     \\
-		mybatis-3.5.6         		  			&  19232    &  575  & 577   &   &   &       \\
-		quartz-core-2.3.1       	  			&  3436     &  21   & 21    &   &   &     \\
-		vraptor-core-3.5.51        	  			&  5868     &  942  & 962   &   &   &     \\
+		bootique-2.0.B1-bootique           		&  3366     &  99   & 99    &      &       &    \\
+		commons-collections4-4.4       			&  12753    &  11   & 3     & 3    & 23    & 23   \\
+		flink-core-1.13.0-rc1           		&  11923    &  40   & 40    & 40   & 1262  & 1389   \\
+		jsonschema2pojo-core-1.1.1           	&  1896     &  276  & 282   & 282  & 462   & 604   \\
+		maven-core-3.8.1           				&  4072     &  23   & 23    &  23  & 31    & 39  \\
+		microbenchmark         		  			&  471      &  108  & 123   & 123  & 132   & 132   \\
+		mybatis-3.5.6         		  			&  19232    &  575  & 577   &      &       &       \\
+		quartz-core-2.3.1       	  			&  3436     &  21   & 21    & 21   & 23    & 31    \\
+		vraptor-core-3.5.51        	  			&  5868     &  942  & 963   & 962  & 1301  &  1630   \\
 		\bottomrule
-		Total        	  						&  63017    & 2095  & 2125   &   &   &    \\
+		Total        	  						&  63017    & 2095  & 2125  &      &       &    \\
 	\end{tabular}
 	%	\end{adjustbox}
 	\label{tab:invokes}
@@ -80,19 +80,19 @@
 	%	\begin{adjustbox}{width=0.1\textwidth}
 	\begin{tabular}{lrrrrrr}
 		\toprule
-		Benchmark & \thead{Basic-only, \\ no-mock (s)} & \thead{Basic-only, \\ interproc-mock (s)} & \thead{Basic-only, \\ delta (s)} & \thead{Context-insensitive, \\ no-mock (s)}  & \thead{Context-insensitive, \\ interproc-mock (s)} & \thead{Context-insensitive, \\ delta (s)} \\
+		Benchmark & \thead{Basic-only, \\ intraproc (s)} & \thead{Basic-only, \\ interproc (s)} & \thead{Context-insensitive, \\ intraproc (s)}  & \thead{Context-insensitive, \\ interproc (s)}  \\
 		\midrule
-		bootique-2.0.B1-bootique           		&    &    &   &   &    &     \\
-		commons-collections4-4.4           		&    &    &   &   &    &         \\
-		flink-core-1.13.0-rc1           		&    &    &   &   &    &         \\
-		jsonschema2pojo-core-1.1.1         		&    &    &   &   &    &        \\
-		maven-core-3.8.1   		           		&    &    &   &   &    &         \\
-		micro-benchmark         		  		&    & 	  &   &   &    &         \\
-		mybatis-3.5.6         		  			&    &    &   &   &    &         \\
-		quartz-core-2.3.1        	  			&    &    &   &   &    &       \\
-		vraptor-core-3.5.5         	  			&    &    &   &   &    &      \\
+		bootique-2.0.B1-bootique           		&    &    &   &        \\
+		commons-collections4-4.4           		& 17.42  &  21.79  & 12.26 	&  15.36        \\
+		flink-core-1.13.0-rc1           		& 24.67  &  71.67  & 25.30  &  66.10         \\
+		jsonschema2pojo-core-1.1.1         		& 25.98  &  42.14  & 26.27  &  39.21         \\
+		maven-core-3.8.1   		           		& 18.01  &  25.49  & 16.34  &  22.09          \\
+		micro-benchmark         		  		& 10.97  &  12.51  & 10.50  &  12.53        \\
+		mybatis-3.5.6         		  			&    &    &   &            \\
+		quartz-core-2.3.1        	  			& 17.72   & 22.99  & 19.83  &  21.14        \\
+		vraptor-core-3.5.5         	  			& 22.10  &  66.73  & 23.81  &  146.09       \\
 		\bottomrule
-		Total         	  						&    &    &   &   &    &       \\
+		Total         	  						&    &    &   &          \\
 	\end{tabular}
 	%	\end{adjustbox}
 	\label{tab:doop-runtimes}
