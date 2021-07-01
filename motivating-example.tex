@@ -58,9 +58,23 @@ protected void setUp() throws Exception {
 
 
 \begin{figure}
-    \includegraphics[width=.25\textwidth]{Images/mockInvocationIllustration.png}
+\begin{lstlisting}[basicstyle=\ttfamily,
+basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm, framexleftmargin=1.0mm, captionpos=b, escapechar=|, morekeywords={@Test}]
+//        mock: |\xmark~\,|    mockAPI: |\xmark|
+Object object1 = new Object();
+
+// mock: |\xmark|
+object1.foo();
+
+//        mock: |\cmark|     mockAPI: |\cmark|
+Object object2 = mock(Object.class);
+
+// mock: |\cmark|
+object2.foo();
+\end{lstlisting}
+%    \includegraphics[width=.25\textwidth]{Images/mockInvocationIllustration.png}
     
-    \caption{Illustration of the process locating mock object and determining mock calls.}
+    \caption{Our static analysis propagates mockness from sources (e.g. \texttt{mock(Object.class}) to invocations.}
     \label{fig:mockMethodIllustration}
     
 \end{figure}
