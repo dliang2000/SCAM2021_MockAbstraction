@@ -3,11 +3,11 @@
 
 \begin{table*}
 	\centering
-	\caption{LOC and Runtime information for each benchmark.}
+	\caption{Our suite of 8 open-source benchmarks (8000--117000 LOC) plus our microbenchmark. Soot and Doop analysis runtimes.}
 	%	\begin{adjustbox}{width=0.1\textwidth}
 	\begin{tabular}{lrrrrrr}
 		\toprule
-		Benchmark & Total LOC & Test Suite LOC & \thead{Soot Intra-proc \\ Total Time (s)} & \thead{Doop Intra-proc \\ Total Time (s)} & \thead{Soot Intra-proc \\ Mock Analysis (s)}  & \thead{Doop Intra-proc \\ Mock Analysis (s)} \\
+		Benchmark & Total LOC & Test LOC & \thead{Soot intraproc \\ total time (s)} & \thead{Doop intraproc \\ total time (s)} & \thead{Soot intraproc \\ mock analysis (s)}  & \thead{Doop intraproc \\ mock analysis (s)} \\
 		\midrule
 		bootique-2.0.B1-bootique           		&  15530   & 8595   & 58  &  &  0.293   &     \\
 		commons-collections4-4.4           		&  65273   & 36318  & 114 & 537 &  0.345   & 12.26       \\
@@ -27,11 +27,11 @@
 
 \begin{table*}
 	\centering
-	\caption{Counts of Test/Before/After methods in test suite containing MayMock object, ArrayMock containers, and CollectionMock containers in Test/Before/After methods. (Intra-procedurally)}
+	\caption{Counts of Test-Related (Test/Before/After) methods in public concrete test classes, along with counts of mocks, mock-containing arrays, and mock-containing collections, reported by Soot intraprocedural analysis.}
 	%	\begin{adjustbox}{width=0.1\textwidth}
 	\begin{tabular}{lrrrr}
 		\toprule
-		Benchmark & \thead{\# of Test Related \\ Methods Invoked} & \thead{\# of Test Related \\ Methods with \\ MayMock (Intra)}  & \thead{\# of Test Related \\ Methods with \\ ArrayMock (Intra)} & \thead{\# of Test Related \\ Methods with \\ CollectionMock (Intra)} \\
+		Benchmark & \thead{\# of Test-Related \\ Methods} & \thead{\# of Test-Related \\ Methods with \\ mocks (intra)}  & \thead{\# of Test-Related \\ Methods with \\ mock-containing\\ arrays (intra)} & \thead{\# of Test-Related \\ Methods with \\ mock-containing\\ collections (intra)} \\
 		\midrule
 		bootique-2.0.B1-bootique           		&  420        &  32  & 7 & 0       \\
 		commons-collections4-4.4          		&  1152       &  3   & 1 & 1       \\
@@ -52,11 +52,12 @@
 
 \begin{table*}
 	\centering
-	\caption{Comparison of Number of InstanceInvokeExprs on Mock objects analyzed by Soot and Doop, and Total Number of InstanceInvokeExprs, in each benchmark's test suite.}
+	\caption{Mock invocations found by Soot and Doop, and total number of instance invokes, in each benchmark's test suite.}
 	%	\begin{adjustbox}{width=0.1\textwidth}
 	\begin{tabular}{lrrrrrr}
 		\toprule
-		Benchmark & \thead{Total Number \\ of Invocations} & \thead{Mock Invokes \\ Intra-proc(Soot)} & \thead{Basic-only, \\ intraproc} & \thead{Context-insensitive, \\ intraproc} & \thead{Basic-only, \\ interproc} & \thead{Context-insensitive, \\ interproc} \\
+&& \multicolumn{1}{c}{Soot} & \multicolumn{4}{c}{Doop} \\ \cline{4-7}
+		Benchmark & \thead{Total \# of \\ Instance Invokes} & \thead{Mock Invokes \\ intra-proc (Soot)} & \thead{Basic-only, \\ intraproc} & \thead{Context-insensitive, \\ intraproc} & \thead{Basic-only, \\ interproc} & \thead{Context-insensitive, \\ interproc} \\
 		\midrule
 		bootique-2.0.B1-bootique           		&  3366     &  99   & 99    &      &       &    \\
 		commons-collections4-4.4       			&  12753    &  11   & 3     & 3    & 23    & 23   \\
@@ -76,7 +77,7 @@
 
 \begin{table*}
 	\centering
-	\caption{Doop runtime with basic-only and context-insensitive options.}
+	\caption{Doop runtime with basic-only and context-insensitive base analyses.}
 	%	\begin{adjustbox}{width=0.1\textwidth}
 	\begin{tabular}{lrrrrrr}
 		\toprule
@@ -92,7 +93,6 @@
 		quartz-core-2.3.1        	  			& 17.72   & 22.99  & 19.83  &  21.14        \\
 		vraptor-core-3.5.5         	  			& 22.10  &  66.73  & 23.81  &  146.09       \\
 		\bottomrule
-		Total         	  						&    &    &   &          \\
 	\end{tabular}
 	%	\end{adjustbox}
 	\label{tab:doop-runtimes}
@@ -122,18 +122,18 @@
 %	\label{tab:doop-mock-invokes}
 %\end{table*}
 
-The goal of our study is to correctly identify and trace mock objects as well as the method invocations in the test suite. To this end, we conduct quantitative and qualitative research focusing on two research questions:
+%% The goal of our study is to correctly identify and trace mock objects as well as the method invocations in the test suite. To this end, we conduct quantitative and qualitative research focusing on two research questions:
 
-\begin{quote}
-	\emph{RQ 1: Are the mocks correctly identified and traced for each test method?}
-\end{quote}
+%% \begin{quote}
+%% 	\emph{RQ 1: Are the mocks correctly identified and traced for each test method?}
+%% \end{quote}
 
-\begin{quote}
-	\emph{RQ 2: Would this be helpful for existing static analysis tools?}
-\end{quote}
+%% \begin{quote}
+%% 	\emph{RQ 2: Would this be helpful for existing static analysis tools?}
+%% \end{quote}
 
-\subsection{Quantitative Analysis}
-\label{subsec:effectiveness}
+%% \subsection{Quantitative Analysis}
+%% \label{subsec:effectiveness}
 
 We have evaluated \textsc{MockDetector} on 8 open-source benchmarks, along with a micro-benchmark that we developed to test our tool. Table~\ref{tab:runtimes} presents the LOC and Soot and Doop analysis runtimes for each benchmark. The 9 benchmarks include over 383 kLOC, with 184 kLOC in the test suites, as measured by SLOCCount. The Soot total time is the amount of time that it takes for Soot to analyze the benchmark and test suite in whole-program mode, including our analyses. The Soot intra-procedural analysis time is the sum of runtimes for the main analysis plus two pre-analyses, as described in Section~\ref{subsec:soot}. Meanwhile, the reported Doop runtime is from the context-insensitive analysis, while the Doop analysis time for intra-procedural mock invocation analysis is for running the analysis alone based on recorded facts from the benchmark.
 %The major difference between the Doop's total runtime and the actual time spent on mock invocation analysis comes from the build of the complete graph. %Add reference for SLOCCount.
