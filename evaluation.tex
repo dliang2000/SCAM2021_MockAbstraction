@@ -52,24 +52,23 @@
 
 \begin{table*}
 	\centering
-	\caption{Mock invocations found by Soot and Doop, and total number of instance invokes, in each benchmark's test suite.}
+	\caption{Comparison of Number of InstanceInvokeExprs on Mock objects analyzed by Soot and Doop, and Total Number of InstanceInvokeExprs, in each benchmark's test suite.}
 	%	\begin{adjustbox}{width=0.1\textwidth}
 	\begin{tabular}{lrrrrrr}
 		\toprule
-&& \multicolumn{1}{c}{Soot} & \multicolumn{4}{c}{Doop} \\ \cline{4-7}
-		Benchmark & \thead{Total \# of \\ Instance Invokes} & \thead{Mock Invokes \\ intra-proc (Soot)} & \thead{Basic-only, \\ intraproc} & \thead{Context-insensitive, \\ intraproc} & \thead{Basic-only, \\ interproc} & \thead{Context-insensitive, \\ interproc} \\
+		Benchmark & \thead{Total Number \\ of Invocations} & \thead{Mock Invokes \\ Intra-proc(Soot)} & \thead{Basic-only, \\ intraproc} & \thead{Context-insensitive, \\ intraproc} & \thead{Basic-only, \\ interproc} & \thead{Context-insensitive, \\ interproc} \\
 		\midrule
-		bootique-2.0.B1-bootique           		&  3366     &  99   & 99    &      &       &    \\
-		commons-collections4-4.4       			&  12753    &  11   & 3     & 3    & 23    & 23   \\
+		bootique-2.0.B1-bootique           		&  3366     &  99   & 99    & 99   & 120   & 122    \\
+		commons-collections4-4.4       			&  12753    &  11   & 3     &  3    & 23   & 23   \\
 		flink-core-1.13.0-rc1           		&  11923    &  40   & 40    & 40   & 1262  & 1389   \\
 		jsonschema2pojo-core-1.1.1           	&  1896     &  276  & 282   & 282  & 462   & 604   \\
-		maven-core-3.8.1           				&  4072     &  23   & 23    &  23  & 31    & 39  \\
+		maven-core-3.8.1           				&  4072     &  23   & 23    & 23  & 31     & 39  \\
 		microbenchmark         		  			&  471      &  108  & 123   & 123  & 132   & 132   \\
-		mybatis-3.5.6         		  			&  19232    &  575  & 577   &      &       &       \\
+		mybatis-3.5.6         		  			&  19232    &  575  & N/A   & 577 &  N/A   & 1345     \\
 		quartz-core-2.3.1       	  			&  3436     &  21   & 21    & 21   & 23    & 31    \\
-		vraptor-core-3.5.51        	  			&  5868     &  942  & 963   & 962  & 1301  &  1630   \\
+		vraptor-core-3.5.51        	  			&  5868     &  942  & 963   & 962  & 1301  & 1630   \\
 		\bottomrule
-		Total        	  						&  63017    & 2095  & 2125  &      &       &    \\
+		Total        	  						&  63017    & 2095  & N/A   & 2130  & N/A  & 5315   \\
 	\end{tabular}
 	%	\end{adjustbox}
 	\label{tab:invokes}
