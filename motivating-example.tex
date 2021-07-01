@@ -21,27 +21,9 @@ Figure~\ref{fig:arrayMockIllustration} illustrates the process of identifying a 
 
 The declarative analysis uses analogous reasoning, but uses a relation \texttt{isArrayLocalThatContainsMocks} instead of a bit in the MockStatus abstraction object.
 
-\lstset{language=java,
-    keywordstyle=\color{blue}\bfseries,
-    commentstyle=\color{green},
-    stringstyle=\ttfamily\color{red!50!brown},
-        showstringspaces=false}
-\lstset{literate=%
-    *{0}{{{\color{red!20!violet}0}}}1
-    {1}{{{\color{red!20!violet}1}}}1
-    {2}{{{\color{red!20!violet}2}}}1
-    {3}{{{\color{red!20!violet}3}}}1
-    {4}{{{\color{red!20!violet}4}}}1
-    {5}{{{\color{red!20!violet}5}}}1
-    {6}{{{\color{red!20!violet}6}}}1
-    {7}{{{\color{red!20!violet}7}}}1
-    {8}{{{\color{red!20!violet}8}}}1
-    {9}{{{\color{red!20!violet}9}}}1
-}
-
-\begin{lstlisting}[basicstyle=\ttfamily, caption={This code snippet illustrates an example from maven-core, where calls to both the focal method \texttt{getToolchainsForType()} and to mocked \texttt{getRequest()} occur in test \textit{testMisconfiguredToolchain()}.},
+\begin{lstlisting}[basicstyle=\ttfamily, caption={This code snippet illustrates an example from maven-core, where calls to both the focal method \texttt{getToolchainsForType()} and to mock \texttt{session}'s \texttt{getRequest()} method occur in test \textit{testMisconfiguredToolchain()}.},
 basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm, escapechar=|,
-framexleftmargin=1.0mm, captionpos=b, label=lis:mockCall]
+framexleftmargin=1.0mm, captionpos=b, label=lis:mockCall, morekeywords={@Test}]
 @Test
 public void testMisconfiguredToolchain()
                  throws Exception {
@@ -58,7 +40,7 @@ public void testMisconfiguredToolchain()
 \end{lstlisting}
 
 \begin{lstlisting}[basicstyle=\ttfamily, caption={This example illustrates a field array container holding mock objects from \textit{setup()} in \texttt{NodeListIteratorTest.java}.},
-basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm, framexleftmargin=1.0mm, captionpos=b, label=lis:container, escapechar=|]
+basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm, framexleftmargin=1.0mm, captionpos=b, label=lis:container, escapechar=|, morekeywords={@Test}]
 // Node array to be filled with mock Node instances
 private Node[] nodes;
 @Test
@@ -92,25 +74,25 @@ protected void setUp() throws Exception {
 \end{figure}
 
 \begin{lstlisting}[basicstyle=\ttfamily, caption={Jimple Intermediate Representation for the code in Figure~\ref{fig:mockMethodIllustration}.},
-basicstyle=\scriptsize\ttfamily, framesep=4.5mm, framexleftmargin=1.0mm, captionpos=b, label=lis:mockMethodIllustrationIR, escapechar=|]
+basicstyle=\scriptsize\ttfamily, captionpos=b, label=lis:mockMethodIllustrationIR, escapechar=|, morekeywords={@Test, specialinvoke, virtualinvoke, staticinvoke}]
 java.lang.Object $r1, r2;
 
 $r1 = new java.lang.Object; |\label{line:lis3line3}|
 specialinvoke $r1.<java.lang.Object: void <init>()>(); |\label{line:lis3line4}|
 virtualinvoke $r1.<java.lang.Object: void foo()>(); |\label{line:lis3line5}|
 r2 = staticinvoke <org.mockito.Mockito: |\label{line:lis3line6}|
- java.lang.Object mock(java.lang.Class)> |\label{line:lis3line7}|
- 	(class "Ljava/lang/Object;");
+        java.lang.Object mock(java.lang.Class)> |\label{line:lis3line7}|
+     (class "Ljava/lang/Object;");
 virtualinvoke r2.<java.lang.Object: void foo()>(); |\label{line:lis3line9}|
 \end{lstlisting}
 
 \begin{lstlisting}[basicstyle=\ttfamily, caption={Jimple Intermediate Representation for the array in Figure~\ref{fig:arrayMockIllustration}.},
-basicstyle=\scriptsize\ttfamily, framesep=4.5mm, framexleftmargin=1.0mm, captionpos=b, label=lis:arrayIllustrationIR, escapechar=|]
+basicstyle=\scriptsize\ttfamily, framesep=4.5mm, framexleftmargin=1.0mm, captionpos=b, label=lis:arrayIllustrationIR, escapechar=|, morekeywords={@Test, specialinvoke, virtualinvoke, staticinvoke, newarray}]
 java.lang.Object r1, $r2;
 java.lang.Object[] $r3;
 
 $r2 = staticinvoke <org.easymock.EasyMock: |\label{line:lis4line4}|
- java.lang.Object createMock(java.lang.Class)>
+         java.lang.Object createMock(java.lang.Class)>
      (class "java.lang.Object;"); |\label{line:lis4line6}|
 r1 = (java.lang.Object) $r2; |\label{line:lis4line7}|
 $r3 = newarray (java.lang.Object)[1]; |\label{line:lis4line8}|
