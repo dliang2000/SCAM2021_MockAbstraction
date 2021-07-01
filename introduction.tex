@@ -27,8 +27,9 @@ Such potential but unrealizable behaviours obscure the true behaviour
 of the test case.
 
 We have designed a static analysis, \textsc{MockDetector}, which identifies
-mock objects in test cases. It starts from a list of mock object creation sites; we
-have provided APIs for the common mocking libraries. It then propagates mockness
+mock objects in test cases. It starts from a list of mock object creation sites
+(our analyses include hardcoded APIs for common mocking libraries EasyMock, Mockito, and PowerMock). 
+It then propagates mockness
 through the test, so that a subsequent analysis
 can ask whether a given variable in a test case contains a mock or not. Currently, we have
 evaluated \textsc{MockDetector} on a suite of 8 benchmarks. We have manually inspected
