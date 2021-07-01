@@ -56,7 +56,7 @@
 	%	\begin{adjustbox}{width=0.1\textwidth}
 	\begin{tabular}{lrrrrrr}
 		\toprule
-		Benchmark & \thead{Total Number \\ of Invocations} & \thead{Mock Invokes \\ Intra-proc(Soot)} & \thead{Basic-only, \\ intraproc} & \thead{Context-insensitive, \\ intraproc} & \thead{Basic-only, \\ interproc} & \thead{Context-insensitive, \\ interproc} \\
+		Benchmark & \thead{Total Number \\ of Invocations} & \thead{Mock Invokes \\ intraproc (Soot)} & \thead{Basic-only, \\ intraproc (Doop)} & \thead{Context-insensitive, \\ intraproc (Doop)} & \thead{Basic-only, \\ interproc (Doop)} & \thead{Context-insensitive, \\ interproc (Doop)} \\
 		\midrule
 		bootique-2.0.B1-bootique           		&  3366     &  99   & 99    & 99   & 120   & 122    \\
 		commons-collections4-4.4       			&  12753    &  11   & 3     &  3    & 23   & 23   \\
@@ -134,8 +134,14 @@
 %% \subsection{Quantitative Analysis}
 %% \label{subsec:effectiveness}
 
-We have evaluated \textsc{MockDetector} on 8 open-source benchmarks, along with a micro-benchmark that we developed to test our tool. Table~\ref{tab:runtimes} presents the LOC and Soot and Doop analysis runtimes for each benchmark. The 9 benchmarks include over 383 kLOC, with 184 kLOC in the test suites, as measured by SLOCCount. The Soot total time is the amount of time that it takes for Soot to analyze the benchmark and test suite in whole-program mode, including our analyses. The Soot intra-procedural analysis time is the sum of runtimes for the main analysis plus two pre-analyses, as described in Section~\ref{subsec:soot}. Meanwhile, the reported Doop runtime is from the context-insensitive analysis, while the Doop analysis time for intra-procedural mock invocation analysis is for running the analysis alone based on recorded facts from the benchmark.
+We have evaluated \textsc{MockDetector} on 8 open-source benchmarks, along with a micro-benchmark that we developed to test our tool. All of our experiments are performed on the remote machine with Intel(R) Xeon(R) CPU E5-4620 v2 to ensure consistency of the results and performance.
+
+Table~\ref{tab:runtimes} presents the LOC and Soot and Doop analysis runtimes for each benchmark. The 9 benchmarks include over 383 kLOC, with 184 kLOC in the test suites, as measured by SLOCCount. The Soot total time is the amount of time that it takes for Soot to analyze the benchmark and test suite in whole-program mode, including our analyses. The Soot intra-procedural analysis time is the sum of runtimes for the main analysis plus two pre-analyses, as described in Section~\ref{subsec:soot}. Meanwhile, the reported Doop runtime is from the context-insensitive analysis, while the Doop analysis time for intra-procedural mock invocation analysis is for running the analysis alone based on recorded facts from the benchmark. [THE DIFFERENCE IN THE RUNTIME BETWEEN SOOT AND DOOP ORIGINATED FROM THE FACT THAT...]
 %The major difference between the Doop's total runtime and the actual time spent on mock invocation analysis comes from the build of the complete graph. %Add reference for SLOCCount.
+
+Table~\ref{tab:mocks} outlines the number of test-related (Test/Before/After) methods that contain local variables or fields that are mocks, mock-containing arrays, or mock-containing collections, reported by Soot Intra-procedural analysis. Across the 8 open-source benchmarks, test-related methods containing local/field mocks or mock-containing containers constituted for between 0.35\% to 51.8\% of the total number of test-related methods found in public concrete test classes, via driver class injections. This suggests the benchmarks selected represent a wide range of real-world examples, holding different philosophies regarding the creation and usage of mock objects in tests. Benchmarks like \textsc{vraptor-core} and \textsc{jsonschema2pojo-core} entails more than half of their test-related methods with mock objects (and mock-containing array), which both relies heavily on annotations and thus having most of the field mocks created via annotations and reused in multiple test cases in the same class. 
+
+Table~\ref{tab:invokes} highlights the number of method invocations on mocks that have been caught by both implementations. The two implementations have the same number of intraprocedural mock invocations for 4 open-source benchmarks experimented. Out of the ones with discrepancies, the main source of missed mock calls come from some of the missed support for array or collection related functions in Soot.
 
 \subsection{Application}
 \label{subsec:static}
