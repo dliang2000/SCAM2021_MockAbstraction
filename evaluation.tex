@@ -143,16 +143,16 @@ We next investigated the prevalence of mocks. Table~\ref{tab:mocks} presents the
 
 The core result is in Table~\ref{tab:invokes}, which presents the number of method invocations on mocks detected by our implementations. Note that our declarative and imperative implementations match exactly on the number of intraprocedural mock invocations for 4 of our open-source benchmarks. On the others, the main source of missed mock calls is from missing support for array or collection related functions in Soot.
 
-\subsection{Application}
-\label{subsec:static}
+%% \subsection{Application}
+%% \label{subsec:static}
 
-There are more test cases holding inter-procedural mocks (i.e., the mock object is created in a helper method and passed into the test case) in commons-collections and micro-benchmark. The inter-procedural analysis is currently in development and will be discussed in Section~\ref{sec:discussion}.
+%% There are more test cases holding inter-procedural mocks (i.e., the mock object is created in a helper method and passed into the test case) in commons-collections and micro-benchmark. The inter-procedural analysis is currently in development and will be discussed in Section~\ref{sec:discussion}.
 
-The Procedure Summaries produced after the analysis has indicated that the tracing of "mockiness" of variables and containers is also correct through the whole program. 
+%% The Procedure Summaries produced after the analysis has indicated that the tracing of "mockiness" of variables and containers is also correct through the whole program. 
 
-The accuracy results in tracing intra-procedural mock objects or containers have indicated that \textsc{MockDetector} has the potential to be applied as a helper for existing static analysis tools. By adding proper adjustment, it could pass the mock information to the static analysis, so that the generated call graph may appropriately omit the methods invoked on mock objects, thus increasing its accuracy.
+%% The accuracy results in tracing intra-procedural mock objects or containers have indicated that \textsc{MockDetector} has the potential to be applied as a helper for existing static analysis tools. By adding proper adjustment, it could pass the mock information to the static analysis, so that the generated call graph may appropriately omit the methods invoked on mock objects, thus increasing its accuracy.
 
-By running evaluation (also inter-procedurally) on more benchmarks, our tool would have the potential to finding the scenario where developers prefer using mock objects for dependencies, and subsequently providing mock suggestions.
+%% By running evaluation (also inter-procedurally) on more benchmarks, our tool would have the potential to finding the scenario where developers prefer using mock objects for dependencies, and subsequently providing mock suggestions.
 
 
-context-sensitivity for analysis
+%% context-sensitivity for analysis
