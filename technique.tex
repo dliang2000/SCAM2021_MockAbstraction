@@ -43,7 +43,7 @@ We chose to implement a may-analysis rather than a must-analysis for two reasons
 %% \mathrm{Out}(u) = (\mathrm{In}(u) - \mathrm{Kill}(u)) \bigcup \mathrm{Gen}(u) 
 %% \end{equation}
 
-Our dataflow analysis uses fairly standard gen and kill sets in the flow function. We set bits in \texttt{MockStatus} in the following cases:
+Our dataflow analysis uses fairly standard gen and kill sets in the flow function. We set bits in \texttt{MockStatus} as follows:
 %For the gen set, we consider for the Values in the following scenarios to be included in the abstraction, with mock bit set to 1:
 
 First, the gen set includes pre-analyzed fields containing mock objects defined via annotation (e.g. \texttt{@Mock}), inside a constructor \texttt{<init>}, or in JUnit's \texttt{@Before}/\texttt{setUp()} methods. We discuss the pre-analysis below in Section~\ref{subsubsec:pre-analysis}. 
@@ -282,10 +282,10 @@ All static frameworks must somehow approximate the set of entry points as approp
 
 \paragraph{Intraprocedural Analysis} The Soot analysis is intraprocedural and the Doop analysis has an intraprocedural version. In both of these cases, we make the unsound (but reasonable for our anticipated use case) assumption that mockness can be dropped between callers and callees: at method entry points, no parameters are assumed to be mocks, and at method returns, the returned object is never a test. Doop's interprocedural version drops this assumption and instead context-insensitively propagates information from callers to callees and back; we discuss the results of doing so in Section~\ref{sec:evaluation}.
 
-Call graphs are useful to our analysis in two ways: first, because they come with entry points (which we approximate directly in our context, as explained above); and second, because they help identify calls to mock source methods. We assume that developers do not call inherited versions of mock creation sites (though again, if a call graph is available in Doop, we use it). 
+Call graphs are useful to our intraprocedural analysis in two ways: first, because they help identify calls to mock source methods (that we identify explicitly); and second, because they come with entry points (which we effectively supply to the call graph using our generated driver, as explained above). We assume that developers do not call inherited versions of mock creation sites. (However, if a call graph is available in Doop, we use it). 
 
 \paragraph{Mock Libraries}
-Our supported mock libraries take different approaches to instantiating mocks. All of the libraries have methods that generate mock objects; for instance, EasyMock contains the \texttt{createMock()} method. We consider return values from these methods to be mock objects. Additionally, Mockito contains a fluent \texttt{verify()} method which returns a mock object. Finally, Mockito also allows developers to mark fields as \texttt{@Mock}; we treat reads from such fields as mock objects. Both implementations start the analysis by using these hard coded these facts on mock source methods, as described in the mock libraries' documentation.
+Our supported mock libraries take different approaches to instantiating mocks. All of the libraries have methods that generate mock objects; for instance, EasyMock contains the \texttt{createMock()} method. We consider return values from these methods to be mock objects. Additionally, Mockito contains a fluent \texttt{verify()} method which returns a mock object. Finally, Mockito also allows developers to mark fields as \texttt{@Mock}; we treat reads from such fields as mock objects. Both implementations start the analysis with these hard coded facts on mock source methods, as described in the mock libraries' documentation.
 
 \paragraph{Containers} 
 As stated above, we hardcode all relevant methods from the Java Collections API. There are 60 such methods in total, which together account for about 1/6th of the total lines in our Doop analysis. In addition to straightforward get and put methods, we also support iterators, collection copies via constructors, and add-all methods. An iterator can be treated as a copy of the container, with the request of an object from the iterator being tantamount to a container get. An add-all method copies the mock-containing collection bit.

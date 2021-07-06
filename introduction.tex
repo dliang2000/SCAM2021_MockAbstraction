@@ -30,10 +30,13 @@ We have designed a static analysis, \textsc{MockDetector}, which identifies
 mock objects in test cases. It starts from a list of mock object creation sites
 (our analyses include hardcoded APIs for common mocking libraries EasyMock, Mockito, and PowerMock). 
 It then propagates mockness
-through the test, so that a subsequent analysis
-can ask whether a given variable in a test case contains a mock or not. Currently, we have
-evaluated \textsc{MockDetector} on a suite of 8 benchmarks. We have manually inspected
-the results on our microbenchmark and ensured that the results are as expected.
+through the test and identifies invocation sites as (possibly) mock.
+Given this analysis result, a subsequent analysis
+can ask whether a given variable in a test case contains a mock or not, and
+whether a given invocation site is a call to a mock object or not. We have
+evaluated \textsc{MockDetector} on a suite of 8 benchmarks plus a microbenchmark. 
+We have cross-checked results across the two implementations and manually inspected
+the results on our microbenchmark, to ensure that the results are as expected.
 
 Taking a broader view, we believe that helper static analyses like \textsc{MockDetector} 
 can aid
