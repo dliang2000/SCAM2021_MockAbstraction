@@ -12,8 +12,10 @@ in three parts:
   - we do say some applications
   - we could save some space by condensing the declarative, arrays+collections
 * technique: should probably condense
-* evaluation ** most of the work here **
+* evaluation ** most of the new work goes here **
   - add new content from thesis
   - add applicability of mocks in test coverage
 * related work
+  - provenance for debugging static analysis
+  - look up PC members
 * conclusion
