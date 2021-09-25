@@ -8,11 +8,11 @@ in three parts:
 # structure
 
 * introduction: which edits do we need? make consistent with main thesis above
-* motivating example: is it OK in this context?
+✓ motivating example: is it OK in this context?
   - we do say some applications
   - we could save some space by condensing the declarative, arrays+collections
 * technique: should probably condense
-* evaluation ** most of the new work goes here **
+* evaluation ** most of the new work goes here ** <- david has to do this
   - add new content from thesis
   - add applicability of mocks in test coverage
 * related work
