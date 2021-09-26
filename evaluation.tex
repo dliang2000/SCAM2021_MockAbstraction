@@ -97,6 +97,46 @@
 	\label{tab:doop-runtimes}
 \end{table*}
 
+\begin{table*}
+	\centering
+	\caption{Comparison of Code Coverages and Branch Coverages with all test cases, and with test cases excluding intraproc mock objects.}
+	\vspace*{.5em}
+	\begin{tabular}{lrrrrr} \toprule
+			& \multicolumn{2}{c}{Code Coverage} & & \multicolumn{2}{c}{Branch Coverage} \\
+			\cmidrule{2-3} \cmidrule{5-6}
+			\thead{Benchmark} & \thead{All Test Cases} & \thead{Test Cases without \\ Intraproc Mocks} & & \thead{All Test Cases} & \thead{Test Cases without \\ Intraproc Mocks} \\ 
+			\midrule 
+			
+			jsonschema2pojo-core-1.1.1  & 37\%  & 24\% & & 33\%    &  19\%     \\
+			maven-core-3.8.1   		    & 48\%  & 48\% & & 39\%    &  38\%       \\
+			microbenchmark   		    & 78\%  & 51\% & & 100\%    &  100\%        \\
+			mybatis-3.5.6   		    & 85\%  & 81\% & &  82\%    &  76\%        \\
+			vraptor-core-3.5.5         	& 87\%  & 59\% & & 81\%   &  56\%    \\
+			\bottomrule
+	\end{tabular}
+	\label{tab:test-coverages}
+\end{table*}
+
+\begin{table*}
+	\centering
+	\caption{Comparison of \% of test cases with reported focal methods by the two automated focal method detection algorithms.}
+	\vspace*{.5em}
+	\resizebox{\textwidth}{!}{\begin{tabular}{lrrrrlrrr} \toprule
+		\multicolumn{4}{c}{methods2test} & & \multicolumn{4}{c}{Ghafari's algorithm} \\
+		\cmidrule{1-4} \cmidrule{6-9}
+		\thead{Benchmark} & \thead{Reported \\ Focal Methods} & \thead{Test Cases} & \thead{\% of test cases \\ with focal \\ methods detected} &  & \thead{Benchmark} & \thead{Reported \\ Focal Methods} & \thead{Test Cases} & \thead{\% of test cases \\ with focal \\ methods detected} \\ 
+		\midrule 
+		
+		bootique-2.0.B1-bootique    & 129  & 228 &  57\%    &  &  commons-email-1.3.3  & 90  & 130 &  69\%       \\
+		jsonschema2pojo-core-1.1.1  & 120  & 382 &  31\%    &  &  JGAP-3.4.4  & 1015  & 1390 &  73\%       \\
+		maven-core-3.8.1   		    & 150  & 332 &  45\%    &  &  PureMVC-1.0.8  & 34  & 43 &  79\%         \\
+		vraptor-core-3.5.5         	& 690  & 1139 &  61\%   &  &  XStream-1.4.4  & 513  & 968 &  53\%      \\
+		\bottomrule
+		Geometric Mean &   &    &  47\% &   &  &  &  &  68\% 
+	\end{tabular}}
+	\label{tab:focal-method-algorithm-comparison}
+\end{table*}
+
 %\begin{table*}
 %	\centering
 %	\caption{Counts of mock invocations for Doop in basic-only and context-insensitive options, and for inter-procedural and intra-procedural .}
