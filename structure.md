@@ -11,11 +11,10 @@ in three parts:
 ✓ motivating example: is it OK in this context?
   - we do say some applications
   - we could save some space by condensing the declarative, arrays+collections
-* technique: should probably condense
+* technique: should probably condense, but let's add all the content first
 * evaluation ** most of the new work goes here ** <- david has to do this
   - add new content from thesis
   - add applicability of mocks in test coverage
 * related work
-  - provenance for debugging static analysis
   - look up PC members
-* conclusion
+* discussion: rework significantly for the new targetting
