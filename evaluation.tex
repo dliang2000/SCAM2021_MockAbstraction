@@ -74,28 +74,28 @@
 	\label{tab:invokes}
 \end{table*}
 
-\begin{table*}
-	\centering
-	\caption{Doop analysis-only runtime after basic-only and context-insensitive base analyses. N/A = timed out after 90 minutes.}
-	%	\begin{adjustbox}{width=0.1\textwidth}
-	\begin{tabular}{lrrrrrr}
-		\toprule
-		Benchmark & \thead{Basic-only, \\ intraproc (s)} & \thead{Context-insensitive, \\ intraproc (s)} & \thead{Basic-only, \\ interproc (s)}  & \thead{Context-insensitive, \\ interproc (s)}  \\
-		\midrule
-		bootique-2.0.B1-bootique           		& 15.71  & 16.81 &  24.26    &  20.20     \\
-		commons-collections4-4.4           		& 17.42  & 12.26 &  21.79    &  15.36        \\
-		flink-core-1.13.0-rc1           		& 24.67  & 25.30 &  71.67    &  66.10         \\
-		jsonschema2pojo-core-1.1.1         		& 25.98  & 26.27 &  42.14    &  39.21         \\
-		maven-core-3.8.1   		        	& 18.01  & 16.34 &  25.49    &  22.09          \\
-		micro-benchmark         			& 10.97  & 10.50 &  12.51    &  12.53        \\
-		mybatis-3.5.6         		  		&  N/A   & 51.25 &   N/A     & 183.86          \\
-		quartz-core-2.3.1        	  		& 17.72  & 19.83 &  22.99    &  21.14        \\
-		vraptor-core-3.5.5         	  		& 22.10  & 23.81 &  66.73    & 146.09       \\
-		\bottomrule
-	\end{tabular}
-	%	\end{adjustbox}
-	\label{tab:doop-runtimes}
-\end{table*}
+%\begin{table*}
+%	\centering
+%	\caption{Doop analysis-only runtime after basic-only and context-insensitive base analyses. N/A = timed out after 90 minutes.}
+%	%	\begin{adjustbox}{width=0.1\textwidth}
+%	\begin{tabular}{lrrrrrr}
+%		\toprule
+%		Benchmark & \thead{Basic-only, \\ intraproc (s)} & \thead{Context-insensitive, \\ intraproc (s)} & \thead{Basic-only, \\ interproc (s)}  & \thead{Context-insensitive, \\ interproc (s)}  \\
+%		\midrule
+%		bootique-2.0.B1-bootique           		& 15.71  & 16.81 &  24.26    &  20.20     \\
+%		commons-collections4-4.4           		& 17.42  & 12.26 &  21.79    &  15.36        \\
+%		flink-core-1.13.0-rc1           		& 24.67  & 25.30 &  71.67    &  66.10         \\
+%		jsonschema2pojo-core-1.1.1         		& 25.98  & 26.27 &  42.14    &  39.21         \\
+%		maven-core-3.8.1   		        	& 18.01  & 16.34 &  25.49    &  22.09          \\
+%		micro-benchmark         			& 10.97  & 10.50 &  12.51    &  12.53        \\
+%		mybatis-3.5.6         		  		&  N/A   & 51.25 &   N/A     & 183.86          \\
+%		quartz-core-2.3.1        	  		& 17.72  & 19.83 &  22.99    &  21.14        \\
+%		vraptor-core-3.5.5         	  		& 22.10  & 23.81 &  66.73    & 146.09       \\
+%		\bottomrule
+%	\end{tabular}
+%	%	\end{adjustbox}
+%	\label{tab:doop-runtimes}
+%\end{table*}
 
 \begin{table*}
 	\centering
@@ -105,7 +105,7 @@
 			& \multicolumn{2}{c}{Statement Coverage} & & \multicolumn{2}{c}{Branch Coverage} \\
 			\cmidrule{2-3} \cmidrule{5-6}
 			\thead{Benchmark} & \thead{All Test Cases} & \thead{Test Cases without \\ Intraproc Mocks} & & \thead{All Test Cases} & \thead{Test Cases without \\ Intraproc Mocks} \\ 
-			\midrule 
+			\midrule
 			
 			jsonschema2pojo-core-1.1.1  & 37\%  & 24\% & & 33\%    &  19\%     \\
 			maven-core-3.8.1   		    & 48\%  & 48\% & & 39\%    &  38\%       \\
@@ -121,17 +121,17 @@
 	\caption{Comparison of \% of test cases with reported focal methods by the two automated focal method detection algorithms.}
 	\vspace*{.5em}
 	\resizebox{\textwidth}{!}{\begin{tabular}{lrrrrrlrrrr} \toprule
-		\multicolumn{5}{c}{methods2test} & & \multicolumn{5}{c}{Ghafari's algorithm} \\
+		\multicolumn{5}{c}{Ghafari's algorithm} & & \multicolumn{5}{c}{methods2test}\\
 		\cmidrule{1-5} \cmidrule{7-11}
 		\thead{Benchmark} & \thead{Source Code \\ KLoC} & \thead{Reported \\ Focal Methods} & \thead{Test Cases} & \thead{\% of test cases \\ with focal \\ methods detected} &  & \thead{Benchmark} & \thead{Source Code \\ KLoC} & \thead{Reported \\ Focal Methods} & \thead{Test Cases} & \thead{\% of test cases \\ with focal \\ methods detected} \\ 
-		\midrule 
+		\cmidrule{1-5} \cmidrule{7-11}
 		
-		goja-0.1.14/goja-core  & 11.52 & 27  & 80 &  34\%  &  &  commons-email-1.3.3 & 8.78 & 90  & 130 &  69\%       \\
-		mock-socket-0.9.0    & 1.09  & 4  & 34 &  12\%    &  &  PureMVC-1.0.8 & 19.46 & 34  & 43 &  79\%         \\
-		project-sunbird-4.3.0/sunbird-lms-service   & 45.36 & 310  & 984 &  31\%   &  &  XStream-1.4.4 & 54.93 & 513  & 968 &  53\%      \\
-		optiq-0.8/core    & 93.94  & 26  & 1346 &  2\%    &  &  JGAP-3.4.4  & 73.96 & 1015  & 1390 &  73\%       \\
+		commons-email-1.3.3 & 8.78 & 90  & 130 &  69\%  &  &    goja-0.1.14/goja-core  & 11.52 & 27  & 80 &  34\% \\
+		PureMVC-1.0.8 & 19.46 & 34  & 43 &  79\%  &  &  mock-socket-0.9.0    & 1.09  & 4  & 34 &  12\%      \\
+		XStream-1.4.4 & 54.93 & 513  & 968 &  53\%   &  &  project-sunbird-4.3.0/sunbird-lms-service   & 45.36 & 310  & 984 &  31\%   \\
+		JGAP-3.4.4  & 73.96 & 1015  & 1390 &  73\%  &  &   optiq-0.8/core    & 93.94  & 26  & 1346 &  2\%   \\
 		\bottomrule
-		Geometric Mean &   &  &  &  12\% &   &  &  &  &  &  68\% 
+		Geometric Mean &   &  &  &  68\% &   &  &  &  &  &  12\% 
 	\end{tabular}}
 	\label{tab:focal-method-algorithm-comparison}
 \end{table*}
