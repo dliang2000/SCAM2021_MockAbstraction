@@ -5,22 +5,22 @@
 	\centering
 	\caption{Our suite of 8 open-source benchmarks (8000--117000 LOC) plus our microbenchmark. Soot and Doop analysis runtimes.}
 	%	\begin{adjustbox}{width=0.1\textwidth}
-	\begin{tabular}{lrrrrrr}
+	\resizebox{\textwidth}{!}{\begin{tabular}{lrrrrrrr}
 		\toprule
-		Benchmark & Total LOC & Test LOC & \thead{Soot intraproc \\ total time (s)} & \thead{Doop intraproc \\ total time (s)} & \thead{Soot intraproc \\ mock analysis (s)}  & \thead{Doop intraproc \\ mock analysis (s)} \\
+		Benchmark & Total LOC & Test LOC & \thead{Soot intraproc \\ total time (s)} & \thead{Doop intraproc \\ total time (s)} & \thead{Soot intraproc \\ mock analysis (s)}  & \thead{Doop intraproc \\ mock analysis (s)} & \thead{Doop interproc \\ mock analysis (s)} \\
 		\midrule
-		bootique-2.0.B1-bootique           		&  15530   & 8595   & 58  & 3499  &  0.293   & 16.81       \\
-		commons-collections4-4.4           		&  65273   & 36318  & 114 & 537   &  0.345   & 12.26       \\
-		flink-core-1.13.0-rc1           		&  117310  & 49730  & 341 & 1775  &  0.358   & 25.30        \\
-		jsonschema2pojo-core-1.1.1         		&  8233    & 2885   & 313 & 835   &  0.282   & 26.27       \\
-		maven-core-3.8.1   		           		&  38866   & 11104  & 183 & 564   &  0.192   & 16.34        \\
-		micro-benchmark         		  		&  954     & 883	& 47  & 283   &  0.126   & 10.50        \\
-		mybatis-3.5.6         		  			&  68268   & 46334  & 500 & 4247  &  0.524   & 51.25        \\
-		quartz-core-2.3.1        	  			&  35355   & 8423   & 155 & 702   &  0.215   & 19.83     \\
-		vraptor-core-3.5.5         	  			&  34244   & 20133  & 371 & 1547  &  0.340   & 23.81      \\
+		bootique-2.0.B1-bootique         &  15530   & 8595   & 58  & 2810  &  0.276   & 19.93  & 24.90    \\
+		commons-collections4-4.4         &  65273   & 36318  & 114 & 694   &  0.386   & 14.20  & 16.64     \\
+		flink-core-1.13.0-rc1            &  117310  & 49730  & 341 & 1847  &  0.415   & 27.21  & 62.12      \\
+		jsonschema2pojo-core-1.1.1       &  8233    & 2885   & 313 & 1005   &  0.282   & 29.33 & 41.05      \\
+		maven-core-3.8.1   		         &  38866   & 11104  & 183 & 588   &  0.276   & 19.49  & 23.42     \\
+		micro-benchmark         		 &  954     & 883	& 47  & 387   &  0.130   & 11.73   & 12.92     \\
+		mybatis-3.5.6         		  	 &  68268   & 46334  & 500 & 4477  &  0.662   & 59.83  & 192.16      \\
+		quartz-core-2.3.1        	  	 &  35355   & 8423   & 155 & 736   &  0.231   & 21.06  & 21.92   \\
+		vraptor-core-3.5.5         	  	 &  34244   & 20133  & 371 & 1469  &  0.455   & 34.95  & 149.38    \\
 		\bottomrule
-		Total         	  						&  384033  & 184405 & 2082 & 13989 &  2.675  & 202.37     \\
-	\end{tabular}
+		Total         	  				 &  384033  & 184405 & 2082 & 14013 &  3.123  & 237.73  & 544.51    \\
+	\end{tabular}}
 	%	\end{adjustbox}
 	\label{tab:runtimes}
 \end{table*}
@@ -52,24 +52,24 @@
 
 \begin{table*}
 	\centering
-	\caption{Comparison of Number of InstanceInvokeExprs on Mock objects analyzed by Soot and Doop, and Total Number of InstanceInvokeExprs, in each benchmark's test suite. N/A = timed out after 90 minutes.}
+	\caption{Comparison of Number of InstanceInvokeExprs on Mock objects analyzed by Soot and Doop, and Total Number of InstanceInvokeExprs, in each benchmark's test suite.}
 	%	\begin{adjustbox}{width=0.1\textwidth}
-	\begin{tabular}{lrrrrrr}
+	\resizebox{\textwidth}{!}{\begin{tabular}{lrrrrrr}
 		\toprule
 		Benchmark & \thead{Total Number \\ of Invocations} & \thead{Mock Invokes \\ intraproc (Soot)} & \thead{Basic-only, \\ intraproc (Doop)} & \thead{Context-insensitive, \\ intraproc (Doop)} &  \thead{Basic-only, \\ interproc (Doop)} &\thead{Context-insensitive, \\ interproc (Doop)} \\
 		\midrule
 		bootique-2.0.B1-bootique           		&  3366     &  99   & 99    & 99   & 120   & 122    \\
-		commons-collections4-4.4       			&  12753    &  11   & 0     &  3   & 0    & 23   \\
+		commons-collections4-4.4       			&  12753    &  11   & 3     &  3   & 23    & 23   \\
 		flink-core-1.13.0-rc1           		&  11923    &  40   & 40    & 40   & 1262  & 1389   \\
 		jsonschema2pojo-core-1.1.1      	     	&  1896     &  276  & 282   & 282  & 462   & 604   \\
 		maven-core-3.8.1           			&  4072     &  23   & 23    & 23   & 31    & 39  \\
 		microbenchmark         		  		&  471      &  108  & 123   & 123  & 132   & 132   \\
-		mybatis-3.5.6         		  		&  19232    &  575  & N/A   & 577  &  N/A  & 1345     \\
+		mybatis-3.5.6         		  		&  19232    &  575  & 577   & 577  & 644 & 1345     \\
 		quartz-core-2.3.1       	  		&  3436     &  21   & 21    & 21   & 23    & 31    \\
 		vraptor-core-3.5.51        	  		&  5868     &  942  & 963   & 962  & 1301  & 1630   \\
 		\bottomrule
-		Total        	  				&  63017    & 2095  & N/A   & 2130  & N/A  & 5315   \\
-	\end{tabular}
+		Total        	  				&  63017    & 2095  & 2131   & 2130  & 3998  & 5315   \\
+	\end{tabular}}
 	%	\end{adjustbox}
 	\label{tab:invokes}
 \end{table*}
