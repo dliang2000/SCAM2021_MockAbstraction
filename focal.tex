@@ -27,7 +27,12 @@ test case implements several sub-scenarios.
 
 We discuss precision and recall issues. 
 
-Include text from thesis 5.1 here.
+%Include text from thesis 5.1 here.
+We now revisit the unit test case presented in Listing~\ref{lis:mockCall}. Figure~\ref{fig:mockExampleEvaluation} highlights the process for finding the mock object \texttt{session} and consequently the mock invocation \texttt{getRequest()} in the unit test. Both Soot and Doop implementations report this mock invocation 
+from the test case. Thus, with the assistance of \textsc{MockDetector}, \texttt{getRequest()} can be removed from the consideration as a focal method. We judge \texttt{getToolchainsForType()} to be the focal method since it is the only method invocation remaining after the elimination process. In addition, for the return array \texttt{basics}, its \texttt{length} attribute indeed gets checked in the assertion statement on Line~\ref{line:assert}, which means this test case indeed tests the behaviour of \texttt{toolchainManager.getToolchainsForType()}. 
+For this unit test, since Ghafari's algorithm does not consider accessors (or so-called inspector methods in the paper) as focal methods, they will presumably report no focal method for this unit test case. This clearly is an incorrect result from Ghafari's algorithm.
+
+Meanwhile, since the heuristic of Ghafari's algorithm requires the unit test case to have at least one assertion statement, the algorithm will presumably have undefined behaviour analyzing unit test cases without assertions.
 
 \begin{table*}
 	\centering
@@ -48,3 +53,28 @@ Include text from thesis 5.1 here.
 	\end{tabular}}
 	\label{tab:focal-method-algorithm-comparison}
 \end{table*}
+
+
+\begin{figure}[h]
+	\begin{lstlisting}[
+	basicstyle=\ttfamily\scriptsize,language = Java, framesep=4.5mm, framexleftmargin=1.0mm, captionpos=b, escapechar={|}, mathescape=true, morekeywords={@Test}]
+	@Test
+	public void testMisconfiguredToolchain() throws Exception {
+			//        				mock:|\cmark|	 			mockAPI:|\cmark|
+			MavenSession |\colorbox{olive}{session}| = |\colorbox{teal}{mock}| ( MavenSession.class );
+			MavenExecutionRequest req = 
+					new DefaultMavenExecutionRequest();
+			//     mock invocation:|\cmark| $\Rightarrow$ focal method:|\xmark|
+			when( session.|\colorbox{red}{getRequest()}| ).thenReturn( req ); |\label{line:mock}|
+			
+			ToolchainPrivate[] basics =
+			//     					 					focal method:|\cmark|
+			toolchainManager.|\colorbox{gray}{getToolchainsForType}|("basic", session); |\label{line:real}|
+			
+			assertEquals( 0, basics.length );|\label{line:assert}|
+	}
+	\end{lstlisting}
+	
+	\caption{Qualitative evaluation of removing mock invocation from focal method consideration.}
+	\label{fig:mockExampleEvaluation}
+\end{figure}
