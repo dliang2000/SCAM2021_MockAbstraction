@@ -1,13 +1,15 @@
 \section{Evaluation}
 \label{sec:evaluation}
 
+We will now quantitatively characterize the performance of our mock analysis implementations on a suite of popular open-source applications. We also provide evidence about the importance of mock invocations to test suites, and discuss applications of our analysis to focal method detection.
+
 \begin{table*}
 	\centering
 	\caption{Our suite of 8 open-source benchmarks (8000--117000 LOC) plus our microbenchmark. Soot and Doop analysis runtimes.}
 	%	\begin{adjustbox}{width=0.1\textwidth}
 	\resizebox{\textwidth}{!}{\begin{tabular}{lrrrrrrr}
 		\toprule
-		Benchmark & Total LOC & Test LOC & \thead{Soot intraproc \\ total time (s)} & \thead{Doop intraproc \\ total time (s)} & \thead{Soot intraproc \\ mock analysis (s)}  & \thead{Doop intraproc \\ mock analysis (s)} & \thead{Doop interproc \\ mock analysis (s)} \\
+		Benchmark & Total LOC & Test LOC & \thead{Soot intraproc \\ total (s)} & \thead{Doop intraproc \\ total (s)} & \thead{Soot intraproc \\ mock analysis (s)}  & \thead{Doop intraproc \\ mock analysis (s)} & \thead{Doop interproc \\ mock analysis (s)} \\
 		\midrule
 		bootique-2.0.B1-bootique         &  15530   & 8595   & 58  & 2810  &  0.276   & 19.93  & 24.90    \\
 		commons-collections4-4.4         &  65273   & 36318  & 114 & 694   &  0.386   & 14.20  & 16.64     \\
@@ -116,25 +118,6 @@
 	\label{tab:test-coverages}
 \end{table*}
 
-\begin{table*}
-	\centering
-	\caption{Comparison of \% of test cases with reported focal methods by the two automated focal method detection algorithms.}
-	\vspace*{.5em}
-	\resizebox{\textwidth}{!}{\begin{tabular}{lrrrrrlrrrr} \toprule
-		\multicolumn{5}{c}{Ghafari's algorithm} & & \multicolumn{5}{c}{methods2test}\\
-		\cmidrule{1-5} \cmidrule{7-11}
-		\thead{Benchmark} & \thead{Source Code \\ KLoC} & \thead{Reported \\ Focal Methods} & \thead{Test Cases} & \thead{\% of test cases \\ with focal \\ methods detected} &  & \thead{Benchmark} & \thead{Source Code \\ KLoC} & \thead{Reported \\ Focal Methods} & \thead{Test Cases} & \thead{\% of test cases \\ with focal \\ methods detected} \\ 
-		\cmidrule{1-5} \cmidrule{7-11}
-		
-		commons-email-1.3.3 & 8.78 & 90  & 130 &  69\%  &  &    goja-0.1.14/goja-core  & 11.52 & 27  & 80 &  34\% \\
-		PureMVC-1.0.8 & 19.46 & 34  & 43 &  79\%  &  &  mock-socket-0.9.0    & 1.09  & 4  & 34 &  12\%      \\
-		XStream-1.4.4 & 54.93 & 513  & 968 &  53\%   &  &  project-sunbird-4.3.0/sunbird-lms-service   & 45.36 & 310  & 984 &  31\%   \\
-		JGAP-3.4.4  & 73.96 & 1015  & 1390 &  73\%  &  &   optiq-0.8/core    & 93.94  & 26  & 1346 &  2\%   \\
-		\bottomrule
-		Geometric Mean &   &  &  &  68\% &   &  &  &  &  &  12\% 
-	\end{tabular}}
-	\label{tab:focal-method-algorithm-comparison}
-\end{table*}
 
 %\begin{table*}
 %	\centering
@@ -170,25 +153,25 @@
 %% 	\emph{RQ 2: Would this be helpful for existing static analysis tools?}
 %% \end{quote}
 
-%% \subsection{Quantitative Analysis}
-%% \label{subsec:effectiveness}
 
-We have evaluated \textsc{MockDetector} on 8 open-source benchmarks, along with a micro-benchmark that we developed to test our tool. We ran all of our experiments on a 32-core Intel(R) Xeon(R) CPU E5-4620 v2 at 2.60GHz with 128GB of RAM running Ubuntu 16.04.7 LTS.
+\paragraph{Evaluating our analysis} We have evaluated \textsc{MockDetector} on 8 open-source benchmarks, along with a micro-benchmark that we developed to test our tool. We ran all of our experiments on a 32-core Intel(R) Xeon(R) CPU E5-4620 v2 at 2.60GHz with 128GB of RAM running Ubuntu 16.04.7 LTS.
 
-Table~\ref{tab:runtimes} presents summary information about our benchmarks and runtimes, namely the LOC and Soot and Doop analysis runtimes for each benchmark. The 9 benchmarks include over 383 kLOC, with 184 kLOC in the test suites, as measured by SLOCCount. The Soot total time is the amount of time that it takes for Soot to analyze the benchmark and test suite in whole-program mode, including our analyses. The Soot intra-procedural analysis time is the sum of runtimes for the main analysis plus two pre-analyses, as described in Section~\ref{subsec:soot}. Meanwhile, the reported Doop runtime is from the context-insensitive analysis, while the Doop analysis time for intra-procedural mock invocation analysis is for running the analysis alone based on recorded facts from the benchmark. The total Doop runtime is much slower than the total Soot runtime because Doop always computes a callgraph, which is an expensive operation. The Doop analysis-only time is also slower than the Soot time; we believe that this is because it computes a solution over the entire program, as opposed to Soot, which works one method at a time.
+Table~\ref{tab:runtimes} presents summary information about our benchmarks and runtimes, namely the LOC and Soot and Doop analysis runtimes for each benchmark. The 9 benchmarks include over 383 kLOC, with 184 kLOC in the test suites, as measured by SLOCCount. The Soot total time is the amount of time that it takes for Soot to analyze the benchmark and test suite in whole-program mode, including our analyses. The Soot intra-procedural analysis time is the sum of runtimes for the main analysis plus two pre-analyses, as described in Section~\ref{subsec:soot}. Meanwhile, the reported Doop runtime is from the context-insensitive analysis, while the Doop analysis time for intra-procedural and inter-procedural mock invocation analyses are for running the analysis alone based on recorded facts from the benchmark. The total Doop runtime is much slower than the total Soot runtime because Doop always computes a callgraph, which is an expensive operation. The Doop analysis-only time is also slower than the Soot time; we believe that this is because it computes a solution over the entire program, as opposed to Soot, which works one method at a time.
 %The major difference between the Doop's total runtime and the actual time spent on mock invocation analysis comes from the build of the complete graph. %Add reference for SLOCCount.
 
-We next investigated the prevalence of mocks. Table~\ref{tab:mocks} presents the number of test-related (Test/Before/After) methods which contain local variables or which access fields that are mocks, mock-containing arrays, or mock-containing collections, as reported by our Soot-based intra-procedural analysis. Across the 8 benchmarks, test-related methods containing local/field mocks or mock-containing containers accounted for 0.35\% to 51.8\% of the total number of test-related methods found in public concrete test classes. Our benchmarks are from different domains and created by different groups of developers. The difference in mock usage reflects their different philosophies and constraints regarding the creation and usage of mock objects in tests. Benchmarks like \textsc{vraptor-core} and \textsc{jsonschema2pojo-core} have more than half of their test-related methods containing mock objects (and mock-containing arrays); in both of these, most field mocks are created via annotations and reused in multiple test cases in the same class.
+We next investigated the prevalence of mocks. Table~\ref{tab:mocks} presents the number of test-related (Test/Before/After) methods which contain local variables or which access fields that are mocks, mock-containing arrays, or mock-containing collections, as reported by our Soot-based intra-procedural analysis. Across the 8 benchmarks, test-related methods containing local/field mocks or mock-containing containers accounted for 0.35\% to 51.8\% of the total number of test-related methods found in public concrete test classes.  Our benchmarks are from different domains and created by different groups of developers. Of these benchmarks, 3 show very little mock use, while 2 show extensive use, with the remainder in between. Benchmarks \textsc{vraptor-core} and \textsc{jsonschema2pojo-core} have more than half of their test-related methods containing mock objects (and mock-containing arrays); in both of these, most field mocks are created via annotations and reused in multiple test cases in the same class. The difference in mock usage reflects their different philosophies and constraints regarding the creation and usage of mock objects in tests.
 
-The core result is in Table~\ref{tab:invokes}, which presents the number of method invocations on mocks detected by our implementations. We present numbers from the imperative intraprocedural Soot implementation, as well as four versions of the declarative Doop implementation\footnote{mybatis times out for Doop's basic-only analysis even without our mock analysis, and we report N/A for its times; surprisingly, Doop context-insensitive successfully analyzes it.}: \{ ``basic-only'' (class hierarchy analysis, ``context-insensitive'' \} Doop base analysis $\times$ \{ intraprocedural, interprocedural \}. Note that our declarative and imperative implementations find exactly the same number of intraprocedural mock invocations for 4 of our benchmarks. On the others, the main source of missed mock calls in the Soot implementation is from missing support for array or collection related functions. Our intra-procedural analysis finds that method invocations on mock objects account for a range from 0.086\% to 16.4\% of the total number of invocations. 
+Table~\ref{tab:invokes} is the core result about our mock analyses. It presents the number of method invocations on mocks detected by our implementations. We include numbers from the imperative intraprocedural Soot implementation, as well as four versions of the declarative Doop implementation\footnote{mybatis times out for Doop's basic-only analysis even without our mock analysis, and we report N/A for its times; surprisingly, Doop context-insensitive successfully analyzes it.}: \{ ``basic-only'' (class hierarchy analysis, ``context-insensitive'' \} Doop base analysis $\times$ \{ intraprocedural, interprocedural \}. The main source of missed mock calls in the Soot implementation is from missing support for array or collection related functions. Our intra-procedural analysis finds that method invocations on mock objects account for a range from 0.086\% to 16.4\% of the total number of invocations. 
 
 %--- discuss the numbers for the interprocedural analysis.
 
 In Section~\ref{sec:common} we discussed the implementation of our intraprocedural and interprocedural analyses. We can now discuss the effects of these implementation choices on the experimental results. Recall that we chose, unsoundly, to not propagate any information across method calls in the intraprocedural analysis. Thus, the intraproc columns in Table~\ref{tab:invokes} show smaller numbers than the interproc columns, as expected. The minor difference in \textsc{vraptor-core} is due to one method (which ought to be present) not showing up in Doop's context-insensitive callgraph. Note also that there is a sometimes drastic increase from the intraprocedural to the interprocedural result, e.g. from 40 to 1300 for \textsc{flink}. This is because mocks can (especially context-insensitively) propagate from tests to the methods that they call and all around the main program code. It would be desirable to be able to differentiate test helper methods, which we do want to propagate mocks to, from methods in the main program, which we generally do not want to propagate mocks to; however, our current analysis infrastructure treats test and main code identically.
 
-We have successfully executed our Doop analysis with different base analyses. We chose to report numbers for the context-insensitive base analysis here as it matches our own analysis. (It would also be possible, but require significantly more effort, to adapt our analysis to carry around context.)
+We have successfully executed our Doop analysis with different base analyses. We chose to report numbers for the context-insensitive base analysis here as it matches our own mock analysis. (It would also be possible, but require significantly more effort, to adapt our analysis to carry around context.)
 
-Talk about the new tables V and VI.
+\paragraph{Application: Mocks are important} You need our analysis (or a dynamic version thereof) to know!
+
+\paragraph{Application: Focal methods} Hmm we don't actually have anything here yet?
 
 %--- , indicates the removal of mock invocations from call graph would improve the call graph's accuracy on method coverage for the benchmarks on the high end of the mock invocation percentage. 
 
