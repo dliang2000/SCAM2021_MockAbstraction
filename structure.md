@@ -8,13 +8,16 @@ in three parts:
 # structure
 
 * introduction: which edits do we need? make consistent with main thesis above
-✓ motivating example: is it OK in this context?
-  - we do say some applications
-  - we could save some space by condensing the declarative, arrays+collections
+- motivating example: is it OK in this context?
+  ✓ we do say some applications
+  ✓ we could save some space by condensing the declarative, arrays+collections
+  - can add more applications from Ghafari
 * technique: should probably condense, but let's add all the content first
 * evaluation ** most of the new work goes here ** <- david has to do this
-  - add new content from thesis
-  - add applicability of mocks in test coverage
+  ✓ add new content from thesis
+  ✓ add applicability of mocks in test coverage
+  - application: mocks are important
 * related work
+  - add work cited by Ghafari
   - look up PC members
 * discussion: rework significantly for the new targetting

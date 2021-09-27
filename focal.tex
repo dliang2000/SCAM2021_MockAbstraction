@@ -1,11 +1,33 @@
-\section{Finding Focal Methods}
+\section{Application: Finding Focal Methods}
 \label{sec:focal}
 
-In this section we describe how Ghafari finds focal methods (we can cut and paste from other parts of the text) and how methods2test finds focal methods.
+We anticipate that one useful application of mock detection is to
+improve the detection of focal methods in test cases, or as Ghafari et
+al~\cite{ghafari15:_autom} call them, focal methods under test
+(F-MUTs). In this section, we will discuss some approaches to finding
+focal methods, and describe how our analysis can facilitate this search.
 
-We discuss precision and recall issues.
+Ghafari's approach is the one that is most amenable to our work.
+Their approach is applicable to tests for classes that implement
+stateful objects, and assume that each test has at least one focal
+method, seen as a call to a mutator method for the class under test.
+The last such call is the focal method. However, their approach can
+only work on tests of mutator methods.  Purely-functional methods, for
+instance, are beyond the scope of their approach.
 
-Is it true that every test has at least one focal method? I can believe that a test may have more than one focal method. Think about what it means to have 0 focal methods.
+Another approach is name-based, as seen in the methods2test
+dataset~\cite{tufano2020unit}.  This approach uses two heuristics: 1)
+the name of the test matches the name of the focal method; or, 2) the
+test calls a unique method in the focal class. Rompaey and
+Demeyer~\cite{rompaey09:_estab_traceab_links_unit_test} explore the
+name-based approach along with simply using the last method called
+(not necessarily a mutator) as the focal method.  Ghafari points out
+that these heuristics have significant limitations, especially when a
+test case implements several sub-scenarios.
+
+We discuss precision and recall issues. 
+
+Include text from thesis 5.1 here.
 
 \begin{table*}
 	\centering
