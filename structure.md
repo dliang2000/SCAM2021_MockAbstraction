@@ -16,9 +16,9 @@ in three parts:
 * evaluation ** most of the new work goes here ** <- david has to do this
   ✓ add new content from thesis
   ✓ add applicability of mocks in test coverage
-  - application: mocks are important
+  ✓ application: mocks are important
 * related work
-  - add work cited by Ghafari
+  ✓ add work cited by Ghafari
   - look up PC members
 * discussion: rework significantly for the new targetting
 
@@ -26,9 +26,8 @@ TODO:
 * modify the code to identify "*Mock* and "Mock*" classes as mocks
 
 * introduction
-2) motivating example: add more applications
+1) motivating example: add more applications
 * condense technique
-1) write about how mocks are important
 * precision and recall in section V
 * related work: look up PC members [QL]
 * discussion
