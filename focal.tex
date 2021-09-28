@@ -59,23 +59,25 @@ As for the heuristica for methods2test, method \texttt{getToolChainsForType()} d
 \begin{figure}[h]
 	\begin{lstlisting}[
 	basicstyle=\ttfamily\scriptsize,language = Java, framesep=4.5mm, framexleftmargin=1.0mm, captionpos=b, escapechar={|}, mathescape=true, morekeywords={@Test}]
-	@Test
-	public void testMisconfiguredToolchain() throws Exception {
-			//        				mock:|\cmark|	 			mockAPI:|\cmark|
-			MavenSession |\colorbox{olive}{session}| = |\colorbox{teal}{mock}| ( MavenSession.class );
-			MavenExecutionRequest req = 
-					new DefaultMavenExecutionRequest();
-			//     mock invocation:|\cmark| $\Rightarrow$ focal method:|\xmark|
-			when( session.|\colorbox{red}{getRequest()}| ).thenReturn( req ); |\label{line:mock}|
-			
-			ToolchainPrivate[] basics =
-			//     					 					focal method:|\cmark|
-			toolchainManager.|\colorbox{gray}{getToolchainsForType}|("basic", session); |\label{line:real}|
-			
-			assertEquals( 0, basics.length );|\label{line:assert}|
-	}
-	\end{lstlisting}
-	
-	\caption{Qualitative evaluation of removing mock invocation from focal method consideration.}
-	\label{fig:mockExampleEvaluation}
+  @Test
+  public void testMisconfiguredToolchain() 
+                      throws Exception {
+    //                mock:|\cmark|         mockAPI:|\cmark|
+    MavenSession |\colorbox{olive}{session}| = |\colorbox{teal}{mock}| ( MavenSession.class );
+    MavenExecutionRequest req =
+        new DefaultMavenExecutionRequest();
+    //     mock invocation:|\cmark| $\Rightarrow$ focal method:|\xmark|
+    when( session.|\colorbox{red}{getRequest()}| ).thenReturn( req ); |\label{line:mock}|
+
+    ToolchainPrivate[] basics =
+      //                          focal method:|\cmark|
+      toolchainManager.|\colorbox{gray}{getToolchainsForType}|("basic", 
+                                                           session); |\label{line:real}|
+
+    assertEquals( 0, basics.length );|\label{line:assert}|
+  }
+  \end{lstlisting}
+
+  \caption{Qualitative evaluation of removing mock invocation from focal method consideration.}
+  \label{fig:mockExampleEvaluation}
 \end{figure}
