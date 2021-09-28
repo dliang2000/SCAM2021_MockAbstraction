@@ -20,14 +20,14 @@ dataset~\cite{tufano2020unit}.  This approach uses two heuristics: 1)
 the name of the test matches the name of the focal method; or, 2) the
 test calls a unique method in the focal class. Rompaey and
 Demeyer~\cite{rompaey09:_estab_traceab_links_unit_test} explore the
-name-based approach along with simply using the last method called
-(not necessarily a mutator) as the focal method.  Ghafari points out
+name-based approach along with simply using the last method called---not necessarily a mutator---as the class containing the focal method.  Romaey and Demeyer also
+explore other heuristics, as we discuss in~\ref{sec:related}. Ghafari et al point out
 that these heuristics have significant limitations, especially when a
 test case implements several sub-scenarios.
 
-We discuss precision and recall issues. 
+\todo{We discuss precision and recall issues.}
 
-\paragraph{Example.} We now revisit the unit test case presented in Listing~\ref{lis:mockCall}. Figure~\ref{fig:mockExampleEvaluation} highlights the process for finding the mock object \texttt{session} and consequently the mock invocation \texttt{getRequest()} in the unit test. Both Soot and Doop implementations report this mock invocation 
+\paragraph{Example} We now revisit the unit test case presented in Listing~\ref{lis:mockCall}. Figure~\ref{fig:mockExampleEvaluation} highlights the process for finding the mock object \texttt{session} and consequently the mock invocation \texttt{getRequest()} in the unit test. Both Soot and Doop implementations report this mock invocation 
 from the test case. Thus, with the assistance of \textsc{MockDetector}, \texttt{getRequest()} can be removed from consideration as a focal method. We judge \texttt{getToolchainsForType()} to be the focal method since it is the only method invocation remaining after the elimination process. In addition, for the return array \texttt{basics}, its \texttt{length} attribute indeed gets checked in the assertion statement on Line~\ref{line:assert}, which means this test case indeed tests the behaviour of \texttt{toolchainManager.getToolchainsForType()}. 
 
 For this unit test, since Ghafari's algorithm does not consider accessors (or so-called inspector methods in the paper) as focal methods, they will presumably report no focal method for this unit test case. This clearly is an incorrect result from Ghafari's algorithm.
@@ -67,12 +67,12 @@ As for the heuristica for methods2test, method \texttt{getToolChainsForType()} d
     MavenExecutionRequest req =
         new DefaultMavenExecutionRequest();
     //     mock invocation:|\cmark| $\Rightarrow$ focal method:|\xmark|
-    when( session.|\colorbox{red}{getRequest()}| ).thenReturn( req ); |\label{line:mock}|
+    when( session.|\colorbox{red}{getRequest()}| ).thenReturn( req ); |\label{line:Fmock}|
 
     ToolchainPrivate[] basics =
       //                          focal method:|\cmark|
       toolchainManager.|\colorbox{gray}{getToolchainsForType}|("basic", 
-                                                           session); |\label{line:real}|
+                                                           session); |\label{line:Freal}|
 
     assertEquals( 0, basics.length );|\label{line:assert}|
   }
