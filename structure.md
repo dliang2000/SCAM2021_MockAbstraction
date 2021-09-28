@@ -28,6 +28,6 @@ TODO:
 * introduction
 1) motivating example: add more applications
 * condense technique
-* precision and recall in section V
-* related work: look up PC members [QL]
-* discussion
+* precision and recall in section V [QL]
+* related work: look up PC members
+2) discussion
