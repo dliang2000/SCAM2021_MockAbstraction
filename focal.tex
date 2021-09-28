@@ -27,12 +27,13 @@ test case implements several sub-scenarios.
 
 We discuss precision and recall issues. 
 
-%Include text from thesis 5.1 here.
-We now revisit the unit test case presented in Listing~\ref{lis:mockCall}. Figure~\ref{fig:mockExampleEvaluation} highlights the process for finding the mock object \texttt{session} and consequently the mock invocation \texttt{getRequest()} in the unit test. Both Soot and Doop implementations report this mock invocation 
-from the test case. Thus, with the assistance of \textsc{MockDetector}, \texttt{getRequest()} can be removed from the consideration as a focal method. We judge \texttt{getToolchainsForType()} to be the focal method since it is the only method invocation remaining after the elimination process. In addition, for the return array \texttt{basics}, its \texttt{length} attribute indeed gets checked in the assertion statement on Line~\ref{line:assert}, which means this test case indeed tests the behaviour of \texttt{toolchainManager.getToolchainsForType()}. 
-For this unit test, since Ghafari's algorithm does not consider accessors (or so-called inspector methods in the paper) as focal methods, they will presumably report no focal method for this unit test case. This clearly is an incorrect result from Ghafari's algorithm.
+\paragraph{Example.} We now revisit the unit test case presented in Listing~\ref{lis:mockCall}. Figure~\ref{fig:mockExampleEvaluation} highlights the process for finding the mock object \texttt{session} and consequently the mock invocation \texttt{getRequest()} in the unit test. Both Soot and Doop implementations report this mock invocation 
+from the test case. Thus, with the assistance of \textsc{MockDetector}, \texttt{getRequest()} can be removed from consideration as a focal method. We judge \texttt{getToolchainsForType()} to be the focal method since it is the only method invocation remaining after the elimination process. In addition, for the return array \texttt{basics}, its \texttt{length} attribute indeed gets checked in the assertion statement on Line~\ref{line:assert}, which means this test case indeed tests the behaviour of \texttt{toolchainManager.getToolchainsForType()}. 
 
-Meanwhile, since the heuristic of Ghafari's algorithm requires the unit test case to have at least one assertion statement, the algorithm will presumably have undefined behaviour analyzing unit test cases without assertions.
+For this unit test, since Ghafari's algorithm does not consider accessors (or so-called inspector methods in the paper) as focal methods, they will presumably report no focal method for this unit test case. This clearly is an incorrect result from Ghafari's algorithm.
+Incidentally, since the heuristic of Ghafari's algorithm requires the unit test case to have at least one assertion statement, the algorithm will presumably fail to return any focal methods when analyzing unit test cases without assertions.
+
+As for the heuristica for methods2test, method \texttt{getToolChainsForType()} does not seem like it should match under the name-based heuristic from methods2test. The other heuristic finds calls to the focal class, so methods2test should properly identify the call to \texttt{getToolChainsForType()} using that heuristic. Our mock analysis can help with that heuristic as well, by removing mocks from the set of eligible focal classes.
 
 \begin{table*}
 	\centering
