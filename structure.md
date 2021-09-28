@@ -21,3 +21,11 @@ in three parts:
   - add work cited by Ghafari
   - look up PC members
 * discussion: rework significantly for the new targetting
+
+TODO:
+* introduction
+* motivation example: add more applications
+* condense technique
+* write about how mocks are important
+* related work: add Ghafari works cited, look up PC members
+* discussion
