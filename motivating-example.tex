@@ -8,19 +8,19 @@ To motivate our work, consider Listing~\ref{lis:mockCall}, which presents a unit
 \begin{lstlisting}[basicstyle=\ttfamily, caption={This code snippet illustrates an example from maven-core, where calls to both the focal method \texttt{getToolchainsForType()} and to mock \texttt{session}'s \texttt{getRequest()} method occur in test \textit{testMisconfiguredToolchain()}.},
 basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm, escapechar=|,
 framexleftmargin=1.0mm, captionpos=b, label=lis:mockCall, morekeywords={@Test}]
-@Test
-public void testMisconfiguredToolchain()
-                 throws Exception {
-    MavenSession session = mock( MavenSession.class );
-    MavenExecutionRequest req = 
-      new DefaultMavenExecutionRequest();
-    when( session.getRequest() ).thenReturn( req ); |\label{line:mock}|
-    
-    ToolchainPrivate[] basics =
-      toolchainManager.getToolchainsForType("basic", session); |\label{line:real}|
-    
-    assertEquals( 0, basics.length );
-}
+	@Test
+	public void testMisconfiguredToolchain()
+	                 throws Exception {
+	    MavenSession session = mock( MavenSession.class );
+	    MavenExecutionRequest req = 
+	      new DefaultMavenExecutionRequest();
+	    when( session.getRequest() ).thenReturn( req ); |\label{line:mock}|
+	    
+	    ToolchainPrivate[] basics =
+	      toolchainManager.getToolchainsForType("basic", session); |\label{line:real}|
+	    
+	    assertEquals( 0, basics.length );
+	}
 \end{lstlisting}
 
 \paragraph{Basic dataflow analysis} The dataflow analysis based \textsc{MockDetector} implementation maintains an abstraction mapping values (local variables or field references) in Soot's Jimple intermediate representation (IR)~\cite{Vallee-Rai:1999:SJB:781995.782008} to \texttt{MockStatus}, which holds three bits monitoring each value's status (whether it is a mock, a mock-containing array, or a mock-containing collection). The declarative version maintains relations which track the same bits.
@@ -28,17 +28,17 @@ public void testMisconfiguredToolchain()
 \begin{figure}
 \begin{lstlisting}[basicstyle=\ttfamily,
 basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm, framexleftmargin=1.0mm, captionpos=b, escapechar=|, morekeywords={@Test}]
-//        mock: |\xmark~\,|    mockAPI: |\xmark|
-Object object1 = new Object();
-
-// mock: |\xmark|
-object1.foo();
-
-//        mock: |\cmark|     mockAPI: |\cmark|
-Object object2 = mock(Object.class);
-
-// mock: |\cmark|
-object2.foo();
+	//        mock: |\xmark~\,|    mockAPI: |\xmark|
+	Object object1 = new Object();
+	
+	// mock: |\xmark|
+	object1.foo();
+	
+	//        mock: |\cmark|     mockAPI: |\cmark|
+	Object object2 = mock(Object.class);
+	
+	// mock: |\cmark|
+	object2.foo();
 \end{lstlisting}
 %    \includegraphics[width=.25\textwidth]{Images/mockInvocationIllustration.png}
     
@@ -54,15 +54,15 @@ On the other hand, our imperative analysis sees the mock creation API \texttt{<o
 
 \begin{lstlisting}[basicstyle=\ttfamily, caption={Jimple Intermediate Representation for the code in Figure~\ref{fig:mockMethodIllustration}.},
 basicstyle=\scriptsize\ttfamily, captionpos=b, label=lis:mockMethodIllustrationIR, escapechar=|, morekeywords={@Test, specialinvoke, virtualinvoke, staticinvoke}]
-java.lang.Object $r1, r2;
-
-$r1 = new java.lang.Object; |\label{line:lis3line3}|
-specialinvoke $r1.<java.lang.Object: void <init>()>(); |\label{line:lis3line4}|
-virtualinvoke $r1.<java.lang.Object: void foo()>(); |\label{line:lis3line5}|
-r2 = staticinvoke <org.mockito.Mockito: |\label{line:lis3line6}|
-        java.lang.Object mock(java.lang.Class)> |\label{line:lis3line7}|
-     (class "Ljava/lang/Object;");
-virtualinvoke r2.<java.lang.Object: void foo()>(); |\label{line:lis3line9}|
+	java.lang.Object $r1, r2;
+	
+	$r1 = new java.lang.Object; |\label{line:lis3line3}|
+	specialinvoke $r1.<java.lang.Object: void <init>()>(); |\label{line:lis3line4}|
+	virtualinvoke $r1.<java.lang.Object: void foo()>(); |\label{line:lis3line5}|
+	r2 = staticinvoke <org.mockito.Mockito: |\label{line:lis3line6}|
+	        java.lang.Object mock(java.lang.Class)> |\label{line:lis3line7}|
+	     (class "Ljava/lang/Object;");
+	virtualinvoke r2.<java.lang.Object: void foo()>(); |\label{line:lis3line9}|
 \end{lstlisting}
 
 \paragraph{Basic declarative analysis} Again referring to Jimple Listing~\ref{lis:mockMethodIllustrationIR}, this time we ask whether the invocation on Jimple line~\ref{line:lis3line9} satisfies predicate \texttt{isMockInvocation} (facts Listing~\ref{lis:facts}, line~\ref{line:facts-imi}), which we define to hold the analysis result---namely, all mock invocation sites in the program. It does, because of facts lines~\ref{line:facts-vmi}--\ref{line:facts-imv}: Jimple line~\ref{line:lis3line9} contains a virtual method invocation, and the receiver object \texttt{r2} for the invocation on that line satisfies our predicate \texttt{isMockVar}, which holds all mock-containing variables in the program (Section~\ref{sec:dec-doop} provides more details). Predicate \texttt{isMockVar} holds because of lines~\ref{line:facts-arv}--\ref{line:facts-cms}: \texttt{r2} satisfies \texttt{isMockVar} because Jimple line~\ref{line:lis3line6} assigns \texttt{r2} the return value from mock source method \texttt{createMock} (facts line~\ref{line:facts-arv}), and the call to \texttt{createMock} satisfies predicate \texttt{callsMockSource} (facts line~\ref{line:facts-cms}), which requires that the call destination \texttt{createMock} be enumerated as a constant in our 1-ary relation \texttt{MockSourceMethod} (facts line~\ref{line:facts-msm}), and that there be a call graph edge between the method invocation at line~\ref{line:lis3line6} and the mock source method (facts line~\ref{line:facts-cge}).
@@ -70,19 +70,19 @@ virtualinvoke r2.<java.lang.Object: void foo()>(); |\label{line:lis3line9}|
 
 \begin{lstlisting}[basicstyle=\ttfamily, caption={Facts about invocation \texttt{r2.foo()} in method \texttt{test}.},
 basicstyle=\scriptsize\ttfamily, framesep=4.5mm, framexleftmargin=1.0mm, captionpos=b, label=lis:facts, escapechar=!, morekeywords={@Test}]
-isMockInvocation(<Object: void foo()>/test/0, 
-                 <Object: void foo()>, test, _. r2). !\label{line:facts-imi}!
-|VirtualMethodInvocation(<Object: void foo()>/test/0, !\label{line:facts-vmi}!
-|                        <Object: void foo()>, test).
-|VirtualMethodInvocation_Base(<Object: void foo()>/test/0, 
-|                                  r2).
-|isMockVar(r2). !\label{line:facts-imv}!
-|-AssignReturnValue(<Mockito: Object mock(Class)>/test/0, !\label{line:facts-arv}!
-|                        r2). 
-|-callsMockSource(<Mockito: Object mock(Class)>/test/0). !\label{line:facts-cms}!
-  |MockSourceMethod(<Mockito: Object mock(Class)>). !\label{line:facts-msm}!
-  |CallGraphEdge(_, <Mockito: Object mock(Class)>/test/0, _, !\label{line:facts-cge}!
-  |              <Mockito: Object mock(Class)>). 
+	isMockInvocation(<Object: void foo()>/test/0, 
+	                 <Object: void foo()>, test, _. r2). !\label{line:facts-imi}!
+	|VirtualMethodInvocation(<Object: void foo()>/test/0, !\label{line:facts-vmi}!
+	|                        <Object: void foo()>, test).
+	|VirtualMethodInvocation_Base(<Object: void foo()>/test/0, 
+	|                                  r2).
+	|isMockVar(r2). !\label{line:facts-imv}!
+	|-AssignReturnValue(<Mockito: Object mock(Class)>/test/0, !\label{line:facts-arv}!
+	|                        r2). 
+	|-callsMockSource(<Mockito: Object mock(Class)>/test/0). !\label{line:facts-cms}!
+	  |MockSourceMethod(<Mockito: Object mock(Class)>). !\label{line:facts-msm}!
+	  |CallGraphEdge(_, <Mockito: Object mock(Class)>/test/0, _, !\label{line:facts-cge}!
+	  |              <Mockito: Object mock(Class)>). 
 \end{lstlisting}
 
 
@@ -90,32 +90,32 @@ isMockInvocation(<Object: void foo()>/test/0,
 
 \begin{lstlisting}[basicstyle=\ttfamily, caption={This example illustrates a field array container holding mock objects from \textit{setup()} in \texttt{NodeListIteratorTest.java}.},
 basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm, framexleftmargin=1.0mm, captionpos=b, label=lis:container, escapechar=|, morekeywords={@Test}]
-// Node array to be filled with mock Node instances
-private Node[] nodes;
-@Test
-protected void setUp() throws Exception {
-    // create mock Node Instances and 
-    // fill Node[] to be used by test cases
-    final Node node1 = createMock(Element.class);
-    final Node node2 = createMock(Element.class);
-    final Node node3 = createMock(Text.class);
-    final Node node4 = createMock(Element.class);
-    nodes = new Node[] {node1, node2, node3, node4}; |\label{line:storeMocksInArray}|
-    // ...
-}
+	// Node array to be filled with mock Node instances
+	private Node[] nodes;
+	@Test
+	protected void setUp() throws Exception {
+	    // create mock Node Instances and 
+	    // fill Node[] to be used by test cases
+	    final Node node1 = createMock(Element.class);
+	    final Node node2 = createMock(Element.class);
+	    final Node node3 = createMock(Text.class);
+	    final Node node4 = createMock(Element.class);
+	    nodes = new Node[] {node1, node2, node3, node4}; |\label{line:storeMocksInArray}|
+	    // ...
+	}
 \end{lstlisting}
 
 Figure~\ref{fig:arrayMockIllustration} illustrates the process of identifying a mock-containing array, and Listing~\ref{lis:arrayIllustrationIR} displays the Jimple IR of the code in Figure~\ref{fig:arrayMockIllustration}. Our analysis reaches the mock API call on line~\ref{line:lis4line4}--\ref{line:lis4line6}, where it records that \texttt{\$r2} is a mock object---it creates a MockStatus abstraction object with mock bit set to 1 and associates that object with \texttt{\$r2}. The tool would then handle the cast expression assigning to \texttt{r1} on line~\ref{line:lis4line7}, giving it the same MockStatus as \texttt{\$r2}. When the analysis reaches line~\ref{line:lis4line9}, it finds an array reference on the left hand side, along with \texttt{r1} stored in the array on the right hand side of the assignment statement. At that point, it has a MockStatus associated with \texttt{r1}, with the mock bit turned on. It can now deduce that \texttt{\$r3} at the left hand is an array container which may hold a mock object. Therefore, \textsc{MockDetector}'s imperative static analysis associates \texttt{\$r3} with a MockStatus with mock-containing array bit (``arrayMock'') set to 1. Collections work the same way, except that we use hard-coded methods from the Java Collections API to identify collections accesses.
 
 
-\begin{figure}
+\begin{figure}[h]
 \begin{lstlisting}[
 basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm, framexleftmargin=1.0mm, captionpos=b, escapechar=|, morekeywords={@Test}]
-//        mock: |\cmark|     mockAPI: |\cmark|
-Object object1 = createMock(Object.class);
-
-// arrayMock: |\cmark| |$\Leftarrow$| array-write    |~~|  mock: |\cmark|
-objects  |~~|           = new Object[]  |~|  { object1 };
+	//        mock: |\cmark|     mockAPI: |\cmark|
+	Object object1 = createMock(Object.class);
+	
+	// arrayMock: |\cmark| |$\Leftarrow$| array-write    |~~|  mock: |\cmark|
+	objects  |~~|           = new Object[]  |~|  { object1 };
 \end{lstlisting}
     
     \caption{Our static analysis also finds array mocks.}
@@ -125,15 +125,15 @@ objects  |~~|           = new Object[]  |~|  { object1 };
 
 \begin{lstlisting}[basicstyle=\ttfamily, caption={Jimple Intermediate Representation for the array in Figure~\ref{fig:arrayMockIllustration}.},
 basicstyle=\scriptsize\ttfamily, framesep=4.5mm, framexleftmargin=1.0mm, captionpos=b, label=lis:arrayIllustrationIR, escapechar=|, morekeywords={@Test, specialinvoke, virtualinvoke, staticinvoke, newarray}]
-java.lang.Object r1, $r2;
-java.lang.Object[] $r3;
-
-$r2 = staticinvoke <org.easymock.EasyMock: |\label{line:lis4line4}|
-         java.lang.Object createMock(java.lang.Class)>
-     (class "java.lang.Object;"); |\label{line:lis4line6}|
-r1 = (java.lang.Object) $r2; |\label{line:lis4line7}|
-$r3 = newarray (java.lang.Object)[1]; |\label{line:lis4line8}|
-$r3[0] = r1;  |\label{line:lis4line9}|
+	java.lang.Object r1, $r2;
+	java.lang.Object[] $r3;
+	
+	$r2 = staticinvoke <org.easymock.EasyMock: |\label{line:lis4line4}|
+	         java.lang.Object createMock(java.lang.Class)>
+	     (class "java.lang.Object;"); |\label{line:lis4line6}|
+	r1 = (java.lang.Object) $r2; |\label{line:lis4line7}|
+	$r3 = newarray (java.lang.Object)[1]; |\label{line:lis4line8}|
+	$r3[0] = r1;  |\label{line:lis4line9}|
 \end{lstlisting}
 
 
