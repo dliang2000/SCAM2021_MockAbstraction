@@ -56,22 +56,22 @@ We will now quantitatively characterize the performance of our mock analysis imp
 	\centering
 	\caption{Comparison of Number of InstanceInvokeExprs on Mock objects analyzed by Soot and Doop, and Total Number of InstanceInvokeExprs, in each benchmark's test suite.}
 	%	\begin{adjustbox}{width=0.1\textwidth}
-	\resizebox{\textwidth}{!}{\begin{tabular}{lrrrrrr}
+	\begin{tabular}{lrrrr}
 		\toprule
-		Benchmark & \thead{Total Number \\ of Invocations} & \thead{Mock Invokes \\ intraproc (Soot)} & \thead{Basic-only, \\ intraproc (Doop)} & \thead{Context-insensitive, \\ intraproc (Doop)} &  \thead{Basic-only, \\ interproc (Doop)} &\thead{Context-insensitive, \\ interproc (Doop)} \\
+		Benchmark & \thead{Total Number \\ of Invocations} & \thead{Mock Invokes \\ intraproc (Soot)}  & \thead{Context-insensitive, \\ intraproc (Doop)} &\thead{Context-insensitive, \\ interproc (Doop)} \\
 		\midrule
-		bootique-2.0.B1-bootique           		&  3366     &  99   & 99    & 99   & 120   & 122    \\
-		commons-collections4-4.4       			&  12753    &  11   & 3     &  3   & 23    & 23   \\
-		flink-core-1.13.0-rc1           		&  11923    &  40   & 40    & 40   & 1262  & 1389   \\
-		jsonschema2pojo-core-1.1.1      	     	&  1896     &  276  & 282   & 282  & 462   & 604   \\
-		maven-core-3.8.1           			&  4072     &  23   & 23    & 23   & 31    & 39  \\
-		microbenchmark         		  		&  471      &  108  & 123   & 123  & 132   & 132   \\
-		mybatis-3.5.6         		  		&  19232    &  575  & 577   & 577  & 644 & 1345     \\
-		quartz-core-2.3.1       	  		&  3436     &  21   & 21    & 21   & 23    & 31    \\
-		vraptor-core-3.5.51        	  		&  5868     &  942  & 963   & 962  & 1301  & 1630   \\
+		bootique-2.0.B1-bootique           		&  3366     &  99  & 99   & 122    \\
+		commons-collections4-4.4       			&  12753    &  11   &  3   & 23   \\
+		flink-core-1.13.0-rc1           		&  11923    &  40   & 40   & 1389   \\
+		jsonschema2pojo-core-1.1.1      	     	&  1896     &  276  & 282  & 604   \\
+		maven-core-3.8.1           			&  4072     &  23   & 23   & 39  \\
+		microbenchmark         		  		&  471      &  108  & 123  & 132   \\
+		mybatis-3.5.6         		  		&  19232    &  575  & 577  & 1345     \\
+		quartz-core-2.3.1       	  		&  3436     &  21   & 21   & 31    \\
+		vraptor-core-3.5.51        	  		&  5868     &  942  & 962  & 1630   \\
 		\bottomrule
-		Total        	  				&  63017    & 2095  & 2131   & 2130  & 3998  & 5315   \\
-	\end{tabular}}
+		Total        	  				&  63017    & 2095  & 2130  & 5315   \\
+	\end{tabular}
 	%	\end{adjustbox}
 	\label{tab:invokes}
 \end{table*}
@@ -161,7 +161,7 @@ Table~\ref{tab:runtimes} presents summary information about our benchmarks and r
 
 We next investigated the prevalence of mocks. Table~\ref{tab:mocks} presents the number of test-related (Test/Before/After) methods which contain local variables or which access fields that are mocks, mock-containing arrays, or mock-containing collections, as reported by our Soot-based intra-procedural analysis. Across the 8 benchmarks, test-related methods containing local/field mocks or mock-containing containers accounted for 0.35\% to 51.8\% of the total number of test-related methods found in public concrete test classes.  Our benchmarks are from different domains and created by different groups of developers. Of these benchmarks, 3 show very little mock use, while 2 show extensive use, with the remainder in between. Benchmarks \textsc{vraptor-core} and \textsc{jsonschema2pojo-core} have more than half of their test-related methods containing mock objects (and mock-containing arrays); in both of these, most field mocks are created via annotations and reused in multiple test cases in the same class. The difference in mock usage reflects their different philosophies and constraints regarding the creation and usage of mock objects in tests.
 
-Table~\ref{tab:invokes} is the core result about our mock analyses. It presents the number of method invocations on mocks detected by our implementations. We include numbers from the imperative intraprocedural Soot implementation, as well as four versions of the declarative Doop implementation\footnote{mybatis times out for Doop's basic-only analysis even without our mock analysis, and we report N/A for its times; surprisingly, Doop context-insensitive successfully analyzes it.}: \{ ``basic-only'' (class hierarchy analysis, ``context-insensitive'' \} Doop base analysis $\times$ \{ intraprocedural, interprocedural \}. The main source of missed mock calls in the Soot implementation is from missing support for array or collection related functions. Our intra-procedural analysis finds that method invocations on mock objects account for a range from 0.086\% to 16.4\% of the total number of invocations. 
+Table~\ref{tab:invokes} is the core result about our mock analyses. It presents the number of method invocations on mocks detected by our implementations. We include numbers from the imperative intraprocedural Soot implementation, as well as two versions of the declarative Doop implementation: \{ ``context-insensitive'' \} Doop base analysis $\times$ \{ intraprocedural, interprocedural \}. The main source of missed mock calls in the Soot implementation is from missing support for array or collection related functions. Our intra-procedural analysis finds that method invocations on mock objects account for a range from 0.086\% to 16.4\% of the total number of invocations. 
 
 %--- discuss the numbers for the interprocedural analysis.
 
