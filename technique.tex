@@ -290,10 +290,10 @@ Our supported mock libraries take different approaches to instantiating mocks. A
 \paragraph{Containers} 
 As stated above, we hardcode all relevant methods from the Java Collections API. There are 60 such methods in total, which together account for about 1/6th of the total lines in our Doop analysis. In addition to straightforward get and put methods, we also support iterators, collection copies via constructors, and add-all methods. An iterator can be treated as a copy of the container, with the request of an object from the iterator being tantamount to a container get. An add-all method copies the mock-containing collection bit.
 
-\subsection{Mock Analysis vs Reaching Definitions}
-While our mock analysis is similar to reaching definitions, we point out some important differences which motivated our decision to design and implement a bespoke analysis. The base analysis requires slightly more than reaching definitions, and the fields, containers, and arrays extensions would also require more machinery.
+\subsection{Mock Analysis is not just Reaching Definitions}
+While our mock analysis is similar to reaching definitions, we point out some important differences which motivated our decision to design and implement a bespoke analysis. Even the base analysis requires slightly more than reaching definitions, and then we also support fields, containers and arrays.
 
-For the base analysis, querying reaching definition information almost works. However, answering the mock analysis question would also require propagating information through casts; at statement {\tt s: x = (X)y;}, then {\tt x} would be a mock iff {\tt y} is. Statement {\tt s} would be a definition for {\tt x} and a further query would be needed to know whether {\tt y} was a mock or not.
+For the base analysis, querying reaching definition information almost works. However, mock analysis also requires propagating information through casts; at statement {\tt s: x = (X)y;}, then {\tt x} would be a mock iff {\tt y} is. Statement {\tt s} would be a definition for {\tt x}, and a further query would be needed to know whether {\tt y} was a mock or not.
 
 Additionally, as we will discuss in Section~\ref{sec:evaluation}, the field and array analyses each detected additional mocks in half of our benchmarks. Fields do not fit the reaching definition paradigm and would require additional implementation to support. Arrays would be possible but not obvious.
 

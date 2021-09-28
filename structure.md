@@ -23,9 +23,12 @@ in three parts:
 * discussion: rework significantly for the new targetting
 
 TODO:
+* modify the code to identify "*Mock* and "Mock*" classes as mocks
+
 * introduction
-* motivation example: add more applications
+2) motivating example: add more applications
 * condense technique
-* write about how mocks are important
-* related work: add Ghafari works cited, look up PC members
+1) write about how mocks are important
+* precision and recall in section V
+* related work: look up PC members [QL]
 * discussion
