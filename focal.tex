@@ -27,6 +27,16 @@ test case implements several sub-scenarios.
 
 \todo{We discuss precision and recall issues.}
 
+\paragraph{Precision and Recall}
+
+Regarding the performance of the two approaches, we investigate their approximated precision and recall rate. Table~\ref{fig:mockExampleEvaluation} highlights the percentage of test cases each of the two approaches automatically report focal methods, which we treat this data as an approximated recall rate. The four projects presented under Ghafari's algorithm are directly cited from their paper, whereas we hand picked the four benchmarks from methods2test's dataset so that they have a similar number of test cases. 
+
+The data suggests that methods2test's named-based approach of focal method detection has a quite low recall rate. This is not surprising as their heuristics have quite restricted constraints. In addition, we run mock analysis over methods2test's focal method data on some of the benchmarks evaluated in Section~\ref{sec:evaluation}, and confirm that none of the reported focal methods are mock invocations. This suggests methods2test's approach has a high precision in reporting focal methods.
+
+On the other hand, we obtain the CSV dataset over some recent analyzed projects from Ghafari's team, and find out that there are a few types of unit test cases they have to manually report focal method (discussed in the next paragraph) to either fill in the empty automatic reporting, or to override the automatically detected focal method. Overall, Ghafari's algorithm requires more work to increase the precision but the percentage of test cases with focal methods automatically reported (we treat it as an approximated recall rate) is acceptable. 
+
+In short, regarding the focal methods detection, methods2test's approach performs with a high precision but low recall, whereas Ghafari's algorithm has an acceptable recall but with low precision.
+
 \paragraph{Example} We now revisit the unit test case presented in Listing~\ref{lis:mockCall}. Figure~\ref{fig:mockExampleEvaluation} highlights the process for finding the mock object \texttt{session} and consequently the mock invocation \texttt{getRequest()} in the unit test. Both Soot and Doop implementations report this mock invocation 
 from the test case. Thus, with the assistance of \textsc{MockDetector}, \texttt{getRequest()} can be removed from consideration as a focal method. We judge \texttt{getToolchainsForType()} to be the focal method since it is the only method invocation remaining after the elimination process. In addition, for the return array \texttt{basics}, its \texttt{length} attribute indeed gets checked in the assertion statement on Line~\ref{line:assert}, which means this test case indeed tests the behaviour of \texttt{toolchainManager.getToolchainsForType()}. 
 
