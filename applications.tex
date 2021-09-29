@@ -3,20 +3,21 @@
 
 Our work supports test-to-code traceability. In this section, we
 sketch several applications of our work to this important problem,
-following Ghafari et al~\cite{ghafari15:_autom} but specializing to
+inspired by Ghafari et al~\cite{ghafari15:_autom} but specializing to
 our mock analysis.
 
 \paragraph{Test case comprehension} xUnit tests are snippets of arbitrary
 code. In unpublished research, we have established that most tests are
-simple straight-line code. However, this code by necessity interacts
-with the system under test in potentially complicated ways. Hence,
+simple straight-line code (although there are still nontrivial incidences of
+conditionals and loops). However, this code by necessity interacts with
+the system under test in potentially complicated ways. Hence,
 understanding what a test case is doing can be difficult. Ghafari et
 al described experiments where developers are asked to identify the
 focal method, and finds that this is surprisingly difficult;
 furthermore, Daka et al~\cite{daka15:_model_readab_improv_unit_tests}
 state that reasoning about tests is difficult and propose a model that
 enables the automatic generation of tests which are especially
-readable. 
+readable.
 
 Our mock analysis helps segregate tests into parts that are
 mock-related and parts that are not mock-related.  It is fairly
@@ -27,14 +28,14 @@ obvious.\todo{example?}
 
 Knowing what is a mock can help developers debugging test case
 failures get into the right mindset, in two ways: 1) when looking at
-mock calls, they can conclude that these mock calls should not
+mock calls, they can conclude that these mock calls are not
 directly be causing the test failures; but also, 2) if the mock calls
 are now returning incorrect values (perhaps due to program evolution),
 then it may be appropriate to update the recorded values. Similar considerations
 apply for automatic debugging and code repair.
 
 \paragraph{Code recommendation}
-To amplify the previous point, a key tenet of test-to-code
+To amplify the previous point, a key application of test-to-code
 traceability is that when the code is updated, related tests may also
 need to be updated. Integrated Development Environments can search for
 all tests referring to a particular fragment of code. Mock analysis
@@ -44,9 +45,9 @@ tests that depend on the changed code as a mock or whether the tests
 are in fact testing the changed code itself.
 
 \paragraph{Automated refactoring/code generation}
-We formulated the mock analysis problem as a side problem which needed
+We originally formulated the mock analysis problem as a side problem which needed
 to be solved in the service of a deeper problem, which is still
-ongoing work: automatically generating useful tests. In that context,
+ongoing work: automatically generating certain useful tests. In our context,
 we needed to know which call was to the focal method of a test---we
 wanted to create additional tests based on those focal methods, but
 not based on mock objects.
@@ -55,7 +56,7 @@ not based on mock objects.
 Finally, mock objects can serve as even more concise API usage
 examples for the objects being mocked (than the test as a whole),
 although that information would have to be extracted from the calls to
-the mock library. After all, they record invocations to methods the objects
+the mock library. After all, mocks record invocations to methods the objects
 being mocked, and the expected behaviours of those objects in response to
 these invocations.
 

@@ -12,20 +12,19 @@ in three parts:
   ✓ we do say some applications
   ✓ we could save some space by condensing the declarative, arrays+collections
   ✓ can add more applications from Ghafari
-* technique: should probably condense, but let's add all the content first
+✓ technique: should probably condense, but let's add all the content first
 ✓ evaluation ** most of the new work goes here ** <- david has to do this
   ✓ add new content from thesis
   ✓ add applicability of mocks in test coverage
   ✓ application: mocks are important
 * related work
   ✓ add work cited by Ghafari
-  - look up PC members
+  ✓ look up PC members
 * discussion: rework significantly for the new targetting
 
 TODO:
 * modify the code to identify "*Mock* and "Mock*" classes as mocks
 
 * introduction
-* condense technique
-1) related work: look up PC members
+✓ condense technique
 2) discussion
