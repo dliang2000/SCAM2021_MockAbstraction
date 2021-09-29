@@ -28,15 +28,33 @@ are now returning incorrect values (perhaps due to program evolution),
 then it may be appropriate to update the recorded values.
 
 \paragraph{Code recommendation}
-editing test cases
+To amplify the previous point, a key tenet of test-to-code
+traceability is that when the code is updated, related tests may also
+need to be updated. Integrated Development Environments can search for
+all tests referring to a particular fragment of code. Mock analysis
+can augment the information available to the developer (maintainer) by
+giving them additional information about whether they are updating
+tests that depend on the changed code as a mock or whether the tests
+are in fact testing the changed code itself.
 
 \paragraph{Automatic debugging and repair}
 Relies on failing tests to id repair subjects
 
-\paragraph{Automated refactoring}
-This is how we got into this space.
+\paragraph{Automated refactoring/code generation}
+We formulated the mock analysis problem as a side problem which needed
+to be solved in the service of a deeper problem: automatically
+generating useful tests. In that context, we needed to know which call
+was to the focal method of a test---we wanted to create additional
+tests based on those focal methods, but not based on mock objects.
 
 \paragraph{Extracting API usage examples}
+write stuff here
+
+All of our applications show that the treatment of mocks and non-mocks
+when editing test cases (either manually or automatically) should be different.
+Furthermore, especially for automatic treatments of test cases, a static
+analysis determining which invocations are mock invocations is key to effective
+treatment of that case.
 
 %* code recommendation for editing test cases
 %* automated debugging and repair that rely on failing tests to id repair subjects
