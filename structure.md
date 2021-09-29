@@ -8,12 +8,12 @@ in three parts:
 # structure
 
 * introduction: which edits do we need? make consistent with main thesis above
-- motivating example: is it OK in this context?
+✓ motivating example: is it OK in this context?
   ✓ we do say some applications
   ✓ we could save some space by condensing the declarative, arrays+collections
-  - can add more applications from Ghafari
+  ✓ can add more applications from Ghafari
 * technique: should probably condense, but let's add all the content first
-* evaluation ** most of the new work goes here ** <- david has to do this
+✓ evaluation ** most of the new work goes here ** <- david has to do this
   ✓ add new content from thesis
   ✓ add applicability of mocks in test coverage
   ✓ application: mocks are important
@@ -26,8 +26,6 @@ TODO:
 * modify the code to identify "*Mock* and "Mock*" classes as mocks
 
 * introduction
-1) motivating example: add more applications
 * condense technique
-* precision and recall in section V [QL]
-* related work: look up PC members
+1) related work: look up PC members
 2) discussion

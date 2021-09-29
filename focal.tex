@@ -27,25 +27,22 @@ explore other heuristics, as we discuss in~\ref{sec:related}. Ghafari et al poin
 that these heuristics have significant limitations, especially when a
 test case implements several sub-scenarios.
 
-\todo{We discuss precision and recall issues.}
-
 \paragraph{Precision and Recall}
+We further compare the static analysis and name-based approaches to detecting focal methods in terms of their precision and recall. Table~\ref{tab:focal-method-algorithm-comparison} presents an approximation to recall---the percentage of test cases reported as having focal methods by each of the approaches. This approximates recall under the assumption that every test case has exactly one focal method. (In practice, a test case may have more than one focal method; we believe that a reasonable test should have at least one focal method.) The four projects presented under Ghafari's algorithm are from their paper~\cite{ghafari15:_autom}, whereas we hand-picked four benchmarks from methods2test's dataset to match (as far as possible) those in Ghafari's work.
 
-Regarding the performance of the two approaches, we investigate their approximated precision and recall rate. Table~\ref{fig:mockExampleEvaluation} highlights the percentage of test cases each of the two approaches automatically report focal methods, which we treat this data as an approximated recall rate. The four projects presented under Ghafari's algorithm are directly cited from their paper, whereas we hand picked the four benchmarks from methods2test's dataset so that they have a similar number of test cases. 
+The data suggests that methods2test's named-based approach of focal method detection has a quite low recall rate. This is not surprising---their heuristics have quite strict constraints, i.e. limited applicability. To check the precision of the methods2test results, we had mock analysis results from some of their benchmarks, and found that none of their reported focal method invocations were mock invocations. This is consistent with high precision.
 
-The data suggests that methods2test's named-based approach of focal method detection has a quite low recall rate. This is not surprising as their heuristics have quite restricted constraints. In addition, we run mock analysis over methods2test's focal method data on some of the benchmarks evaluated in Section~\ref{sec:evaluation}, and confirm that none of the reported focal methods are mock invocations. This suggests methods2test's approach has a high precision in reporting focal methods.
+On the other hand, Ghafari kindly shared with us recent focal method detection results that his team obtained. We found that there are a few types of unit test cases they have to manually report focal method (discussed in the next paragraph\todo{what?}) to either fill in for the empty automatic reporting, or to override the automatically detected focal method. Overall, Ghafari's algorithm requires more manual work to increase the precision but the percentage of test cases where they report focal methods (a proxy to recall) is acceptable. 
 
-On the other hand, we obtain the CSV dataset over some recent analyzed projects from Ghafari's team, and find out that there are a few types of unit test cases they have to manually report focal method (discussed in the next paragraph) to either fill in the empty automatic reporting, or to override the automatically detected focal method. Overall, Ghafari's algorithm requires more work to increase the precision but the percentage of test cases with focal methods automatically reported (we treat it as an approximated recall rate) is acceptable. 
+In short, methods2test's approach finds focal methods with high precision but low recall, whereas Ghafari's algorithm has an acceptable recall but low precision. Our mock analysis can help increase precision by ruling out calls that are definitely not to focal methods.
 
-In short, regarding the focal methods detection, methods2test's approach performs with a high precision but low recall, whereas Ghafari's algorithm has an acceptable recall but with low precision.
+\paragraph{Example: mock objects and focal methods} We continue discussing how we rule out calls by revisiting the unit test case presented in Listing~\ref{lis:mockCall}. Figure~\ref{fig:mockExampleEvaluation} highlights the process for finding the mock object \texttt{session} and consequently the mock invocation \texttt{getRequest()} in the unit test. Both Soot and Doop implementations report this mock invocation 
+from the test case. Thus, with the assistance of \textsc{MockDetector}, \texttt{getRequest()} can be removed from consideration as a focal method. We judge \texttt{getToolchainsForType()} to be the focal method since we assume that every test has at least one focal method, and this is the only method invocation remaining after the elimination process. In addition, for the return array \texttt{basics}, its \texttt{length} attribute indeed gets checked in the assertion statement on Line~\ref{line:assert}, which means this test case indeed tests the behaviour of \texttt{toolchainManager.getToolchainsForType()}. 
 
-\paragraph{Example} We now revisit the unit test case presented in Listing~\ref{lis:mockCall}. Figure~\ref{fig:mockExampleEvaluation} highlights the process for finding the mock object \texttt{session} and consequently the mock invocation \texttt{getRequest()} in the unit test. Both Soot and Doop implementations report this mock invocation 
-from the test case. Thus, with the assistance of \textsc{MockDetector}, \texttt{getRequest()} can be removed from consideration as a focal method. We judge \texttt{getToolchainsForType()} to be the focal method since it is the only method invocation remaining after the elimination process. In addition, for the return array \texttt{basics}, its \texttt{length} attribute indeed gets checked in the assertion statement on Line~\ref{line:assert}, which means this test case indeed tests the behaviour of \texttt{toolchainManager.getToolchainsForType()}. 
-
-For this unit test, since Ghafari's algorithm does not consider accessors (or so-called inspector methods in the paper) as focal methods, they will presumably report no focal method for this unit test case. This clearly is an incorrect result from Ghafari's algorithm.
+For this unit test, since Ghafari's algorithm does not consider accessors (or so-called inspector methods in the paper) as focal methods, they will presumably report no focal method for this unit test case. This clearly is a case where Ghafari's algorithm misses out on recall.
 Incidentally, since the heuristic of Ghafari's algorithm requires the unit test case to have at least one assertion statement, the algorithm will presumably fail to return any focal methods when analyzing unit test cases without assertions.
 
-As for the heuristica for methods2test, method \texttt{getToolChainsForType()} does not seem like it should match under the name-based heuristic from methods2test. The other heuristic finds calls to the focal class, so methods2test should properly identify the call to \texttt{getToolChainsForType()} using that heuristic. Our mock analysis can help with that heuristic as well, by removing mocks from the set of eligible focal classes.
+As for the heuristic for methods2test, method \texttt{getToolChainsForType()} does not seem like it should match under the name-based heuristic from methods2test. The other heuristic finds calls to the focal class, so methods2test should properly identify the call to \texttt{getToolChainsForType()} using that heuristic. Our mock analysis can help with that heuristic as well, by removing mocks from the set of eligible focal classes.
 
 \begin{table*}
 	\centering
@@ -90,6 +87,6 @@ As for the heuristica for methods2test, method \texttt{getToolChainsForType()} d
   }
   \end{lstlisting}
 
-  \caption{Qualitative evaluation of removing mock invocation from focal method consideration.}
+  \caption{Example: removing mock invocation from focal method consideration.}
   \label{fig:mockExampleEvaluation}
 \end{figure}
