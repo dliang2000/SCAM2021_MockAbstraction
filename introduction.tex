@@ -10,7 +10,9 @@ While mock objects are an invaluable tool for developers, their use
 complicates the static analysis and manipulation of test case source code, one of our planned future
 research directions. Such static analyses can help IDEs provide better
 support to test case writers; enable better static estimation of test coverage
-(avoiding mocks); and detect focal methods in test cases.
+(avoiding mocks); and detect focal methods in test cases. While researchers have
+proposed techniques for automatically generating mocks~\cite{alshahwan10:_autom,fazzini20:_framew_autom_test_mockin_mobil_apps}, our goal here is the opposite:
+we detect mocks that already exist in test cases.
 
 Ghafari et al discussed the notion of a focal method~\cite{ghafari15:_autom} for a test case---the method
 whose behaviour is being tested---and presented a heuristic for determining focal methods.

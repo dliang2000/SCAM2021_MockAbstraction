@@ -10,22 +10,28 @@ our mock analysis.
 code. In unpublished research, we have established that most tests are
 simple straight-line code. However, this code by necessity interacts
 with the system under test in potentially complicated ways. Hence,
-understanding what a test case is doing can be difficult: previous
-work has described experiments where developers are asked to complete
-program understanding tasks on tests (e.g. identify-the-focal-method),
-and finds that this is surprisingly difficult. Our mock analysis helps
-segregate tests into parts that are mock-related and parts that are
-not mock-related.  It is fairly obvious to a human reader that the
-part of a test that is calling mock library methods such as
-\texttt{thenReturns()} is setting up mock expectations, but we've seen cases
-where this is less obvious.\todo{example?}
+understanding what a test case is doing can be difficult. Ghafari et
+al described experiments where developers are asked to identify the
+focal method, and finds that this is surprisingly difficult;
+furthermore, Daka et al~\cite{daka15:_model_readab_improv_unit_tests}
+state that reasoning about tests is difficult and propose a model that
+enables the automatic generation of tests which are especially
+readable. 
+
+Our mock analysis helps segregate tests into parts that are
+mock-related and parts that are not mock-related.  It is fairly
+obvious to a human reader that the part of a test that is calling mock
+library methods such as \texttt{thenReturns()} is setting up mock
+expectations, but we've seen cases where this is less
+obvious.\todo{example?}
 
 Knowing what is a mock can help developers debugging test case
 failures get into the right mindset, in two ways: 1) when looking at
 mock calls, they can conclude that these mock calls should not
 directly be causing the test failures; but also, 2) if the mock calls
 are now returning incorrect values (perhaps due to program evolution),
-then it may be appropriate to update the recorded values.
+then it may be appropriate to update the recorded values. Similar considerations
+apply for automatic debugging and code repair.
 
 \paragraph{Code recommendation}
 To amplify the previous point, a key tenet of test-to-code
@@ -37,18 +43,21 @@ giving them additional information about whether they are updating
 tests that depend on the changed code as a mock or whether the tests
 are in fact testing the changed code itself.
 
-\paragraph{Automatic debugging and repair}
-Relies on failing tests to id repair subjects
-
 \paragraph{Automated refactoring/code generation}
 We formulated the mock analysis problem as a side problem which needed
-to be solved in the service of a deeper problem: automatically
-generating useful tests. In that context, we needed to know which call
-was to the focal method of a test---we wanted to create additional
-tests based on those focal methods, but not based on mock objects.
+to be solved in the service of a deeper problem, which is still
+ongoing work: automatically generating useful tests. In that context,
+we needed to know which call was to the focal method of a test---we
+wanted to create additional tests based on those focal methods, but
+not based on mock objects.
 
 \paragraph{Extracting API usage examples}
-write stuff here
+Finally, mock objects can serve as even more concise API usage
+examples for the objects being mocked (than the test as a whole),
+although that information would have to be extracted from the calls to
+the mock library. After all, they record invocations to methods the objects
+being mocked, and the expected behaviours of those objects in response to
+these invocations.
 
 All of our applications show that the treatment of mocks and non-mocks
 when editing test cases (either manually or automatically) should be different.
