@@ -1,0 +1,44 @@
+\section{A Survey of Applications}
+\label{sec:applications}
+
+Our work supports test-to-code traceability. In this section, we
+sketch several applications of our work to this important problem,
+following Ghafari et al~\cite{ghafari15:_autom} but specializing to
+our mock analysis.
+
+\paragraph{Test case comprehension} xUnit tests are snippets of arbitrary
+code. In unpublished research, we have established that most tests are
+simple straight-line code. However, this code by necessity interacts
+with the system under test in potentially complicated ways. Hence,
+understanding what a test case is doing can be difficult: previous
+work has described experiments where developers are asked to complete
+program understanding tasks on tests (e.g. identify-the-focal-method),
+and finds that this is surprisingly difficult. Our mock analysis helps
+segregate tests into parts that are mock-related and parts that are
+not mock-related.  It is fairly obvious to a human reader that the
+part of a test that is calling mock library methods such as
+\texttt{thenReturns()} is setting up mock expectations, but we've seen cases
+where this is less obvious.\todo{example?}
+
+Knowing what is a mock can help developers debugging test case
+failures get into the right mindset, in two ways: 1) when looking at
+mock calls, they can conclude that these mock calls should not
+directly be causing the test failures; but also, 2) if the mock calls
+are now returning incorrect values (perhaps due to program evolution),
+then it may be appropriate to update the recorded values.
+
+\paragraph{Code recommendation}
+editing test cases
+
+\paragraph{Automatic debugging and repair}
+Relies on failing tests to id repair subjects
+
+\paragraph{Automated refactoring}
+This is how we got into this space.
+
+\paragraph{Extracting API usage examples}
+
+%* code recommendation for editing test cases
+%* automated debugging and repair that rely on failing tests to id repair subjects
+%* automated refactoring
+%* extracting API usage examples [Ghafari ICPC 2014]
