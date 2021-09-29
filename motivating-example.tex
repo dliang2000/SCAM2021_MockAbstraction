@@ -3,7 +3,7 @@
 
 Our \textsc{MockDetector} analysis finds variables containing mock objects, along with invocations on mock objects, in unit tests. It does so by identifying invocations on variables which have been assigned an object flowing from a mock creation site either using a forward dataflow may-analysis (Soot-based analysis) or by solving specified declarative constraints (Doop-based analysis).
 
-To motivate our work, consider Listing~\ref{lis:mockCall}, which presents a unit test case from the Maven project. Line~\ref{line:mock} calls \textit{getRequest()}, invoking it on the mock object \texttt{session}. Line~\ref{line:real} then calls \textit{getToolchainsForType()}, which happens to be the focal method whose behaviour is being tested in this test case. At the bytecode level, the two method invocations are indistinguishable with respect to mockness; to our knowledge, current static analysis tools cannot easily tell the difference between the method invocation on a mock object on line~\ref{line:mock} and the method invocation on a real object on line~\ref{line:real}. Given mockness information, an IDE could provide better suggestions. And the uncertainty about mockness would confound a naive static analysis that attempts to identify focal methods. For instance, Ghafari et al~\cite{ghafari15:_autom}'s heuristic would fail on this test, as it returns the last mutator method in the object under test, and the focal method here is an accessor. 
+To motivate our work, consider Listing~\ref{lis:mockCall}, which presents a unit test case from the Maven project. Line~\ref{line:mock} calls \textit{getRequest()}, invoking it on the mock object \texttt{session}. Line~\ref{line:real} then calls \textit{getToolchainsForType()}, which happens to be the focal method whose behaviour is being tested in this test case. At the bytecode level, the two method invocations are indistinguishable with respect to mockness; to our knowledge, the static call graph contains a call to the actual method in both cases, so that current static analysis tools cannot easily tell the difference between the method invocation on a mock object on line~\ref{line:mock} and the method invocation on a real object on line~\ref{line:real}. Given mockness information, an IDE could provide better suggestions. This uncertainty about mockness would confound a naive static analysis that attempts to identify focal methods. For instance, Ghafari et al~\cite{ghafari15:_autom}'s heuristic would fail on this test, as it returns the last mutator method in the object under test, and the focal method here is an accessor. 
 
 \begin{lstlisting}[basicstyle=\ttfamily, caption={This code snippet illustrates an example from maven-core, where calls to both the focal method \texttt{getToolchainsForType()} and to mock \texttt{session}'s \texttt{getRequest()} method occur in test \textit{testMisconfiguredToolchain()}.},
 basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm, escapechar=|,
@@ -23,7 +23,7 @@ framexleftmargin=1.0mm, captionpos=b, label=lis:mockCall, morekeywords={@Test}]
 	}
 \end{lstlisting}
 
-\paragraph{Basic dataflow analysis} The dataflow analysis based \textsc{MockDetector} implementation maintains an abstraction mapping values (local variables or field references) in Soot's Jimple intermediate representation (IR)~\cite{Vallee-Rai:1999:SJB:781995.782008} to \texttt{MockStatus}, which holds three bits monitoring each value's status (whether it is a mock, a mock-containing array, or a mock-containing collection). The declarative version maintains relations which track the same bits.
+\paragraph{Basic dataflow analysis} The dataflow analysis-based \textsc{MockDetector} implementation maintains an abstraction mapping values (local variables or field references) in Soot's Jimple intermediate representation (IR)~\cite{Vallee-Rai:1999:SJB:781995.782008} to \texttt{MockStatus}, which holds three bits monitoring each value's status (whether it is a mock, a mock-containing array, or a mock-containing collection). The declarative version maintains relations which track the same bits.
 
 \begin{figure}
 \begin{lstlisting}[basicstyle=\ttfamily,
@@ -47,7 +47,7 @@ basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm, framexleftmargi
     
 \end{figure}
 
-Figure~\ref{fig:mockMethodIllustration} shows how our dataflow analysis works, and Listing~\ref{lis:mockMethodIllustrationIR} below shows the Jimple IR of the code in Figure~\ref{fig:mockMethodIllustration}. At the top of the Jimple IR, we begin with an empty abstraction (no mapping for any values, equivalent to all bits false for each value) before line~\ref{line:lis3line3}. For the creation of \texttt{\$r1} on line~\ref{line:lis3line3} and~\ref{line:lis3line4}, since the call to the no-arg \texttt{<init>} constructor is not one of our hardcoded mock APIs, our analysis does not declare \texttt{\$r1} to be a mock object. In practice, our abstraction simply does not create an explicit binding for \texttt{\$r1}, instead leaving the mapping empty as it was prior to line~\ref{line:lis3line3}; but it would be equivalent to create a new \texttt{MockStatus} with all bits false and bind it to \texttt{\$r1}. We conclude that the invocation \texttt{object1.foo()} on line 5 in Figure~\ref{fig:mockMethodIllustration} is not known to be a mock invocation. Tying back to our focal methods application, we would not exclude the call to \texttt{foo()} from being a possible focal method.
+Figure~\ref{fig:mockMethodIllustration} shows how our dataflow analysis works, and Listing~\ref{lis:mockMethodIllustrationIR} below shows the Jimple IR of the code in Figure~\ref{fig:mockMethodIllustration}. At the top of the Jimple IR, we begin with an empty abstraction (no mapping for any values, equivalent to all bits false for each value) before line~\ref{line:lis3line3}. For the creation of \texttt{\$r1} on line~\ref{line:lis3line3} and~\ref{line:lis3line4}, since the call to the no-arg \texttt{<init>} constructor is not one of our hardcoded mock APIs, our analysis does not declare \texttt{\$r1} to be a mock object. In practice, our abstraction simply does not create an explicit binding for \texttt{\$r1}, instead leaving the mapping empty as it was prior to line~\ref{line:lis3line3}, tantamount to creating a new \texttt{MockStatus} with all bits false and binding it to \texttt{\$r1}. We conclude that invocation \texttt{object1.foo()} on line 5 in Figure~\ref{fig:mockMethodIllustration} is not known to be a mock invocation. Tying back to our focal methods application, we would not exclude the call to \texttt{foo()} from being a possible focal method.
 
 On the other hand, our imperative analysis sees the mock creation API \texttt{<org.mockito.Mockito: java.lang.Object mock(java.lang.Class)>} on line~\ref{line:lis3line6} and~\ref{line:lis3line7} in the Jimple IR. It thus adds a mapping from local variable \texttt{r2} to a new \texttt{MockStatus} with the mock bit set to true. When the analysis reaches line~\ref{line:lis3line9}, because \texttt{r2} has a mapping in the abstraction with the mock bit being set, \textsc{MockDetector} will deduce that the call on line~\ref{line:lis3line7} is a mock invocation. This implies that the call to method \textit{foo()} on line 11 in Figure~\ref{fig:mockMethodIllustration} cannot be a focal method.
 
@@ -70,23 +70,22 @@ basicstyle=\scriptsize\ttfamily, captionpos=b, label=lis:mockMethodIllustrationI
 
 \begin{lstlisting}[basicstyle=\ttfamily, caption={Facts about invocation \texttt{r2.foo()} in method \texttt{test}.},
 basicstyle=\scriptsize\ttfamily, framesep=4.5mm, framexleftmargin=1.0mm, captionpos=b, label=lis:facts, escapechar=!, morekeywords={@Test}]
-	isMockInvocation(<Object: void foo()>/test/0, 
-	                 <Object: void foo()>, test, _. r2). !\label{line:facts-imi}!
-	|VirtualMethodInvocation(<Object: void foo()>/test/0, !\label{line:facts-vmi}!
-	|                        <Object: void foo()>, test).
-	|VirtualMethodInvocation_Base(<Object: void foo()>/test/0, 
-	|                                  r2).
+	isMockInvocation(<Object:void foo()>/test/0, 
+	                 <Object:void foo()>, test, _. r2). !\label{line:facts-imi}!
+	|VirtualMethodInvocation(<Object:void foo()>/test/0, !\label{line:facts-vmi}!
+	|                        <Object:void foo()>, test).
+	|VMI_Base(<Object:void foo()>/test/0, r2).
 	|isMockVar(r2). !\label{line:facts-imv}!
-	|-AssignReturnValue(<Mockito: Object mock(Class)>/test/0, !\label{line:facts-arv}!
-	|                        r2). 
-	|-callsMockSource(<Mockito: Object mock(Class)>/test/0). !\label{line:facts-cms}!
-	  |MockSourceMethod(<Mockito: Object mock(Class)>). !\label{line:facts-msm}!
-	  |CallGraphEdge(_, <Mockito: Object mock(Class)>/test/0, _, !\label{line:facts-cge}!
+	|-AssignReturnValue(<Mockito:Object mock(Class)>/test/0,!\label{line:facts-arv}!
+	|                        r2).
+	|-callsMockSource(<Mockito:Object mock(Class)>/test/0). !\label{line:facts-cms}!
+	  |MockSourceMethod(<Mockito:Object mock(Class)>). !\label{line:facts-msm}!
+	  |CallGraphEdge(_,<Mockito:Object mock(Class)>/test/0,_,!\label{line:facts-cge}!
 	  |              <Mockito: Object mock(Class)>). 
 \end{lstlisting}
 
 
-\paragraph{Extensions: arrays and collections} While we were designing \textsc{MockDetector}, we observed several cases where developers store mock objects in arrays and collections. Listing~\ref{lis:container} presents method \textit{setUp()} in class \texttt{NodeListIteratorTest} from commons-collections-4.4, where line \ref{line:storeMocksInArray} puts the mock \texttt{Node} objects in the array-typed field \texttt{nodes}. This field is later used in test cases. When the flow function of the dataflow analysis encounters an assignment statement containing an array read or write, it first looks for values (local variables or field reference sources) on the opposite side of the assignment statement---the statement's destination or source, respectively---in the Jimple intermediate representation. It then checks whether any of these local variables or field references have been marked as mock objects in the analysis. If so, then the tool would mark the local variable or field reference representing the array as an array mock---it propagates the mockness to the array container.
+\paragraph{Extensions: arrays and collections} While we were designing \textsc{MockDetector}, we observed several cases where developers store mock objects in arrays and collections. Listing~\ref{lis:container} presents method \textit{setUp()} in class \texttt{NodeListIteratorTest} from commons-collections-4.4, where line \ref{line:storeMocksInArray} puts the mock \texttt{Node} objects in the array-typed field \texttt{nodes}. This field is later used in test cases. When the flow function of the dataflow analysis encounters an assignment statement containing an array read or write, it first looks for values (local variables or field reference sources) on the opposite side of the assignment statement---the statement's destination or source, respectively---in the Jimple IR. It then checks whether any of these locals or fields have been marked as mock objects in the analysis. If so, then the tool would mark the local variable or field reference representing the array as an array mock---it propagates the mockness to the array container.
 
 \begin{lstlisting}[basicstyle=\ttfamily, caption={This example illustrates a field array container holding mock \\ objects from \textit{setup()} in \texttt{NodeListIteratorTest.java}.},
 basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm, framexleftmargin=1.0mm, captionpos=b, label=lis:container, escapechar=|, morekeywords={@Test}]
