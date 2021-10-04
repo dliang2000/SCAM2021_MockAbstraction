@@ -13,7 +13,7 @@ Ghafari's approach is the one that is most amenable to our work.
 Their approach is applicable to tests for classes that implement
 stateful objects, and assume that each test has at least one focal
 method, seen as a call to a mutator method for the class under test.
-The last such call is the focal method. However, their approach can
+They declare the last such call to be the focal method. However, their approach can
 only work on tests of mutator methods.  Purely-functional methods, for
 instance, are beyond the scope of their approach.
 
@@ -23,7 +23,7 @@ the name of the test matches the name of the focal method; or, 2) the
 test calls a unique method in the focal class. Rompaey and
 Demeyer~\cite{rompaey09:_estab_traceab_links_unit_test} explore the
 name-based approach along with simply using the last method called---not necessarily a mutator---as the class containing the focal method.  Romaey and Demeyer also
-explore other heuristics, as we discuss in~\ref{sec:related}. Ghafari et al point out
+explore other heuristics, as we discuss in Section~\ref{sec:related}. Ghafari et al point out
 that these heuristics have significant limitations, especially when a
 test case implements several sub-scenarios.
 
