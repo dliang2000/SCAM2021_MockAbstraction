@@ -68,10 +68,8 @@ As for the heuristic for methods2test, method \texttt{getToolChainsForType()} do
 \begin{figure}[h]
 	\begin{lstlisting}[
 	basicstyle=\ttfamily\scriptsize,language = Java, framesep=4.5mm, framexleftmargin=1.0mm, captionpos=b, escapechar={|}, mathescape=true, morekeywords={@Test}]
-  @Test
-  public void testMisconfiguredToolchain() 
-                      throws Exception {
-    //                mock:|\cmark|         mockAPI:|\cmark|
+  @Test public void testMisconfiguredToolchain() throws Exception {
+    //                mock:|\cmark|    mockAPI:|\cmark|
     MavenSession |\colorbox{olive}{session}| = |\colorbox{teal}{mock}| ( MavenSession.class );
     MavenExecutionRequest req =
         new DefaultMavenExecutionRequest();
@@ -79,9 +77,8 @@ As for the heuristic for methods2test, method \texttt{getToolChainsForType()} do
     when( session.|\colorbox{red}{getRequest()}| ).thenReturn( req ); |\label{line:Fmock}|
 
     ToolchainPrivate[] basics =
-      //                          focal method:|\cmark|
-      toolchainManager.|\colorbox{gray}{getToolchainsForType}|("basic", 
-                                                           session); |\label{line:Freal}|
+      //                      focal method:|\cmark|
+      toolchainManager.|\colorbox{gray}{getToolchainsForType}|("basic", session); |\label{line:Freal}|
 
     assertEquals( 0, basics.length );|\label{line:assert}|
   }
