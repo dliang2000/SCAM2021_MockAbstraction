@@ -24,7 +24,8 @@ mock-related and parts that are not mock-related.  It is fairly
 obvious to a human reader that the part of a test that is calling mock
 library methods such as \texttt{thenReturns()} is setting up mock
 expectations, but we've seen cases where this is less
-obvious.\todo{example?} The code snippet below illustrates a self-made \texttt{BarcodeMock} object from project barbecue~\footnote{http://barbecue.sourceforge.net/}, which does not use any known mocking libraries.
+obvious. For instance, project barbecue~\footnote{http://barbecue.sourceforge.net/} uses home-grown \texttt{BarcodeMock} mocks; in this case, they are descriptively named,
+but they don't have to be.
 
 \begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
 BarcodeMock barcode = new BarcodeMock("123");
