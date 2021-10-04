@@ -20,7 +20,9 @@ enables the automatic generation of tests which are especially
 readable.
 
 Our mock analysis helps segregate tests into parts that are
-mock-related and parts that are not mock-related.  It is fairly
+mock-related and parts that are not mock-related. This is directly applicable
+to identifying focal methods, as we'll discuss in Section~\ref{sec:focal}.
+Also, it is fairly
 obvious to a human reader that the part of a test that is calling mock
 library methods such as \texttt{thenReturns()} is setting up mock
 expectations, but we've seen cases where this is less
@@ -31,9 +33,9 @@ the developer simply calls methods on the mock object, e.g.
 Knowing what is a mock can help developers debugging test case
 failures get into the right mindset, in two ways: 1) when looking at
 mock calls, they can conclude that these mock calls are not
-directly be causing the test failures; but also, 2) if the mock calls
+directly causing the test failures; but also, 2) if the mock calls
 are now returning incorrect values (perhaps due to program evolution),
-then it may be appropriate to update the recorded values. Similar considerations
+then it is likely appropriate to update the recorded values. Similar considerations
 apply for automatic debugging and code repair.
 
 \paragraph{Code recommendation}
@@ -41,7 +43,7 @@ To amplify the previous point, a key application of test-to-code
 traceability is that when the code is updated, related tests may also
 need to be updated. Integrated Development Environments can find
 all tests referring to a particular fragment of code. Mock analysis
-can augment the information available to the developer (maintainer) by
+can augment the information available to the developer (or maintainer) by
 giving them additional information about whether they are updating
 tests that depend on the changed code as a mock or whether the tests
 are in fact testing the changed code itself.
