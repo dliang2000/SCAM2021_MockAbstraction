@@ -185,13 +185,42 @@ We have evaluated \textsc{MockDetector} on 8 open-source benchmarks, along with 
 Table~\ref{tab:run-times} presents summary information about our benchmarks and run-times, namely the LOC and Soot and Doop analysis run-times for each benchmark. The 9 benchmarks include over 383 kLOC, with 184 kLOC in the test suites, per SLOCCount\footnote{\url{https://dwheeler.com/sloccount/}}.  Our benchmarks are from different domains and created by different groups of developers. The Soot total time is the amount of time that it takes for Soot to analyze the benchmark and test suite in whole-program mode, including our analyses. The Soot intraprocedural analysis time is the sum of run-times for the main analysis plus two pre-analyses (Section~\ref{subsec:soot}). Meanwhile, the reported Doop run-time is from the context-insensitive analysis, while the Doop analysis time for intraprocedural and interprocedural mock invocation analyses are for running the analysis alone based on recorded facts from the benchmark. The total Doop run-time is much slower than the total Soot run-time because Doop always computes a callgraph---an expensive operation. The Doop analysis-only time is also slower than the Soot time; Doop computes a solution over the entire program, as opposed to Soot, which works one method at a time.
 %The major difference between the Doop's total run-time and the actual time spent on mock invocation analysis comes from the build of the complete graph. %Add reference for SLOCCount.
 
-We next investigated the prevalence of mocks. Table~\ref{tab:mocks} presents the number of test-related (Test/Before/After) methods which contain local variables or which access fields that are mocks, mock-containing arrays, or mock-containing collections, as reported by our Soot-based intraprocedural analysis. Across the 8 benchmarks, test-related methods containing local/field mocks or mock-containing containers accounted for 0.35\% to 51.8\% of the total number of test-related methods found in public concrete test classes. Of our benchmarks, 3 show very little mock use, while 2 show extensive use, with the remainder in between. Benchmarks \textsc{vraptor-core} and \textsc{jsonschema2pojo-core} have more than half of their test-related methods containing mock objects (and mock-containing arrays); in both of these, most field mocks are created via annotations and reused in multiple test cases in the same class. The difference in mock usage reflects their different philosophies and constraints regarding the creation and usage of mock objects in tests.
+We next investigated the prevalence of mocks. Table~\ref{tab:mocks} presents the number of test-related (Test/Before/After) methods which contain local variables or which access fields that are mocks, mock-containing arrays, or mock-containing collections, as reported by our Soot-based intraprocedural analysis. 
 
-Table~\ref{tab:invokes} is the core result about our mock analyses. It presents the number of method invocations on mocks detected by our implementations. We include numbers from the imperative intraprocedural Soot implementation, as well as two versions of the declarative Doop implementation: \{ ``context-insensitive'' \} Doop base analysis $\times$ \{ intraprocedural, interprocedural \}. Our intraprocedural analysis finds that method invocations on mock objects account for a range from 0.086\% to 16.4\% of the total number of invocations. 
+\begin{mdframed}[
+  leftmargin=\parindent,
+  rightmargin=\parindent,
+  skipabove=\topsep,
+  skipbelow=\topsep
+  ]
+{\bf Finding 1:} Across the 8 benchmarks, test-related methods containing local/field mocks or mock-containing containers accounted for 0.35\% to 51.8\% of the total number of test-related methods found in public concrete test classes.
+\end{mdframed}
+
+Of our benchmarks, 3 show very little mock use, while 2 show extensive use, with the remainder in between. Benchmarks \textsc{vraptor-core} and \textsc{jsonschema2pojo-core} have more than half of their test-related methods containing mock objects (and mock-containing arrays); in both of these, most field mocks are created via annotations and reused in multiple test cases in the same class. The difference in mock usage reflects their different philosophies and constraints regarding the creation and usage of mock objects in tests.
+
+Table~\ref{tab:invokes} is the core result about our mock analyses. It presents the number of method invocations on mocks detected by our implementations. We include numbers from the imperative intraprocedural Soot implementation, as well as two versions of the declarative Doop implementation: \{ ``context-insensitive'' \} Doop base analysis $\times$ \{ intraprocedural, interprocedural \}. 
+
+\begin{mdframed}[
+  leftmargin=\parindent,
+  rightmargin=\parindent,
+  skipabove=\topsep,
+  skipbelow=\topsep
+  ]
+{\bf Finding 2:} Our intraprocedural analysis finds that method invocations on mock objects account for a range from 0.086\% to 16.4\% of the total number of invocations. 
+\end{mdframed}
 
 %--- discuss the numbers for the interprocedural analysis.
 
 In Section~\ref{sec:common} we discussed the implementation of our intraprocedural and interprocedural analyses. We can now discuss the effects of these implementation choices on the experimental results. Recall that we chose, unsoundly, to not propagate any information across method calls in the intraprocedural analysis. Thus, the intraproc columns in Table~\ref{tab:invokes} show smaller numbers than the interproc columns, as expected. The minor difference in \textsc{vraptor-core} is due to one method (which ought to be present) not showing up in Doop's context-insensitive callgraph. Note also that there is a sometimes drastic increase from the intraprocedural to the interprocedural result, e.g. from 40 to 1300 for \textsc{flink}. This is because mocks can (especially context-insensitively) propagate from tests to the methods that they call and all around the main program code. It would be desirable to be able to differentiate test helper methods, which we do want to propagate mocks to, from methods in the main program, which we generally do not want to propagate mocks to; however, our current analysis infrastructure treats test and main code identically.
+
+\begin{mdframed}[
+  leftmargin=\parindent,
+  rightmargin=\parindent,
+  skipabove=\topsep,
+  skipbelow=\topsep
+  ]
+{\bf Finding 3:} Interprocedural analysis finds from 1.07$\times$ to 34$\times$ more mock invocations than intraprocedural analysis, but that number includes potential mock calls in the main program.
+\end{mdframed}
 
 We have successfully executed our Doop analysis with different base (pointer) analyses. We reported numbers for the context-insensitive base analysis here as it matches our own mock analysis. (It would also be possible, with much more effort, to adapt our analysis to carry around context.)
 
@@ -200,11 +229,30 @@ We have successfully executed our Doop analysis with different base (pointer) an
 \paragraph{Field Mocks Results} We perform an evaluation on the necessity of our pre-analyses finding field mocks. 
 Table~\ref{tab:field-mocks} displays the number of field mock objects that are defined via \texttt{@Mock} annotations, in the constructors, and in the \texttt{@Before}/\texttt{setUp()} methods, respectively. 
 
-We focus on the 5 open-source benchmarks that have defined field mock objects. They are \textsc{bootique}, \textsc{maven-core}, \textsc{jsonschema2pojo-core}, \textsc{mybatis}, and \textsc{vraptor-core}. Among these 5 benchmarks, \textsc{jsonschema2pojo-core}, \textsc{mybatis}, and \textsc{vraptor-core} have a high number (565) or a high percentage (over 50\%) of test-related methods containing mock objects, and have many intraprocedural mock invokes. From the results collected in Table~\ref{tab:field-mocks}, we can tell these benchmarks also prefer to define field mock objects instead of repetitively creating the same mock objects in each test case. This pattern reduces the need for code maintenance. In addition, although \textsc{bootique} and \textsc{maven-core} have lower number of tests using mock objects, these 2 benchmarks also prefer to define field mock objects. Therefore, 5 out of the 8 open-source benchmarks prefer to define field mock objects for the ease of testing. This suggests that our pre-analysis for field mocks described in Section~\ref{subsubsec:pre-analysis} is indeed a necessary and an effective step for analyzing mock objects and mock invocations in the test suites.
+We focus on the 5 open-source benchmarks that have defined field mock objects. They are \textsc{bootique}, \textsc{maven-core}, \textsc{jsonschema2pojo-core}, \textsc{mybatis}, and \textsc{vraptor-core}. Among these 5 benchmarks, \textsc{jsonschema2pojo-core}, \textsc{mybatis}, and \textsc{vraptor-core} have a high number (565) or a high percentage (over 50\%) of test-related methods containing mock objects, and have many intraprocedural mock invokes. From the results collected in Table~\ref{tab:field-mocks}, we can tell these benchmarks also prefer to define field mock objects instead of repetitively creating the same mock objects in each test case. This pattern reduces the need for code maintenance. In addition, although \textsc{bootique} and \textsc{maven-core} have lower number of tests using mock objects, these 2 benchmarks also prefer to define field mock objects. 
+
+\begin{mdframed}[
+  leftmargin=\parindent,
+  rightmargin=\parindent,
+  skipabove=\topsep,
+  skipbelow=\topsep
+  ]
+{\bf Finding 4:} More than half (5/8) of our open-source benchmarks prefer to define field mock objects in their test suites.
+\end{mdframed}
+We can deduce that our pre-analysis for field mocks described in Section~\ref{subsubsec:pre-analysis} is required for analyzing mocks in  test suites.
 
 \paragraph{Application: Mocks are important} Since our mock analysis identifies mock objects, we are in a position to empirically evaluate the importance of mock objects in our benchmarks' test suites. One measure of their importance is how much they contribute to code coverage. Using jacoco with the surefire Maven plugin, we measured branch and statement coverage for 4 of our benchmarks, both with and without test cases that contain mock invocations. We excluded mocks by generating custom Maven test execution commandlines. 
 
 Table~\ref{tab:test-coverages} presents our results. We can see that for benchmarks \textsc{jsonschema2pojo-core} and \textsc{vraptor-core}, which have about 15\% mock invocations, coverage drops by over 13 to 28 percentage points when excluding mocks. The fact that a correlation exists may be unsurprising, but the magnitude of the 28 point gap for \textsc{vraptor-core} is striking, and points out that the mock objects are pulling more than their weight in terms of coverage. Note that our analysis, or a dynamic version thereof, is required to collect these numbers. 
+
+\begin{mdframed}[
+  leftmargin=\parindent,
+  rightmargin=\parindent,
+  skipabove=\topsep,
+  skipbelow=\topsep
+  ]
+{\bf Finding 5:} Some test suites use mock objects to increase statement coverage by 13--28\% compared to not using mocks.
+\end{mdframed}
 
 %--- , indicates the removal of mock invocations from call graph would improve the call graph's accuracy on method coverage for the benchmarks on the high end of the mock invocation percentage. 
 
