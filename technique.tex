@@ -41,25 +41,25 @@ We designed the analysis in a modular fashion, such that the interprocedural, co
 
 \paragraph{Interprocedural support} 
 \begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
-// v = callee(), where callee's return 
-// var is mock
+// v = callee(), where callee's return var
+// is mock
 isInterprocMockVar(v) :-
-  AssignReturnValue(mi, v),
-  mainAnalysis.CallGraphEdge(_, mi, _, callee),
-  ReturnVar(v_callee, callee),
-  isMockVar(v_callee).
+ AssignReturnValue(mi, v),
+ mainAnalysis.CallGraphEdge(_, mi,_, callee),
+ ReturnVar(v_callee, callee),
+ isMockVar(v_callee).
 
 // callee(v) results in formal param 
 // of callee being mock
 isInterprocMockVar(v_callee) :-
-  isMockVar(v),
-  ActualParam(n, mi, v),
-  FormalParam(n, callee, v_callee),
-  mainAnalysis.CallGraphEdge(_, mi, _, callee),
-  Method_DeclaringType(callee, callee_class),
-  ApplicationClass(callee_class).
+ isMockVar(v),
+ ActualParam(n, mi, v),
+ FormalParam(n, callee, v_callee),
+ mainAnalysis.CallGraphEdge(_, mi,_, callee),
+ Method_DeclaringType(callee, callee_class),
+ ApplicationClass(callee_class).
 \end{lstlisting}
-using Doop-provided call graph edges (relation \texttt{mainAnalysis.CallGraphEdge}) between the method invocation {\tt mi} and its callee {\tt callee}; the first rule propagates information from callees back to their callers, while the second rule propagates information from callers to callees through parameters. Note that we restrict our analysis to so-called ``application classes'', excluding in particular the Java standard library. We chose to run our conext-insensitive analysis on top of Doop's context-insensitive call graph. Mirroring Doop itself, it would also be possible to add context sensitivity to our analysis, but our results suggest that this would not help much; we'll return to that point in Section~\ref{sec:evaluation}.
+We use Doop-provided call graph edges (relation \texttt{mainAnalysis.CallGraphEdge}) between the method invocation {\tt mi} and its callee {\tt callee}; the first rule propagates information from callees back to their callers, while the second rule propagates information from callers to callees through parameters. We restrict our analysis to so-called ``application classes'', excluding in particular the Java standard library. We chose to run our context-insensitive analysis on top of Doop's context-insensitive call graph. Mirroring Doop itself, it would also be possible to add context sensitivity to our analysis, but our results suggest that this would not help much; we'll return to that point in Section~\ref{sec:evaluation}.
 
 \paragraph{Arrays and Containers} Consistent with our analysis being a may-analysis, we define predicate {\tt isArrayLocalThatContainsMocks} to record local variables pointing to arrays that may contain mock objects. This predicate is true whenever the program under analysis stores a mock variable into an array; we also transfer array-mockness through assignments and casts. When a local variable \texttt{v} is read from a mock-containing array \texttt{c}, then \texttt{v} is marked as a mock variable, as seen in the first rule below. An store of a mock variable \texttt{mv} into an array \texttt{c} causes that array to be marked as \texttt{isArrayLocalThatContainsMocks}. Note that these predicates are mutually-recursive. Similarly with containers. We also handle {\tt Collection.toArray} by propagating mockness from the collection to the array.
 
@@ -81,7 +81,7 @@ using Doop-provided call graph edges (relation \texttt{mainAnalysis.CallGraphEdg
 
 \subsection{Imperative Soot Implementation}
 \label{subsec:soot}
-We now briefly describe the Soot-based imperative dataflow analysis to find mock invocation sites. Like the declarative analysis, we track information from the creation sites through the control-flow graph. This time, we implement a forward dataflow may-analysis---an object is declared a mock if there exists some execution path where it may receive a mock value. Our implementation also understands containers like arrays and collections, and tracks whether containers hold any mock objects. The abstraction marks all contents of collections as potential mocks if it observes any mock object being put into the array or container. Space limitations prevent us from including full details of this implementation, but we will make all implementations available, and the analysis is fully described in the first author's master's thesis\footnote{Citation omitted due to double-blind review.}.
+We now briefly describe the Soot-based imperative dataflow analysis to find mock invocation sites. Like the declarative analysis, we track information from the creation sites through the control-flow graph. Here, we implement a forward dataflow may-analysis---an object is declared a mock if there exists some execution path where it may receive a mock value. Our implementation also understands containers like arrays and collections, and tracks whether containers hold any mock objects. The abstraction marks all contents of collections as potential mocks if it observes any mock object being put into the array or container. Space limitations prevent us from including full details of this implementation, but we will make all implementations available, and the analysis is fully described in the first author's master's thesis\footnote{Citation omitted due to double-blind review.}.
 
 % Mock Libraries discussed in Common Infrastructure section
 %\paragraph{Define Common Mocking Library APIs}
