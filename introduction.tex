@@ -52,7 +52,7 @@ We make the following contributions in this paper:
 \item We designed and implemented two variants of a static mock detection algorithm, one as a dataflow analysis implemented imperatively (using Soot) and the other declaratively (using Doop).
 %\item We evaluate both the relative ease-of-implementation and precision of the imperative and declarative approaches, both intraprocedurally and interprocedurally (for Doop). % potentially intraprocedural as well
 \item We characterize our benchmark suite (8 open-source benchmarks, 383kLOC, 184 kLOC tests) with respect to their use of mock objects, finding that 1084 out of 6310 unit tests use intraprocedurally-detectable mock objects, and that there are a total of 2095 method invocations on mock objects. %We further identify how powerful an analysis is required to identify mock object use---adding fields and collections adds X mock objects, while interprocedural techniques add Y mock objects.
-\item We present a number of potential applications of mock analysis: detecting focal methods, helping to understand test cases, automated refactoring, and API usage extraction.
+\item We present potential applications of mock analysis: detecting focal methods, helping to understand test cases, automated refactoring, and API usage extraction.
 \end{itemize}
 %% At a higher level, we see this paper as making both a contribution and a meta-contribution to
 %% problems in source code analysis. The contribution, mock detection, enables more accurate analyses
@@ -62,7 +62,7 @@ We make the following contributions in this paper:
 %% concisely, while the imperative approach is more amenable to use in program transformation; we return
 %% to this question in Section~\ref{sec:discussion}.
 
-We intend to make all of our artifacts and data publicly available.
+We will make all of our artifacts and data publicly available.
 
 % also add somewhere:
 % it's notoriously difficult to check static analyses but this is basically N-version programming and we can cross-check results.

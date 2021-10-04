@@ -20,17 +20,16 @@ The core of the implementation starts by declaring facts for 9 mock source metho
 It then declares that a variable {\tt v} satisfies \verb+isMockVar(v)+ if it is assigned from the return value of a mock source, or otherwise traverses the program's interprocedural control-flow graph, through assignments, which may possibly flow through fields, collections, or arrays. Finally, an invocation site is a mock invocation if the receiver object {\tt v} satisfies \verb+isMockVar(v)+.
 
 \begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none,label={lst:core}]
-    // v = mock()
-    isMockVar(v) :-
-        AssignReturnValue(mi, v),
-        callsMockSource(mi).
-    // v = (type) from
-    isMockVar(v) :- isMockVar(from),
-        AssignCast(_ /* type */, from,
-                   v, _ /* inmethod */).
-    // v = v1
-    isMockVar(v) :- isMockVar(v1),
-        AssignLocal(v1, v, _).
+ // v = mock()
+ isMockVar(v) :-
+   AssignReturnValue(mi, v),
+   callsMockSource(mi).
+ // v = (type) from
+ isMockVar(v) :- isMockVar(from),
+   AssignCast(_/* type */, from, v, _/* inmethod */).
+ // v = v1
+ isMockVar(v) :- isMockVar(v1),
+   AssignLocal(v1, v, _).
 \end{lstlisting}
 
 The predicates \texttt{AssignReturnValue}, \texttt{AssignCast}, and \texttt{AssignLocal} are provided by Doop, and resemble Java bytecode instructions. Unlike Java bytecode, however, their arguments are explicit. For instance, \texttt{AssignLocal(?from:Var, ?to:Var, ?inmethod:Method)} denotes an assignment statement copying from \texttt{?from} to \texttt{?to} in method \texttt{?inmethod}. (It is Datalog convention to prefix parameters with \texttt{?}s).
@@ -219,7 +218,7 @@ The first pre-analysis handles annotated field mocks and field mocks defined in 
 % obvious enough that we don't need to belabour this point
 % Listing~\ref{lis:annotatedMock} illustrates a Mockito annotated field mock example taken from \texttt{DefaultToolchainManagerTest.java} class in maven-core.
 
-Listing~\ref{lis:fieldMock} depicts an example where instance fields are initialized using field initializers. Java copies such initializers into all class constructors (\texttt{<init>}). To detect such mock-containing fields, we thus simply apply the forward dataflow analysis on all constructors in the test classes prior to running the main analysis, using the same logic that we use to detect mock objects or mock-containing containers in the main analysis. The second pre-analysis handles field mocks defined in \texttt{@Before} methods just like the first pre-analysis handled constructors.
+Listing~\ref{lis:fieldMock} depicts an example where instance fields are initialized using field initializers. Java copies such initializers into all constructors (\texttt{<init>}). To detect such mock-containing fields, we thus apply the dataflow analysis to all constructors in the test classes prior to running the main analysis, using the same logic that we use to detect mock objects or mock-containing containers. The second pre-analysis handles field mocks defined in \texttt{@Before} methods just like the first pre-analysis handled constructors.
 
 %% Listing~\ref{lis:fieldMock2} illustrates an example where fields are defined as mocks via mock-creation source methods inside the @Before method. Similarly, the field mocks initialized inside the @Before methods are determined by applying the forward dataflow analysis strictly on all @Before methods before the main analysis, where the values  
 
@@ -246,7 +245,7 @@ Listing~\ref{lis:fieldMock} depicts an example where instance fields are initial
 %% }
 %% \end{lstlisting}
 
-\begin{lstlisting}[basicstyle=\ttfamily, caption={Example for field mocks defined by field initializations \\ from \texttt{TypeRuleTest.java} in jsonschema2pojo.},
+\begin{lstlisting}[basicstyle=\ttfamily, caption={Field mocks defined by field initializations from \texttt{TypeRuleTest} \\ in jsonschema2pojo.},
 basicstyle=\scriptsize\ttfamily,language = Java, framesep=4.5mm,
 framexleftmargin=1mm, captionpos=b, label=lis:fieldMock, numbers=none]
 	private GenerationConfig config = mock(GenerationConfig.class);
@@ -299,5 +298,5 @@ While our mock analysis is similar to reaching definitions, we point out some im
 
 For the base analysis, querying reaching definition information almost works. However, mock analysis also requires propagating information through casts; at statement {\tt s: x = (X)y;}, then {\tt x} would be a mock iff {\tt y} is. Statement {\tt s} would be a definition for {\tt x}, and a further query would be needed to know whether {\tt y} was a mock or not.
 
-Additionally, as we will discuss in Section~\ref{sec:evaluation}, the field and array analyses each detected additional mocks in half of our benchmarks. Fields do not fit the reaching definition paradigm and would require additional implementation to support. Arrays would be possible but not obvious.
+Additionally, the field and array analyses each detected additional mocks in half of our benchmarks (Section~\ref{sec:evaluation}). Fields do not fit the reaching definition paradigm and would require additional support. Arrays would be possible but not obvious.
 
