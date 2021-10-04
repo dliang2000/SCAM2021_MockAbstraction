@@ -289,8 +289,8 @@ All static frameworks must somehow approximate the set of entry points as approp
 
 Call graphs are useful to our intraprocedural analysis because they help identify calls to mock source methods (that we identify explicitly). We assume that developers do not call inherited versions of mock creation sites (e.g. a wrapper of the mock source method), but if we have a call graph and observe calls to such methods in Doop, we include them.
 
-\paragraph{Mock Libraries}
-Our supported mock libraries take different approaches to instantiating mocks. All of the libraries have methods that generate mock objects; for instance, EasyMock contains the \texttt{createMock()} method. We consider return values from these methods to be mock objects. Additionally, Mockito contains a fluent \texttt{verify()} method which returns a mock object. Finally, Mockito and EasyMock also allow developers to mark fields as \texttt{@Mock}; we treat reads from such fields as mock objects. Both implementations start the analysis with these hard coded facts on mock source methods, as described in the mock libraries' documentation.
+%% \paragraph{Mock Libraries}
+%% Our supported mock libraries take different approaches to instantiating mocks. All of the libraries have methods that generate mock objects; for instance, EasyMock contains the \texttt{createMock()} method. We consider return values from these methods to be mock objects. Additionally, Mockito contains a fluent \texttt{verify()} method which returns a mock object. Finally, Mockito and EasyMock also allow developers to mark fields as \texttt{@Mock}; we treat reads from such fields as mock objects. Both implementations start the analysis with these hard coded facts on mock source methods, as described in the mock libraries' documentation.
 
 \subsection{Mock Analysis is not just Reaching Definitions}
 While our mock analysis is similar to reaching definitions, we point out some important differences which motivated our decision to design and implement a bespoke analysis. Even the base analysis requires slightly more than reaching definitions, and then we also support fields, containers and arrays.
