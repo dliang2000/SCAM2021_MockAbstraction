@@ -75,7 +75,7 @@ We use Doop-provided call graph edges (relation \texttt{mainAnalysis.CallGraphEd
       isMockVar(mv).
 \end{lstlisting}
 
-\paragraph{Fields} Apart from the obvious rule stating that a field which is assigned from a mock satisfies {\tt fieldContainsMock}, we also label fields that have the {\tt org.mockito.Mock} annotation as mock-containing. We declare that a given field \emph{signature} may contain a mock, i.e. the field with a given signature belonging to all objects of a given type. We also support containers stored in fields.
+\paragraph{Fields} Apart from the obvious rule stating that a field which is assigned from a mock satisfies {\tt fieldContainsMock}, we also label fields that have the {\tt org.mockito.Mock} or {\tt org.easyMock.Mock} annotations as mock-containing. We declare that a given field \emph{signature} may contain a mock, i.e. the field with a given signature belonging to all objects of a given type. We also support containers stored in fields.
 
 \paragraph{Arrays and Fields} We also support not just array locals but also array fields. That is, when an array-typed field is assigned from a mock-containing array local, then it is also a mock. And when an array-typed local variable is assigned from a mock-containing array field, then that array local is a mock-containing array.
 
