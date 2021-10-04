@@ -24,13 +24,9 @@ mock-related and parts that are not mock-related.  It is fairly
 obvious to a human reader that the part of a test that is calling mock
 library methods such as \texttt{thenReturns()} is setting up mock
 expectations, but we've seen cases where this is less
-obvious. For instance, project barbecue~\footnote{http://barbecue.sourceforge.net/} uses home-grown \texttt{BarcodeMock} mocks; in this case, they are descriptively named,
-but they don't have to be.
-
-\begin{lstlisting}[basicstyle=\ttfamily\small,numbers=none]
-BarcodeMock barcode = new BarcodeMock("123");
-\end{lstlisting}
-
+obvious. In particular, when recording behaviours with EasyMock,
+the developer simply calls methods on the mock object, e.g. 
+\texttt{mock.documentAdded("document");}.
 
 Knowing what is a mock can help developers debugging test case
 failures get into the right mindset, in two ways: 1) when looking at
@@ -43,7 +39,7 @@ apply for automatic debugging and code repair.
 \paragraph{Code recommendation}
 To amplify the previous point, a key application of test-to-code
 traceability is that when the code is updated, related tests may also
-need to be updated. Integrated Development Environments can search for
+need to be updated. Integrated Development Environments can find
 all tests referring to a particular fragment of code. Mock analysis
 can augment the information available to the developer (maintainer) by
 giving them additional information about whether they are updating
