@@ -1,9 +1,9 @@
 \section{Technique}
 \label{sec:technique}
 
-We have implemented two complementary ways of statically computing mock information: 
-a declarative implementation (using the Doop~\cite{bravenboer09:_stric_declar_specif_sophis_point_analy} framework), along with
-an imperative implementation of a dataflow analysis (using the Soot~\cite{Vallee-Rai:1999:SJB:781995.782008} program analysis framework). We started this project with the usual imperative approach to implementing a static analysis---in our context, that meant using Soot. Then, when we wanted to experiment with adding more features to the analysis, we decided that this was a good opportunity to learn about Doop's declarative approach as well. We added new features to the Doop implementation and backported them to the Soot implementation. The existence of two implementations is also a rare opportunity to cross-check static analysis results, and we carefully compared our results to make sure that they matched when appropriate.
+We implemented two complementary ways of statically computing mock information: 
+a declarative implementation (using Doop~\cite{bravenboer09:_stric_declar_specif_sophis_point_analy}), along with
+an imperative implementation of a dataflow analysis (using Soot~\cite{Vallee-Rai:1999:SJB:781995.782008}). We started this project with the usual imperative approach to implementing a static analysis---in our context, that meant using Soot. Then, when we wanted to experiment with adding more features to the analysis, we decided that this was a good opportunity to learn about Doop's declarative approach as well. We added new features to the Doop implementation and backported them to the Soot implementation. The existence of two implementations is a rare opportunity to cross-check static analysis results, and we carefully compared our results to make sure that they matched.
 %Since the focus of this paper is on mock analysis, we will not discuss specific implementation details in depth.
 %While the core analysis is similar, the different implementation technologies have different affordances. For instance, it is easier for the Doop version to mark a field as mock-containing (we added 3 rules) than for the Soot version to do so. We start by describing each implementation in turn, and conclude this section with the commonalities between the two implementations. Section~\ref{sec:evaluation} then presents the results obtained using each technology and compares them.
 

@@ -24,8 +24,8 @@ test calls a unique method in the focal class. Rompaey and
 Demeyer~\cite{rompaey09:_estab_traceab_links_unit_test} explore the
 name-based approach along with simply using the last method called---not necessarily a mutator---as the class containing the focal method.  Romaey and Demeyer also
 explore other heuristics, as we discuss in Section~\ref{sec:related}. Ghafari et al point out
-that these heuristics have significant limitations, especially when a
-test case implements several sub-scenarios.
+that these heuristics have significant limitations, e.g. when a
+test case has sub-scenarios.
 
 \paragraph{Precision and Recall}
 We further compare the static analysis and name-based approaches to detecting focal methods in terms of their precision and recall. Table~\ref{tab:focal-method-algorithm-comparison} presents an approximation to recall---the percentage of test cases reported as having focal methods by each of the approaches. This approximates recall under the assumption that every test case has exactly one focal method. (In practice, a test case may have more than one focal method; we believe that a reasonable test should have at least one focal method.) The four projects presented under Ghafari's algorithm are from their paper~\cite{ghafari15:_autom}, whereas we hand-picked four benchmarks from methods2test's dataset to match (as far as possible) those in Ghafari's work.
