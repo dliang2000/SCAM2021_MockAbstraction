@@ -29,8 +29,8 @@ Such potential but unrealizable behaviours obscure the true behaviour
 of the test case.
 
 We have designed a static analysis, \textsc{MockDetector}, which identifies
-mock objects in test cases. It starts from a list of mock object creation sites
-(our analyses include hardcoded APIs for common mocking libraries EasyMock, Mockito, and PowerMock). 
+mock objects in JUnit\footnote{\url{https://junit.org}} test cases. It starts from a list of mock object creation sites
+(our analyses include hardcoded APIs for common mocking libraries EasyMock\footnote{\url{https://easymock.org/}}, Mockito\footnote{\url{https://site.mockito.org/}}, and PowerMock\footnote{\url{https://github.com/powermock/powermock}}). 
 It then propagates mockness
 through the test and identifies invocation sites as (possibly) mock.
 Given this analysis result, a subsequent analysis
